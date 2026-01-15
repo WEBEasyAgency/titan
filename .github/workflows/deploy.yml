@@ -1,0 +1,65 @@
+name: Deploy Theme to Server
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy theme to server
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          # Create deployment package (exclude unnecessary files)
+          mkdir -p deploy_package/titan
+          cp -r wp-content/themes/titan/* deploy_package/titan/
+
+          # Remove development files
+          rm -rf deploy_package/titan/node_modules
+          rm -rf deploy_package/titan/.git
+          rm -rf deploy_package/titan/src
+          rm -f deploy_package/titan/package.json
+          rm -f deploy_package/titan/package-lock.json
+
+          # Upload to server
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=~/.ssh/known_hosts" \
+            deploy_package/titan/ \
+            ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/
+
+      - name: Clear WordPress cache
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          ssh -o StrictHostKeyChecking=no \
+            ${DEPLOY_USER}@${DEPLOY_HOST} \
+            "cd ${{ secrets.DEPLOY_PATH }}/.. && \
+             rm -rf wp-content/cache 2>/dev/null || true && \
+             echo 'Cache cleared successfully'"
+
+      - name: Deployment Status
+        if: success()
+        run: echo "✅ Theme deployed successfully!"
+
+      - name: Deployment Failed
+        if: failure()
+        run: echo "❌ Deployment failed!"
