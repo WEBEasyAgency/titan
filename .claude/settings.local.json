@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(ssh-keygen:*)",
-      "Bash(sshpass -p \"BobrKurwa228!\" ssh -o StrictHostKeyChecking=no abrobe14_titan@titan.realeasystudio.site \"mkdir -p ~/.ssh && chmod 700 ~/.ssh\")"
+      "Bash(sshpass -p \"BobrKurwa228!\" ssh -o StrictHostKeyChecking=no abrobe14_titan@titan.realeasystudio.site \"mkdir -p ~/.ssh && chmod 700 ~/.ssh\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ]
   }
 }
