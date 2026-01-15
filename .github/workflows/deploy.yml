@@ -2,7 +2,7 @@ name: Deploy Theme to Server
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
