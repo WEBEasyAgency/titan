@@ -45,6 +45,28 @@ jobs:
             deploy_package/titan/ \
             ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/
 
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build Layout
+        run: |
+          cd layout
+          npm install
+          npm run build
+
+      - name: Deploy Layout to Server
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_LAYOUT_PATH: ${{ secrets.DEPLOY_LAYOUT_PATH }}
+        run: |
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=~/.ssh/known_hosts" \
+            layout/dist/ \
+            ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_LAYOUT_PATH}/
+
       - name: Clear WordPress cache
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}

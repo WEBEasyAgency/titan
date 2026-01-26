@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link rel="stylesheet" href="css/libs.min.css">
+	<link rel="stylesheet" href="css/app.min.css">
+</head>
+<body>
+	@@include('../html/header.html')
+	<main class="main-page">
+		<section class="top-block">
+			<div class="container">
+				<div class="top-block-inner grid">
+					<div class="text-block">
+						<div class="title">Предлагаем услуги по разработке:</div>
+						<div class="list">
+							<ul>
+								<li>электронных устройств;</li>
+								<li>встраиваемых систем;</li>
+								<li>контрактное производство электроники.</li>
+							</ul>
+						</div>
+						<div class="btn-block"><a href="#" class="btn">Разработка электроники</a><a href="#" class="btn">Производство электроники</a></div>
+					</div>
+					<div class="img"><img src="img/dest/top-img.png" alt=""></div>
+				</div>
+			</div>
+		</section>
+		<section class="slogan-block">
+			<div class="container">
+				<div class="text-block">
+					<div class="title">
+						<h3>Наш принцип:</h3>
+					</div>
+					<div class="text">Ваша идея - наша реализация</div>
+				</div>
+			</div>
+		</section>
+		@@include('../html/contacts-form.html')
+	</main>
+	@@include('../html/footer.html')
+	@@include('../html/thanx-popup.html')
+	@@include('../html/cookies-block.html')
+	@@include('../html/burger-menu.html')
+	<script src="js/libs.min.js"></script>
+	<script src="js/app.min.js"></script>
+</body>
+</html>

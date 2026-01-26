@@ -1,0 +1,42 @@
+.margincenter{
+    margin: 0 auto;
+}
+
+.justify-between{
+    justify-content: space-between;
+}
+
+.justify-end{
+	justify-content: flex-end;
+}
+
+.grid{
+	display: grid;
+}
+
+.nopadding{
+	padding: 0;
+}
+
+.nomargin{
+	margin: 0;
+}
+
+strong, .strong{
+	font-weight: 700;
+}
+
+.flex{
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.container{
+	width: 100%;
+	margin: 0 auto;
+	padding: 0 20px;
+	max-width: 1240px;
+	@media only screen and (max-width : 767px){
+		padding: 0 16px;
+	}
+}
