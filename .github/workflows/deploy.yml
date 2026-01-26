@@ -62,6 +62,14 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_LAYOUT_PATH: ${{ secrets.DEPLOY_LAYOUT_PATH }}
         run: |
+          if [ -z "$DEPLOY_LAYOUT_PATH" ]; then
+            echo "❌ Error: DEPLOY_LAYOUT_PATH secret is not set or empty."
+            echo "Please set this secret in GitHub repository settings."
+            exit 1
+          fi
+
+          echo "Deploying layout to: $DEPLOY_LAYOUT_PATH"
+
           rsync -avz --delete \
             -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=~/.ssh/known_hosts" \
             layout/dist/ \
