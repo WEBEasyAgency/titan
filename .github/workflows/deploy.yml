@@ -60,16 +60,19 @@ jobs:
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_LAYOUT_PATH: ${{ secrets.DEPLOY_LAYOUT_PATH }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          if [ -z "$DEPLOY_LAYOUT_PATH" ]; then
-            echo "❌ Error: DEPLOY_LAYOUT_PATH secret is not set or empty."
-            echo "Please set this secret in GitHub repository settings."
-            exit 1
-          fi
+          # Вычисляем путь к папке layout относительно пути темы
+          # Если DEPLOY_PATH это .../wp-content/themes/titan, то корень сайта на 3 уровня выше
+          # Мы берем путь к теме и заменяем 'wp-content/themes/titan' на 'layout'
+          DEPLOY_LAYOUT_PATH=$(echo "$DEPLOY_PATH" | sed 's|wp-content/themes/titan.*||')layout
+          
+          echo "Target layout path: $DEPLOY_LAYOUT_PATH"
 
-          echo "Deploying layout to: $DEPLOY_LAYOUT_PATH"
+          # Создаем папку, если её нет
+          ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} "mkdir -p $DEPLOY_LAYOUT_PATH"
 
+          # Деплоим содержимое dist
           rsync -avz --delete \
             -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=~/.ssh/known_hosts" \
             layout/dist/ \
