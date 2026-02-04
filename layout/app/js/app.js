@@ -68,10 +68,12 @@ $(document).ready(function(){
 	$('.select .list .option').on('click', function(){
 		if($(this).not('active')){
 			var name = $(this).html();
-			$('.select .list .option').removeClass('active');
-			$(this).addClass('active').parents('.select').find('.current').removeClass('open').html(name);
+			$(this).parents('.list').find('.option').removeClass('active')
+			$(this).addClass('active').parents('.select').find('.current').removeClass('open').addClass('selected').html(name);
 			$(this).parents('.list').fadeOut(300);
+			$(this).parents('.select-field').find('.caption').show(300);
 		}
+		return false;
 	});
 
 	$(document).mouseup(function (e) {
@@ -80,4 +82,61 @@ $(document).ready(function(){
 			$('.header__search').removeClass('active').find('.search-result').hide(300);
 		}
 	});
+
+	$('.calc-form .form-field input').on('input', function(){
+		$(this).parents('.form-field').find('.caption').show(300);
+	});
+
+	$('.calc-form .select .option').on('click', function(){
+		var stage1 = 0,
+				stage2 = 0,
+				stage3 = 0,
+				dataIn = $('.calc-form .select .trafaret.active').attr('data-valIn'),
+				dataOut = $('.calc-form .select .trafaret.active').attr('data-valOut'),
+				valIndot = $('.calc-form .indot').val(),
+				valOutdot = $('.calc-form .outdot').val(),
+				percent = $('.calc-form .select .components.active').attr('data-percent'),
+				overprice = $('.calc-form .select .components.active').attr('data-overprice'),
+				wash = $('.calc-form .select .components.active').attr('data-wash'),
+				mod = $('.calc-form .select .quantity.active').attr('data-val');
+
+		if(valIndot != ''){
+			var price1 = parseInt(valIndot) * parseInt(dataIn);
+		}else{
+			var price1 = 0;
+		}
+		if(valOutdot != ''){
+			var price2 = parseInt(valOutdot) * parseInt(dataOut);
+		}else{
+			var price2 = 0;
+		}
+		if($('.calc-form .select .trafaret').hasClass('active')){
+			var stage1 = price1 + price2;
+		} else{
+			var stage1 = 0;
+		}
+
+		console.log('этап 1 ' + stage1);
+
+		if($('.calc-form .select .component1').hasClass('active')){
+			var resultPercent = stage1/100 * percent
+			stage2 = parseInt(resultPercent) + stage1;
+		}
+		if($('.calc-form .select .component2').hasClass('active')){
+			var r1 = stage1 * overprice;
+			var r2 = parseInt(r1) + wash;
+			var stage2 = r2/100 * percent
+		}
+		
+		console.log('этап 2 ' + stage2);
+
+		var sum = stage2 * mod;
+		stage3 = parseInt(sum);
+
+		if(stage1 != 0 && stage2 != 0 && stage3 != 0){
+			$('.calc-form .result-block .val span').html(stage3);
+		}
+
+	});
+
 });

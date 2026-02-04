@@ -99,25 +99,20 @@ label.checkbox{
 
 .select{
 	position: relative;
-	display: inline-block;
+	display: block;
 	.current{
 		position: relative;
-		font-size: 18px;
+		font-size: 16px;
 		cursor: pointer;
-		line-height: 142%;
-		color: var(--black);
-		padding: 7px 56px 7px 16px;
+		line-height: 150%;
+		color: rgba(0,0,0,0.3);
+		padding: 12px 40px 12px 16px;
 		border: 1px solid var(--black);
-		border-radius: 8px;
-		@media (max-width: 767px){
-			font-size: 16px;
-			line-height: 132%;
-		}
 		&:before{
-			content: url('data:image/svg+xml,<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(%23clip0_1113_3395)"><path fill-rule="evenodd" clip-rule="evenodd" d="M12.7083 15.7071C12.5208 15.8946 12.2665 15.9999 12.0013 15.9999C11.7362 15.9999 11.4818 15.8946 11.2943 15.7071L5.63732 10.0501C5.54181 9.95785 5.46563 9.84751 5.41322 9.7255C5.36081 9.6035 5.33322 9.47228 5.33207 9.3395C5.33092 9.20672 5.35622 9.07504 5.4065 8.95215C5.45678 8.82925 5.53103 8.7176 5.62492 8.6237C5.71882 8.52981 5.83047 8.45556 5.95337 8.40528C6.07626 8.355 6.20794 8.32969 6.34072 8.33085C6.4735 8.332 6.60472 8.35959 6.72672 8.412C6.84873 8.46441 6.95907 8.54059 7.05132 8.6361L12.0013 13.5861L16.9513 8.6361C17.1399 8.45394 17.3925 8.35315 17.6547 8.35542C17.9169 8.3577 18.1677 8.46287 18.3531 8.64828C18.5385 8.83369 18.6437 9.0845 18.646 9.3467C18.6483 9.60889 18.5475 9.8615 18.3653 10.0501L12.7083 15.7071Z" fill="%23000000"/></g><defs><clipPath id="clip0_1113_3395"><rect width="24" height="24" fill="white"/></clipPath></defs></svg>');
+			content: url("data:image/svg+xml;charset=UTF-8,%3csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M17.7485 8L19 9.22022L12 16L5 9.21337L6.25152 8L12 13.5733L17.7485 8Z' fill='black'/%3e%3c/svg%3e ");
 			position: absolute;
-			top: 8px;
-			right: 8px;
+			top: 12px;
+			right: 16px;
 			transition: all 0.3s;
 			width: 24px;
 			height: 24px;
@@ -127,6 +122,9 @@ label.checkbox{
 				transform: rotate(180deg);
 			}
 		}
+		&.selected{
+			color: var(--black);
+		}
 	}
 	.list{
 		display: none;
@@ -134,40 +132,28 @@ label.checkbox{
 		top: calc(100% + 2px);
 		left: 0;
 		right: 0;
-		padding: 8px;
-		border-radius: 8px;
+		padding: 12px 0;
 		border: 1px solid var(--black);
 		width: 100%;
 		background-color: #ffffff;
 		z-index: 10;
 		.option{
 			color: var(--black);
-			font-size: 18px;
-			line-height: 142%;
-			margin-bottom: 10px;
-			padding: 2px 8px;
-			border-radius: 8px;
+			font-size: 16px;
+			line-height: 150%;
+			padding: 4px 16px;
 			transition: all 0.3s;
 			cursor: pointer;
 			display: block;
-			@media (max-width: 767px){
-				font-size: 16px;
-				line-height: 132%;
-			}
+			border: none;
 			&:last-child{
 				margin-bottom: 0;
 			}
 			&:hover{
-				background-color: #cccccc;
+				background-color: var(--gray2);
 			}
 			&.active{
-				color: var(--black);
-				a{
-					color: var(--black);
-				}
-			}
-			a{
-				color: var(--black);
+				background-color: var(--gray2);
 			}
 		}
 	}
@@ -227,6 +213,17 @@ label.file{
 	}
 }
 
+input[type="number"] {
+  appearance: textfield; /* Для современных браузеров */
+  -moz-appearance: textfield; /* Для Firefox */
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .form-block{
 	.form-inner{
 		.form-field{
@@ -241,7 +238,7 @@ label.file{
 				line-height: 150%;
 				transition: all 0.3s;
 				&::placeholder{
-					opacity: 0.3;
+					color: rgba(0,0,0,0.3);
 				}
 				&:focus{
 					outline: none;
@@ -437,6 +434,14 @@ header{
 	display: block;
 }
 
+h1{
+	font-size: 32px;
+	line-height: 130%;
+	@media only screen and (max-width : 767px){
+		font-size: 24px;
+	}
+}
+
 h3{
 	font-size: 24px;
 	line-height: 130%;
@@ -477,12 +482,67 @@ h4{
 				@media only screen and (max-width : 767px){
 					padding: 24px;
 				}
-				.title{
-					font-size: 32px;
-					line-height: 130%;
-					@media only screen and (max-width : 767px){
-						font-size: 24px;
+				.list{
+					ul{
+						list-style: disc outside;
+						margin-left: 16px;
+						font-size: 20px;
+						line-height: 130%;
+						@media only screen and (max-width : 767px){
+							font-size: 16px;
+						}
+						li{
+							margin-bottom: 10px;
+							font-weight: 500;
+							&:last-child{
+								margin-bottom: 0;
+							}
+						}
 					}
+				}
+				.btn-block{
+					margin-top: auto;
+					display: flex;
+					align-items: center;
+					column-gap: 16px;
+					@media only screen and (max-width : 767px){
+						flex-direction: column;
+						align-items: flex-start;
+						row-gap: 16px;
+					}
+				}
+			}
+			.img{
+				@media only screen and (max-width : 1100px){
+					display: flex;
+					justify-content: flex-end;
+				}
+			}
+		}
+	}
+}
+
+.production-page{
+	.top-block{
+		margin-top: 40px;
+		@media only screen and (max-width : 767px){
+			margin-top: 24px;
+		}
+		.top-block-inner{
+			background-color: var(--gray);
+			grid-template-columns: auto 534px;
+			@media only screen and (max-width : 1100px){
+				grid-template-columns: 1fr;
+				column-gap: 16px;
+			}
+			.text-block{
+				padding: 32px;
+				padding-right: 0;
+				display: flex;
+				flex-direction: column;
+				row-gap: 15px;
+				@media only screen and (max-width : 767px){
+					padding: 24px;
 				}
 				.list{
 					ul{
@@ -614,6 +674,67 @@ h4{
 		.error-text{
 			margin-top: 8px;
 			color: var(--red);
+		}
+	}
+}
+
+.calculator{
+	margin-top: 80px;
+	background-color: var(--gray);
+	padding: 80px 0;
+	.grid{
+		grid-template-columns: repeat(2, 1fr);
+		column-gap: 40px;
+			@media only screen and (max-width : 1100px){
+				column-gap: 16px;
+				grid-template-columns: 330px auto;
+			}
+			@media only screen and (max-width : 767px){
+				grid-template-columns: 1fr;
+				row-gap: 32px;
+			}
+	}
+}
+
+.calc-form{
+	.form-inner{
+		.form-field, .select-field{
+			.caption{
+				display: none;
+				font-size: 12px;
+				line-height: 150%;
+				margin-bottom: 4px;
+			}
+		}
+		.select-field{
+			margin-bottom: 16px;
+		}
+		.result-block{
+			margin-top: 16px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 13.5px 16px;
+			background-color: var(--black);
+			color: #ffffff;
+			.caption{
+				font-size: 14px;
+				line-height: 150%;
+				color: var(--gray2);
+			}
+			.val{
+				font-size: 30px;
+				line-height: 150%;
+				font-weight: 600;
+			}
+		}
+		.text{
+			display: grid;
+			grid-template-columns: 8px auto;
+			column-gap: 8px;
+			margin-top: 16px;
+			font-size: 14px;
+			line-height: 150%;
 		}
 	}
 }
