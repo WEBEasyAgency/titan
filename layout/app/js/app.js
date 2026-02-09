@@ -87,7 +87,26 @@ $(document).ready(function(){
 		$(this).parents('.form-field').find('.caption').show(300);
 	});
 
+	$('.tabs .tab-title').on('click', function(){
+		if($(this).not('.active')){
+			var id = $(this).attr('href');
+			$(this).parents('.tabs-title').find('.tab-title').removeClass('active');
+			$(this).addClass('active');
+			$(this).parents('.tabs').find('.tab').hide();
+			$(this).parents('.tabs').find('.tab'+id).show();
+		}
+		return false;
+	});
+
 	$('.calc-form .select .option').on('click', function(){
+		calculator();
+	});
+
+	$('.calc-form .form-field input').on('change', function(){
+		calculator();
+	})
+
+	function calculator(){
 		var stage1 = 0,
 				stage2 = 0,
 				stage3 = 0,
@@ -136,7 +155,34 @@ $(document).ready(function(){
 		if(stage1 != 0 && stage2 != 0 && stage3 != 0){
 			$('.calc-form .result-block .val span').html(stage3);
 		}
+	}
 
+	$('.quantity-block .minus').on('click', function(){
+		var num = $(this).parents('.quantity-block').find('.number').val();
+		if(num > 1){
+			num = parseInt(num) - parseInt(1);
+			$(this).parents('.quantity-block').find('.number').val(num);
+		}
+	})
+
+	$('.quantity-block .plus').on('click', function(){
+		var num = $(this).parents('.quantity-block').find('.number').val();
+		num = parseInt(num) + parseInt(1);
+		$(this).parents('.quantity-block').find('.number').val(num);
+	})
+
+	$('input[type="search"]').on('input', function(){
+		var text = $(this).val();
+		var count = text.length;
+		if(count > 3){
+			$(this).parents('.search').find('.clean').fadeIn(300);
+		} else{
+			$(this).parents('.search').find('.clean').fadeOut(300);
+		}
+	});
+
+	$('.search .clean').on('click', function(){
+		$(this).fadeOut(300).parents('.search').find('input[type="search"]').val('');
 	});
 
 });
