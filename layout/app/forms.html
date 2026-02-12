@@ -128,17 +128,7 @@
                     <a href="#">Войти</a>
                 </div> 
             </div>
-
-            <script>
-                document.querySelectorAll('.visible__text').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const input = this.closest('.password').querySelector('input');
-                        input.type = input.type === 'password' ? 'text' : 'password';
-                        this.classList.toggle('active');
-                    });
-                });
-            </script>
-
+ 
             <br>
             <hr> 
             <br>
@@ -270,6 +260,18 @@
                     document.querySelector(`.tabs__body-item[data-tab="${id}"]`).classList.add('active');
                 });
                 });
+            </script>
+
+            <script>
+            document.querySelectorAll('.password').forEach(container => {
+                const input = container.querySelector('input[type="password"]');
+                const toggleBtn = container.querySelector('.visible__text');
+                
+                toggleBtn.addEventListener('click', function() {
+                    input.type = input.type === 'password' ? 'text' : 'password';
+                    this.classList.toggle('active');
+                });
+            });
             </script>
 
       </section>
