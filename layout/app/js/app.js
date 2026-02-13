@@ -77,6 +77,15 @@ $(document).ready(function(){
 	});
 
 	$(document).mouseup(function (e) {
+		var div = $(".select .list");
+		var btn = $(".select .current");
+		if (!div.is(e.target) && div.has(e.target).length === 0 && !btn.is(e.target) && btn.has(e.target).length === 0) {
+			div.fadeOut(300);
+			btn.removeClass('open')
+		}
+	});
+
+	$(document).mouseup(function (e) {
 		var div = $(".header__search");
 		if (!div.is(e.target) && div.has(e.target).length === 0) {
 			$('.header__search').removeClass('active').find('.search-result').hide(300);
@@ -155,6 +164,8 @@ $(document).ready(function(){
 		if(stage1 != 0 && stage2 != 0 && stage3 != 0){
 			$('.calc-form .result-block .val span').html(stage3);
 		}
+
+		console.log('этап 3 ' + stage3);
 	}
 
 	$('.quantity-block .minus').on('click', function(){

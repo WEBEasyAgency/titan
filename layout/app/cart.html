@@ -55,137 +55,86 @@
 		</div>
 	</div>
 </header>
-	<main class="inner-page production-page">
-		<section class="top-block">
+	<main class="inner-page cart-page">
+		<section class="cart-block">
 			<div class="container">
-				<div class="top-block-inner grid">
-					<div class="text-block">
-						<div class="title"><h1>Производство электроники</h1></div>
-						<div class="list">
-							<ul>
-								<li>Изготовление печатных плат от 3 до 5 класса точности;</li>
-								<li>Возможность срочного изготовления;</li>
-								<li>Собственное производство;</li>
-								<li>Поверхностный (SMT/SMD) и выводной (THT) монтаж <br>электронных компонентов от одной платы<br> до крупной серии</li>
-							</ul>
+				<div class="title">
+					<h1>Корзина</h1>
+				</div>
+				<div class="cart-table">
+					<div class="table-head grid">
+						<div class="item photo">Фото</div>
+						<div class="item name">Наименование</div>
+						<div class="item">Цена за 1 ед.</div>
+						<div class="item">Кол-во</div>
+						<div class="item"><a href="#" class="delete-all">Удалить все</a></div>
+					</div>
+					<div class="table-body">
+						<div class="t-row grid">
+							<div class="item photo"><a href="#"><img src="img/dest/cart-img1.jpg" alt=""></a></div>
+							<div class="item name"><a href="#">USB3.1 TYPE-C 24PF-014, Разъём USB , 24 контакта</a></div>
+							<div class="item"><div class="price">48 ₽</div></div>
+							<div class="item">
+								<div class="quantity-block">
+									<div class="sign minus">
+										<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+											<path d="M19 12.998H5V10.998H19V12.998Z" fill="black"/>
+										</svg>
+									</div>
+									<input type="text" class="number" value="1" class="quantity">
+									<div class="sign plus">
+										<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+											<path d="M19 12.998H13V18.998H11V12.998H5V10.998H11V4.99805H13V10.998H19V12.998Z" fill="black"/>
+										</svg>
+									</div>
+								</div>
+							</div>
+							<div class="item delete">
+								<a href="#">
+									<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M20 5C20.2652 5 20.5196 5.10536 20.7071 5.29289C20.8946 5.48043 21 5.73478 21 6C21 6.26522 20.8946 6.51957 20.7071 6.70711C20.5196 6.89464 20.2652 7 20 7H19L18.997 7.071L18.064 20.142C18.0281 20.6466 17.8023 21.1188 17.4321 21.4636C17.0619 21.8083 16.5749 22 16.069 22H7.93C7.42414 22 6.93707 21.8083 6.56688 21.4636C6.1967 21.1188 5.97092 20.6466 5.935 20.142L5.002 7.072L5 7H4C3.73478 7 3.48043 6.89464 3.29289 6.70711C3.10536 6.51957 3 6.26522 3 6C3 5.73478 3.10536 5.48043 3.29289 5.29289C3.48043 5.10536 3.73478 5 4 5H20ZM16.997 7H7.003L7.931 20H16.069L16.997 7ZM14 2C14.2652 2 14.5196 2.10536 14.7071 2.29289C14.8946 2.48043 15 2.73478 15 3C15 3.26522 14.8946 3.51957 14.7071 3.70711C14.5196 3.89464 14.2652 4 14 4H10C9.73478 4 9.48043 3.89464 9.29289 3.70711C9.10536 3.51957 9 3.26522 9 3C9 2.73478 9.10536 2.48043 9.29289 2.29289C9.48043 2.10536 9.73478 2 10 2H14Z" fill="black"/>
+									</svg>
+								</a>
+							</div>
+						</div>
+						<div class="t-row grid">
+							<div class="item photo"><a href="#"><img src="img/dest/cart-img2.jpg" alt=""></a></div>
+							<div class="item name"><a href="#">543630289, ВЧ-разъем</a></div>
+							<div class="item"><div class="price">230 ₽</div></div>
+							<div class="item">
+								<div class="quantity-block">
+									<div class="sign minus">
+										<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+											<path d="M19 12.998H5V10.998H19V12.998Z" fill="black"/>
+										</svg>
+									</div>
+									<input type="text" class="number" value="1" class="quantity">
+									<div class="sign plus">
+										<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+											<path d="M19 12.998H13V18.998H11V12.998H5V10.998H11V4.99805H13V10.998H19V12.998Z" fill="black"/>
+										</svg>
+									</div>
+								</div>
+							</div>
+							<div class="item delete">
+								<a href="#">
+									<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M20 5C20.2652 5 20.5196 5.10536 20.7071 5.29289C20.8946 5.48043 21 5.73478 21 6C21 6.26522 20.8946 6.51957 20.7071 6.70711C20.5196 6.89464 20.2652 7 20 7H19L18.997 7.071L18.064 20.142C18.0281 20.6466 17.8023 21.1188 17.4321 21.4636C17.0619 21.8083 16.5749 22 16.069 22H7.93C7.42414 22 6.93707 21.8083 6.56688 21.4636C6.1967 21.1188 5.97092 20.6466 5.935 20.142L5.002 7.072L5 7H4C3.73478 7 3.48043 6.89464 3.29289 6.70711C3.10536 6.51957 3 6.26522 3 6C3 5.73478 3.10536 5.48043 3.29289 5.29289C3.48043 5.10536 3.73478 5 4 5H20ZM16.997 7H7.003L7.931 20H16.069L16.997 7ZM14 2C14.2652 2 14.5196 2.10536 14.7071 2.29289C14.8946 2.48043 15 2.73478 15 3C15 3.26522 14.8946 3.51957 14.7071 3.70711C14.5196 3.89464 14.2652 4 14 4H10C9.73478 4 9.48043 3.89464 9.29289 3.70711C9.10536 3.51957 9 3.26522 9 3C9 2.73478 9.10536 2.48043 9.29289 2.29289C9.48043 2.10536 9.73478 2 10 2H14Z" fill="black"/>
+									</svg>
+								</a>
+							</div>
 						</div>
 					</div>
-					<div class="img"><img src="img/dest/production-top-img.png" alt=""></div>
 				</div>
-			</div>
-		</section>
-		<section class="calculator">
-			<div class="container">
-				<div class="grid">
-					<div class="title">
-						<h3>Для предварительного расчета воспользуйтесь калькулятором</h3>
-					</div>
-					<div class="form-block calc-form">
-						<form action="/" method="post">
-							<div class="form-inner">
-								<div class="form-field">
-									<div class="caption">Количество точек пайки поверхностного монтажа (SMD)</div>
-									<input type="number" class="indot" placeholder="Количество точек пайки поверхностного монтажа (SMD)">
-								</div>
-								<div class="form-field">
-									<div class="caption">Количество точек пайки выводного монтажа (ТНТ)</div>
-									<input type="number" class="outdot" placeholder="Количество точек пайки выводного монтажа (ТНТ)">
-								</div>
-								<div class="select-field">
-									<div class="caption">Наличие трафарета</div>
-									<div class="select">
-										<div class="current">Наличие трафарета</div>
-										<div class="list">
-											<a href="#" class="option trafaret" data-valIn="1.25" data-valOut="2.8">С трафаретом</a>
-											<a href="#" class="option trafaret" data-valIn="1.65" data-valOut="2.8">Без трафарета</a>
-										</div>
-									</div>
-									<input type="hidden" name="trafaret-sum">
-								</div>
-								<div class="select-field">
-									<div class="caption">Электронные компоненты</div>
-									<div class="select">
-										<div class="current">Электронные компоненты</div>
-										<div class="list">
-											<a href="#" class="option component1 components" data-percent="10">Заказчика</a>
-											<a href="#" class="option component2 components" data-overprice="1.25" data-wash="46" data-percent="10">Исполнителя</a>
-										</div>
-									</div>
-									<input type="hidden" name="components-sum">
-								</div>
-								<div class="select-field">
-									<div class="caption">Количество плат для монтажа</div>
-									<div class="select">
-										<div class="current">Количество плат для монтажа</div>
-										<div class="list">
-											<a href="#" class="option quantity" data-val="2">1..9</a>
-											<a href="#" class="option quantity" data-val="1.5">10..49</a>
-											<a href="#" class="option quantity" data-val="1.25">50..99</a>
-											<a href="#" class="option quantity" data-val="1">100..</a>
-										</div>
-									</div>
-									<input type="hidden" name="quantity-sum">
-								</div>
-								<div class="result-block">
-									<div class="caption">Стоимость мотажа одной платы</div>
-									<div class="val"><span>0</span> ₽</div>
-								</div>
-								<div class="text"><span>*</span>Расчет является предварительным и не является Договором публичной оферты. Окончательную цену мы можем сказать после получения документации на изделие и обработки нашими специалистами</div>
-							</div>
-						</form>
+				<div class="total-container">
+					<div class="total-btn">
+						<div class="total">
+							<div class="caption">Итого</div>
+							<div class="val">278 ₽</div>
+						</div>
+						<a href="#" class="btn">Оформить заказ</a>
 					</div>
 				</div>
-			</div>
-		</section>
-		<section class="contacts-form">
-			<div class="container">
-				<div class="grid">
-					<div class="title">
-						<h3>Для получения окончательной цены свяжитесь с нами и приложите документацию</h3>
-					</div>
-					<div class="form-block">
-	<form action="/" method="post">
-		<div class="form-inner">
-			<div class="form-field"><input type="name" placeholder="Имя" required="required"></div>
-			<div class="form-field"><input type="tel" placeholder="Телефон" required="required"></div>
-			<div class="form-field"><input type="email" placeholder="Почта" required="required"></div>
-			<div class="form-field"><textarea name="message" placeholder="Ваше сообщение (не обязательно)"></textarea></div>
-			<div class="file-item">
-				<div class="inner">
-					<div class="name"></div>
-					<div class="delete">
-						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M20 5C20.2652 5 20.5196 5.10536 20.7071 5.29289C20.8946 5.48043 21 5.73478 21 6C21 6.26522 20.8946 6.51957 20.7071 6.70711C20.5196 6.89464 20.2652 7 20 7H19L18.997 7.071L18.064 20.142C18.0281 20.6466 17.8023 21.1188 17.4321 21.4636C17.0619 21.8083 16.5749 22 16.069 22H7.93C7.42414 22 6.93707 21.8083 6.56688 21.4636C6.1967 21.1188 5.97092 20.6466 5.935 20.142L5.002 7.072L5 7H4C3.73478 7 3.48043 6.89464 3.29289 6.70711C3.10536 6.51957 3 6.26522 3 6C3 5.73478 3.10536 5.48043 3.29289 5.29289C3.48043 5.10536 3.73478 5 4 5H20ZM16.997 7H7.003L7.931 20H16.069L16.997 7ZM14 2C14.2652 2 14.5196 2.10536 14.7071 2.29289C14.8946 2.48043 15 2.73478 15 3C15 3.26522 14.8946 3.51957 14.7071 3.70711C14.5196 3.89464 14.2652 4 14 4H10C9.73478 4 9.48043 3.89464 9.29289 3.70711C9.10536 3.51957 9 3.26522 9 3C9 2.73478 9.10536 2.48043 9.29289 2.29289C9.48043 2.10536 9.73478 2 10 2H14Z" fill="black"/>
-						</svg>
-					</div>
-				</div>
-			</div>
-			<div class="check-field">
-				<label class="checkbox">
-					<input type="checkbox" name="check">
-					<span class="check"></span>
-					<span class="label">Я соглашаюсь с условиями хранения и обработки персональных данных</span>
-				</label>
-			</div>
-			<div class="btn-block">
-				<div class="file-block">
-					<label class="file">
-						<input type="file" name="file" accept=".pdf, .doc, .docx, .xls, .xlsx, .txt">
-						<span class="label">Загрузить файлы</span>
-					</label>
-					<span class="caption">(не обязательно)</span>
-					<div class="file-info">Важно! Загружайте файл pdf, docx, exel, txt, до 10Mb..</div>
-				</div>
-				<button class="btn" type="submit">Отправить</button>
-			</div>
-		</div>
-	</form>
-</div>
-				</div>
-			</div>
-			<div class="file-error">
-				<div class="name">Реквизиты_ИП_Иванов_Иван_Иванович.docx </div>
-				<div class="error-text">Файл слишком большой</div>
 			</div>
 		</section>
 	</main>
@@ -264,6 +213,62 @@
 				<li><a href="#">Контакты</a></li>
 			</ul>
 		</nav>
+	</div>
+</div>
+	<div class="popupblock requestpopup" id="request-product">
+	<div class="inner">
+		<div class="close">
+			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M11.9998 13.4L7.0998 18.3C6.91647 18.4834 6.68314 18.575 6.3998 18.575C6.11647 18.575 5.88314 18.4834 5.6998 18.3C5.51647 18.1167 5.4248 17.8834 5.4248 17.6C5.4248 17.3167 5.51647 17.0834 5.6998 16.9L10.5998 12L5.6998 7.10005C5.51647 6.91672 5.4248 6.68338 5.4248 6.40005C5.4248 6.11672 5.51647 5.88338 5.6998 5.70005C5.88314 5.51672 6.11647 5.42505 6.3998 5.42505C6.68314 5.42505 6.91647 5.51672 7.0998 5.70005L11.9998 10.6L16.8998 5.70005C17.0831 5.51672 17.3165 5.42505 17.5998 5.42505C17.8831 5.42505 18.1165 5.51672 18.2998 5.70005C18.4831 5.88338 18.5748 6.11672 18.5748 6.40005C18.5748 6.68338 18.4831 6.91672 18.2998 7.10005L13.3998 12L18.2998 16.9C18.4831 17.0834 18.5748 17.3167 18.5748 17.6C18.5748 17.8834 18.4831 18.1167 18.2998 18.3C18.1165 18.4834 17.8831 18.575 17.5998 18.575C17.3165 18.575 17.0831 18.4834 16.8998 18.3L11.9998 13.4Z" fill="#231F20"/>
+			</svg>
+		</div>
+		<div class="request-form-block">
+			<div class="title">
+				<h3>Запрос на товар</h3>
+			</div>
+			<div class="product-info">
+				<div class="name">543630289, ВЧ-разъем</div>
+				<div class="price">230 ₽</div>
+			</div>
+			<div class="form-block">
+				<form action="" method="post">
+					<div class="form-inner">
+						<div class="form-field">
+							<div class="field"><input type="name" placeholder="Имя" required="required"></div>
+						</div>
+						<div class="form-field">
+							<div class="field"><input type="tel" placeholder="Телефон" required="required"></div>
+						</div>
+						<div class="form-field">
+							<div class="field"><input type="email" placeholder="Почта" required="required"></div>
+						</div>
+						<div class="check-field">
+							<label class="checkbox">
+								<input type="checkbox" name="policy">
+								<span class="check"></span>
+								<span class="label">Я соглашаюсь с условиями хранения и обработки персональных данных</span>
+							</label>
+						</div>
+						<div class="btn-block">
+							<div class="quantity-block">
+								<div class="sign minus">
+									<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M19.001 12.998H5.00098V10.998H19.001V12.998Z" fill="white"/>
+									</svg>
+								</div>
+								<input type="text" class="number" value="1" class="quantity">
+								<div class="sign plus">
+									<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M19 12.998H13V18.998H11V12.998H5V10.998H11V4.99805H13V10.998H19V12.998Z" fill="white"/>
+									</svg>
+								</div>
+							</div>
+							<button type="submit" class="btn">Отправить</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
 	</div>
 </div>
 	<script src="js/libs.min.js"></script>

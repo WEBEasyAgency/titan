@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link rel="stylesheet" href="css/libs.min.css">
+	<link rel="stylesheet" href="css/app.min.css">
+</head>
+<body>
+	@@include('../html/header.html')
+	<main class="inner-page product-page">
+		<section class="product">
+			<div class="container">
+				<div class="grid">
+					<div class="img-block">
+						<div class="img"><img src="img/dest/product-img.jpg" alt=""></div>
+						<div class="back">
+							<a href="#">
+								<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M9 14L5 10L9 6" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+									<path d="M5 10H16C17.0609 10 18.0783 10.4214 18.8284 11.1716C19.5786 11.9217 20 12.9391 20 14C20 15.0609 19.5786 16.0783 18.8284 16.8284C18.0783 17.5786 17.0609 18 16 18H15" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+								</svg>
+								Вернуться в каталог
+							</a>
+						</div>
+					</div>
+					<div class="text-block">
+						<div class="name">
+							<h1 class="h3">USB3.1 TYPE-C 24PF-014, Разъём USB, 24 контакта</h1>
+						</div>
+						<div class="cart-area">
+							<div class="price-block">
+								<div class="in-stock">В наличии: <span>9999</span></div>
+								<div class="price">48 ₽</div>
+							</div>
+							<div class="btn-block">
+								<div class="quantity-block">
+									<div class="sign minus">
+										<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+											<path d="M19.001 12.998H5.00098V10.998H19.001V12.998Z" fill="white"/>
+										</svg>
+									</div>
+									<input type="text" class="number" value="1" class="quantity">
+									<div class="sign plus">
+										<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+											<path d="M19 12.998H13V18.998H11V12.998H5V10.998H11V4.99805H13V10.998H19V12.998Z" fill="white"/>
+										</svg>
+									</div>
+								</div>
+								<a href="#" class="btn">Добавить в корзину</a>
+							</div>
+						</div>
+						<div class="characteristics">
+							<div class="item">
+								<div class="caption">Количество контактов:</div>
+								<div class="val">24</div>
+							</div>
+							<div class="item">
+								<div class="caption">Высота, мм:</div>
+								<div class="val">3.16(корпус)</div>
+							</div>
+							<div class="item">
+								<div class="caption">Глубина, мм:</div>
+								<div class="val">7.9</div>
+							</div>
+							<div class="item">
+								<div class="caption">Диапазон рабочих температур:</div>
+								<div class="val">°C -55…+85</div>
+							</div>
+							<div class="item">
+								<div class="caption">Диэлектрическая прочность, В:</div>
+								<div class="val">100</div>
+							</div>
+							<div class="item">
+								<div class="caption">Количество циклов коммутации (электро), не менее:</div>
+								<div class="val">10000 раз</div>
+							</div>
+							<div class="item">
+								<div class="caption">Контактное сопротивление, мОм, не более:</div>
+								<div class="val">40</div>
+							</div>
+							<div class="item material-item">
+								<div class="caption">Материал:</div>
+								<div class="val">корпус-нержавеющая сталь; <br>изолятор-LCP UL94V-0; <br>контакты-Cu-сплав с покрытием </div>
+							</div>
+							<div class="item">
+								<div class="caption">Номинальное напряжение, В:</div>
+								<div class="val">5</div>
+							</div>
+							<div class="item">
+								<div class="caption">Номинальный ток, А:</div>
+								<div class="val">5(VBUS)max; 1.25(GND); 0.25(остальные)</div>
+							</div>
+							<div class="item">
+								<div class="caption">Сопротивление изоляции, МОм, не менее:</div>
+								<div class="val">100</div>
+							</div>
+							<div class="item">
+								<div class="caption">Тип разъёма:</div>
+								<div class="val">гнездо USB 3.1 тип С</div>
+							</div>
+							<div class="item">
+								<div class="caption">Транспортная упаковка, размер мм. / кол-во:</div>
+								<div class="val">35*35*44 / 2000</div>
+							</div>
+							<div class="item">
+								<div class="caption">Ширина, мм:</div>
+								<div class="val">8.94</div>
+							</div>
+							<div class="item">
+								<div class="caption">Вес, г:</div>
+								<div class="val">0.9</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section class="contacts-form">
+			<div class="container">
+				<div class="grid">
+					<div class="title">
+						<h3>Свяжитесь с нами</h3>
+					</div>
+					@@include('../html/contacts-form.html')
+				</div>
+			</div>
+			<div class="file-error">
+				<div class="name">Реквизиты_ИП_Иванов_Иван_Иванович.docx </div>
+				<div class="error-text">Файл слишком большой</div>
+			</div>
+		</section>
+	</main>
+	@@include('../html/footer.html')
+	@@include('../html/thanx-popup.html')
+	@@include('../html/burger-menu.html')
+	@@include('../html/request-popup.html')
+	<script src="js/libs.min.js"></script>
+	<script src="js/app.min.js"></script>
+</body>
+</html>
