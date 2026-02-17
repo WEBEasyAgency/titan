@@ -157,9 +157,10 @@ function titan_create_menus() {
 add_action( 'init', 'titan_create_menus' );
 
 // =========================================
-// 6. Contact Form 7: Disable default CSS
+// 6. Contact Form 7: Disable default CSS and autop
 // =========================================
 add_filter( 'wpcf7_load_css', '__return_false' );
+add_filter( 'wpcf7_autop_or_not', '__return_false' );
 
 // =========================================
 // 7. Cleanup WP Head
