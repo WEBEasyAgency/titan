@@ -83,14 +83,30 @@
 	color: #28a745;
 }
 
-/* Чекбокс acceptance — приводим к виду из layout */
+/* Чекбокс acceptance — CF7 обёртку убираем из потока грида */
+label.checkbox .wpcf7-form-control-wrap {
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	opacity: 0;
+	z-index: 2;
+	cursor: pointer;
+}
+
+label.checkbox .wpcf7-form-control-wrap input[type="checkbox"] {
+	width: 20px;
+	height: 20px;
+	margin: 0;
+	cursor: pointer;
+}
+
 .wpcf7 .wpcf7-acceptance .wpcf7-list-item {
 	margin: 0;
 }
 
-.wpcf7 .wpcf7-acceptance input[type="checkbox"] {
-	opacity: 0;
-	position: absolute;
+/* Визуальное состояние checked через JS-класс */
+label.checkbox .check.checked {
+	background-color: var(--black);
 }
 
 /* Файловый инпут CF7 */
