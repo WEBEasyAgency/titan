@@ -1,0 +1,110 @@
+/* Contact Form 7 — переопределения для Titan */
+
+/* CF7 обёртки не должны ломать layout */
+.wpcf7 .wpcf7-form-control-wrap {
+	display: block;
+}
+
+/* Инпуты внутри CF7 — наследуют стили layout */
+.form-block .form-inner .form-field .wpcf7-form-control-wrap input,
+.form-block .form-inner .form-field .wpcf7-form-control-wrap textarea {
+	width: 100%;
+	height: 46px;
+	box-sizing: border-box;
+	padding: 11px 15px;
+	border: 1px solid var(--black);
+	font-size: 16px;
+	line-height: 150%;
+	font-family: 'NotoSans';
+	transition: all 0.3s;
+	border-radius: 0;
+	background: #ffffff;
+}
+
+.form-block .form-inner .form-field .wpcf7-form-control-wrap input::placeholder,
+.form-block .form-inner .form-field .wpcf7-form-control-wrap textarea::placeholder {
+	color: rgba(0,0,0,0.3);
+}
+
+.form-block .form-inner .form-field .wpcf7-form-control-wrap input:focus,
+.form-block .form-inner .form-field .wpcf7-form-control-wrap textarea:focus {
+	outline: none;
+}
+
+.form-block .form-inner .form-field .wpcf7-form-control-wrap textarea {
+	height: 120px;
+}
+
+/* Кнопка submit — стили .btn */
+.wpcf7 input[type="submit"],
+.wpcf7 button[type="submit"] {
+	display: inline-block;
+	color: #FFFFFF;
+	text-align: center;
+	font-weight: 500;
+	font-size: 14px;
+	line-height: 24px;
+	background: var(--black);
+	border: 1px solid var(--black);
+	padding: 11px 23px;
+	cursor: pointer;
+	transition: all 0.3s;
+	font-family: 'NotoSans';
+	border-radius: 0;
+}
+
+.wpcf7 input[type="submit"]:hover,
+.wpcf7 button[type="submit"]:hover {
+	background-color: #ffffff;
+	color: var(--black);
+}
+
+/* Валидация CF7 */
+.wpcf7-not-valid-tip {
+	color: var(--red);
+	font-size: 12px;
+	margin-top: 4px;
+	display: block;
+}
+
+.wpcf7-response-output {
+	border: none !important;
+	padding: 8px 0 !important;
+	margin: 16px 0 0 !important;
+	font-size: 14px;
+}
+
+.wpcf7-form.invalid .wpcf7-response-output,
+.wpcf7-form.unaccepted .wpcf7-response-output {
+	color: var(--red);
+}
+
+.wpcf7-form.sent .wpcf7-response-output {
+	color: #28a745;
+}
+
+/* Чекбокс acceptance — приводим к виду из layout */
+.wpcf7 .wpcf7-acceptance .wpcf7-list-item {
+	margin: 0;
+}
+
+.wpcf7 .wpcf7-acceptance input[type="checkbox"] {
+	opacity: 0;
+	position: absolute;
+}
+
+/* Файловый инпут CF7 */
+.wpcf7 .wpcf7-form-control-wrap[data-name="your-file"] {
+	display: inline-block;
+}
+
+.wpcf7 input[type="file"] {
+	opacity: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+/* Скрываем спиннер CF7 */
+.wpcf7-spinner {
+	display: none;
+}

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<?php wp_head(); ?>
+</head>
+<body <?php body_class(); ?>>
+<?php wp_body_open(); ?>
+
+<header>
+	<div class="container">
+		<div class="flex">
+			<div class="logo">
+				<a href="<?php echo esc_url( home_url( '/' ) ); ?>">
+					<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/img/logo.svg' ); ?>" alt="<?php bloginfo( 'name' ); ?>">
+				</a>
+			</div>
+			<nav class="menu">
+				<?php
+				wp_nav_menu( array(
+					'theme_location' => 'primary',
+					'container'      => false,
+					'items_wrap'     => '<ul>%3$s</ul>',
+					'walker'         => new Titan_Nav_Walker(),
+					'fallback_cb'    => false,
+				) );
+				?>
+			</nav>
+			<div class="cart">
+				<a href="<?php echo esc_url( titan_cart_url() ); ?>">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M17 18C15.89 18 15 18.89 15 20C15 20.5304 15.2107 21.0391 15.5858 21.4142C15.9609 21.7893 16.4696 22 17 22C17.5304 22 18.0391 21.7893 18.4142 21.4142C18.7893 21.0391 19 20.5304 19 20C19 19.4696 18.7893 18.9609 18.4142 18.5858C18.0391 18.2107 17.5304 18 17 18ZM1 2V4H3L6.6 11.59L5.24 14.04C5.09 14.32 5 14.65 5 15C5 15.5304 5.21071 16.0391 5.58579 16.4142C5.96086 16.7893 6.46957 17 7 17H19V15H7.42C7.3537 15 7.29011 14.9737 7.24322 14.9268C7.19634 14.8799 7.17 14.8163 7.17 14.75C7.17 14.7 7.18 14.66 7.2 14.63L8.1 13H15.55C16.3 13 16.96 12.58 17.3 11.97L20.88 5.5C20.95 5.34 21 5.17 21 5C21 4.73478 20.8946 4.48043 20.7071 4.29289C20.5196 4.10536 20.2652 4 20 4H5.21L4.27 2M7 18C5.89 18 5 18.89 5 20C5 20.5304 5.21071 21.0391 5.58579 21.4142C5.96086 21.7893 6.46957 22 7 22C7.53043 22 8.03914 21.7893 8.41421 21.4142C8.78929 21.0391 9 20.5304 9 20C9 19.4696 8.78929 18.9609 8.41421 18.5858C8.03914 18.2107 7.53043 18 7 18Z" fill="black"/>
+					</svg>
+				</a>
+			</div>
+			<div class="account">
+				<a href="<?php echo esc_url( titan_account_url() ); ?>">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<g clip-path="url(#clip0_1_48)">
+						<path d="M16.5 10.5C16.5 12.99 14.49 15 12 15C9.51 15 7.5 12.99 7.5 10.5C7.5 8.01 9.51 6 12 6C14.49 6 16.5 8.01 16.5 10.5Z" fill="white"/>
+						<path fill-rule="evenodd" clip-rule="evenodd" d="M24 12C24 18.63 18.63 24 12 24C5.37 24 0 18.63 0 12C0 5.37 5.37 0 12 0C18.63 0 24 5.37 24 12ZM6 20.625C6.24 20.226 8.565 16.5 11.985 16.5C15.39 16.5 17.73 20.235 17.97 20.625C19.3648 19.6605 20.5044 18.3716 21.2909 16.8692C22.0774 15.3668 22.4872 13.6958 22.485 12C22.485 6.195 17.79 1.5 11.985 1.5C6.18 1.5 1.485 6.195 1.485 12C1.485 15.57 3.27 18.735 6 20.625Z" fill="white"/>
+						</g>
+						<defs>
+						<clipPath id="clip0_1_48">
+						<rect width="24" height="24" fill="white"/>
+						</clipPath>
+						</defs>
+					</svg>
+				</a>
+			</div>
+			<div class="burger-block">
+				<a href="#" class="burger">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M3.97485 5.97485H19.9748" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M3.97485 11.9749H19.9748" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						<path d="M3.97485 17.9749H19.9748" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+				</a>
+			</div>
+		</div>
+	</div>
+</header>
