@@ -102,12 +102,62 @@ function titan_cart_count_fragment( $fragments ) {
 add_filter( 'woocommerce_add_to_cart_fragments', 'titan_cart_count_fragment' );
 
 // =========================================
-// 5. Contact Form 7: Disable default CSS
+// 5. Auto-create menus on theme activation
+// =========================================
+function titan_create_menus() {
+	$menu_items = array(
+		'Производство'    => '#',
+		'Разработка'      => '#',
+		'Интернет-магазин' => '#',
+		'Наши проекты'    => '#',
+		'Контакты'        => '#',
+	);
+
+	$locations = array(
+		'primary' => 'Основное меню',
+		'footer'  => 'Меню подвала',
+		'mobile'  => 'Мобильное меню',
+	);
+
+	foreach ( $locations as $location => $menu_name ) {
+		// Не создаём, если меню уже существует
+		$existing = wp_get_nav_menu_object( $menu_name );
+		if ( $existing ) {
+			$menu_id = $existing->term_id;
+		} else {
+			$menu_id = wp_create_nav_menu( $menu_name );
+			if ( is_wp_error( $menu_id ) ) {
+				continue;
+			}
+
+			$position = 0;
+			foreach ( $menu_items as $title => $url ) {
+				$position++;
+				wp_update_nav_menu_item( $menu_id, 0, array(
+					'menu-item-title'   => $title,
+					'menu-item-url'     => $url,
+					'menu-item-status'  => 'publish',
+					'menu-item-type'    => 'custom',
+					'menu-item-position' => $position,
+				) );
+			}
+		}
+
+		// Привязываем к позиции
+		$theme_locations = get_theme_mod( 'nav_menu_locations', array() );
+		$theme_locations[ $location ] = $menu_id;
+		set_theme_mod( 'nav_menu_locations', $theme_locations );
+	}
+}
+add_action( 'after_switch_theme', 'titan_create_menus' );
+
+// =========================================
+// 6. Contact Form 7: Disable default CSS
 // =========================================
 add_filter( 'wpcf7_load_css', '__return_false' );
 
 // =========================================
-// 6. Cleanup WP Head
+// 7. Cleanup WP Head
 // =========================================
 remove_action( 'wp_head', 'wp_generator' );
 remove_action( 'wp_head', 'wlwmanifest_link' );
