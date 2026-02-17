@@ -105,6 +105,11 @@ add_filter( 'woocommerce_add_to_cart_fragments', 'titan_cart_count_fragment' );
 // 5. Auto-create menus on theme activation
 // =========================================
 function titan_create_menus() {
+	// Выполняем только один раз
+	if ( get_option( 'titan_menus_created' ) ) {
+		return;
+	}
+
 	$menu_items = array(
 		'Производство'    => '#',
 		'Разработка'      => '#',
@@ -120,7 +125,6 @@ function titan_create_menus() {
 	);
 
 	foreach ( $locations as $location => $menu_name ) {
-		// Не создаём, если меню уже существует
 		$existing = wp_get_nav_menu_object( $menu_name );
 		if ( $existing ) {
 			$menu_id = $existing->term_id;
@@ -143,13 +147,14 @@ function titan_create_menus() {
 			}
 		}
 
-		// Привязываем к позиции
 		$theme_locations = get_theme_mod( 'nav_menu_locations', array() );
 		$theme_locations[ $location ] = $menu_id;
 		set_theme_mod( 'nav_menu_locations', $theme_locations );
 	}
+
+	update_option( 'titan_menus_created', true );
 }
-add_action( 'after_switch_theme', 'titan_create_menus' );
+add_action( 'init', 'titan_create_menus' );
 
 // =========================================
 // 6. Contact Form 7: Disable default CSS
