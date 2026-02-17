@@ -68,16 +68,14 @@ document.addEventListener('wpcf7submit', function() {
 
 /* Синхронизация визуального чекбокса с CF7 acceptance */
 jQuery(function($) {
-	$('.check-field label.checkbox').on('click', function() {
-		var $cb = $(this).find('input[type="checkbox"]');
-		setTimeout(function() {
-			var $check = $cb.closest('label.checkbox').find('.check');
-			if ($cb.is(':checked')) {
-				$check.addClass('checked');
-			} else {
-				$check.removeClass('checked');
-			}
-		}, 10);
+	/* Клик по .check — переключаем скрытый чекбокс вручную */
+	$('.check-field .check, .check-field .label').on('click', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		var $label = $(this).closest('label.checkbox');
+		var $cb = $label.find('input[type="checkbox"]');
+		$cb.prop('checked', !$cb.prop('checked')).trigger('change');
+		$label.find('.check').toggleClass('checked', $cb.is(':checked'));
 	});
 });
 </script>
