@@ -65,6 +65,21 @@ document.addEventListener('wpcf7submit', function() {
 		im.mask(selector);
 	}
 }, false);
+
+/* Синхронизация визуального чекбокса с CF7 acceptance */
+jQuery(function($) {
+	$('.check-field label.checkbox').on('click', function() {
+		var $cb = $(this).find('input[type="checkbox"]');
+		setTimeout(function() {
+			var $check = $cb.closest('label.checkbox').find('.check');
+			if ($cb.is(':checked')) {
+				$check.addClass('checked');
+			} else {
+				$check.removeClass('checked');
+			}
+		}, 10);
+	});
+});
 </script>
 
 <?php get_footer(); ?>
