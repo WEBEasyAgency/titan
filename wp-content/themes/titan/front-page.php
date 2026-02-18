@@ -53,50 +53,6 @@
 	</section>
 </main>
 
-<script>
-jQuery(function($) {
-
-	/* Маска имени — запрет цифр и спецсимволов (CF7 рендерит type="text", не type="name") */
-	$(document).on('input', 'input[name="your-name"]', function() {
-		this.value = this.value.replace(/[^а-яА-ЯёЁa-zA-Z\s]/g, '');
-	});
-
-	/* Гарантируем наличие элементов для CF7 валидации */
-	$('.wpcf7 .screen-reader-response').each(function() {
-		if (!$(this).find('p').length) {
-			$(this).prepend('<p role="status" aria-live="polite" aria-atomic="true"></p>');
-		}
-		if (!$(this).find('ul').length) {
-			$(this).append('<ul></ul>');
-		}
-	});
-
-	/* Попап "Спасибо" при успешной отправке */
-	document.addEventListener('wpcf7mailsent', function() {
-		$('#thanx').fadeIn(300);
-	}, false);
-
-	/* Переинициализация Inputmask после сабмита CF7 */
-	document.addEventListener('wpcf7submit', function() {
-		if (typeof Inputmask !== 'undefined') {
-			new Inputmask("+7 (999) 999 99-99").mask($('input[type="tel"]'));
-		}
-	}, false);
-
-	/* Синхронизация визуального чекбокса с CF7 acceptance */
-	$('.check-field .check, .check-field .label').on('click', function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		var $label = $(this).closest('label.checkbox');
-		var $cb = $label.find('input[type="checkbox"]');
-		var checked = !$cb.prop('checked');
-		$cb.prop('checked', checked);
-		$label.find('.check').toggleClass('checked', checked);
-		/* Нативное событие — CF7 6.x слушает только его */
-		$cb[0].dispatchEvent(new Event('change', { bubbles: true }));
-	});
-
-});
-</script>
+<?php get_template_part( 'template-parts/cf7-scripts' ); ?>
 
 <?php get_footer(); ?>

@@ -106,7 +106,7 @@ add_filter( 'woocommerce_add_to_cart_fragments', 'titan_cart_count_fragment' );
 // =========================================
 function titan_create_menus() {
 	// Выполняем только один раз
-	if ( get_option( 'titan_menus_created' ) ) {
+	if ( get_option( 'titan_setup_v2' ) ) {
 		return;
 	}
 
@@ -152,7 +152,53 @@ function titan_create_menus() {
 		set_theme_mod( 'nav_menu_locations', $theme_locations );
 	}
 
-	update_option( 'titan_menus_created', true );
+	// Создаём страницы с назначенными шаблонами
+	$pages = array(
+		'Производство' => 'page-production.php',
+		'Контакты'     => 'page-contacts.php',
+	);
+
+	foreach ( $pages as $title => $template ) {
+		$exists = get_page_by_title( $title, OBJECT, 'page' );
+		if ( ! $exists ) {
+			$page_id = wp_insert_post( array(
+				'post_title'  => $title,
+				'post_status' => 'publish',
+				'post_type'   => 'page',
+			) );
+			if ( $page_id && ! is_wp_error( $page_id ) ) {
+				update_post_meta( $page_id, '_wp_page_template', $template );
+			}
+		}
+	}
+
+	// Обновляем ссылки в меню
+	$page_links = array(
+		'Производство' => '',
+		'Контакты'     => '',
+	);
+	foreach ( $page_links as $title => &$url ) {
+		$page = get_page_by_title( $title, OBJECT, 'page' );
+		if ( $page ) {
+			$url = get_permalink( $page->ID );
+		}
+	}
+	unset( $url );
+
+	// Обновляем пункты во всех меню
+	foreach ( $locations as $location => $menu_name ) {
+		$menu_obj = wp_get_nav_menu_object( $menu_name );
+		if ( ! $menu_obj ) continue;
+		$items = wp_get_nav_menu_items( $menu_obj->term_id );
+		if ( ! $items ) continue;
+		foreach ( $items as $item ) {
+			if ( isset( $page_links[ $item->title ] ) && $page_links[ $item->title ] ) {
+				update_post_meta( $item->ID, '_menu_item_url', $page_links[ $item->title ] );
+			}
+		}
+	}
+
+	update_option( 'titan_setup_v2', true );
 }
 add_action( 'init', 'titan_create_menus' );
 
