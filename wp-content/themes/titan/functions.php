@@ -593,19 +593,25 @@ add_action( 'init', 'titan_set_wc_defaults', 5 );
 // 17. Catalog Table Renderer
 // =========================================
 function titan_render_catalog_table( $category_id = null ) {
-	$args = array(
-		'status'  => 'publish',
-		'limit'   => -1,
-		'orderby' => 'title',
-		'order'   => 'ASC',
+	$query_args = array(
+		'post_type'      => 'product',
+		'post_status'    => 'publish',
+		'posts_per_page' => -1,
+		'orderby'        => 'title',
+		'order'          => 'ASC',
 	);
 	if ( $category_id ) {
-		$term = get_term( $category_id, 'product_cat' );
-		if ( $term && ! is_wp_error( $term ) ) {
-			$args['category'] = array( $term->slug );
-		}
+		$query_args['tax_query'] = array(
+			array(
+				'taxonomy' => 'product_cat',
+				'field'    => 'term_id',
+				'terms'    => intval( $category_id ),
+			),
+		);
 	}
-	$products = wc_get_products( $args );
+	$query    = new WP_Query( $query_args );
+	$products = array_filter( array_map( 'wc_get_product', wp_list_pluck( $query->posts, 'ID' ) ) );
+	wp_reset_postdata();
 
 	ob_start();
 	?>
