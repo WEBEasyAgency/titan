@@ -381,7 +381,7 @@ add_action( 'wp_ajax_nopriv_titan_add_to_cart', 'titan_ajax_add_to_cart' );
 // 15. Create Demo WooCommerce Products
 // =========================================
 function titan_create_demo_products() {
-	if ( get_option( 'titan_wc_demo_v1' ) ) {
+	if ( get_option( 'titan_wc_demo_v2' ) ) {
 		return;
 	}
 	if ( ! class_exists( 'WC_Product_Simple' ) ) {
@@ -389,28 +389,23 @@ function titan_create_demo_products() {
 	}
 
 	// Create categories
-	$cat_connectors = term_exists( 'Разъемы', 'product_cat' );
-	if ( ! $cat_connectors ) {
-		$cat_connectors = wp_insert_term( 'Разъемы', 'product_cat' );
-	}
-	$cat_connectors_id = is_array( $cat_connectors ) ? $cat_connectors['term_id'] : $cat_connectors;
+	$cat_connectors_id = titan_ensure_product_cat( 'Разъемы' );
+	$cat_chips_id      = titan_ensure_product_cat( 'Микросхемы' );
 
-	$cat_chips = term_exists( 'Микросхемы', 'product_cat' );
-	if ( ! $cat_chips ) {
-		$cat_chips = wp_insert_term( 'Микросхемы', 'product_cat' );
+	if ( ! $cat_connectors_id || ! $cat_chips_id ) {
+		return;
 	}
-	$cat_chips_id = is_array( $cat_chips ) ? $cat_chips['term_id'] : $cat_chips;
 
 	// Upload placeholder image
 	$placeholder_img_id = titan_upload_placeholder_image();
 
 	$products = array(
 		array(
-			'name'   => 'USB3.1 TYPE-C 24PF-014, Разъём USB, 24 контакта',
-			'price'  => 48,
-			'stock'  => 150,
-			'cat_id' => $cat_connectors_id,
-			'attrs'  => array(
+			'name'     => 'USB3.1 TYPE-C 24PF-014, Разъём USB, 24 контакта',
+			'price'    => 48,
+			'stock'    => 150,
+			'cat_slug' => 'razemy',
+			'attrs'    => array(
 				'Количество контактов'     => '24',
 				'Высота, мм'              => '3.16 (корпус)',
 				'Глубина, мм'             => '7.9',
@@ -429,43 +424,67 @@ function titan_create_demo_products() {
 			),
 		),
 		array(
-			'name'   => '543630289, ВЧ-разъем',
-			'price'  => 230,
-			'stock'  => 0,
-			'cat_id' => $cat_connectors_id,
-			'attrs'  => array(),
+			'name'     => '543630289, ВЧ-разъем',
+			'price'    => 230,
+			'stock'    => 0,
+			'cat_slug' => 'razemy',
+			'attrs'    => array(),
 		),
 		array(
-			'name'   => 'TMM-105-01-G-D-SM',
-			'price'  => 180,
-			'stock'  => 0,
-			'cat_id' => $cat_connectors_id,
-			'attrs'  => array(),
+			'name'     => 'TMM-105-01-G-D-SM',
+			'price'    => 180,
+			'stock'    => 0,
+			'cat_slug' => 'razemy',
+			'attrs'    => array(),
 		),
 		array(
-			'name'   => 'L7805ABD2T-TR, D2PAK',
-			'price'  => 120,
-			'stock'  => 84,
-			'cat_id' => $cat_chips_id,
-			'attrs'  => array(),
+			'name'     => 'L7805ABD2T-TR, D2PAK',
+			'price'    => 120,
+			'stock'    => 84,
+			'cat_slug' => 'razemy',
+			'attrs'    => array(),
 		),
 		array(
-			'name'   => 'TPS65135RTER',
-			'price'  => 180,
-			'stock'  => 230,
-			'cat_id' => $cat_chips_id,
-			'attrs'  => array(),
+			'name'     => 'TPS65135RTER',
+			'price'    => 180,
+			'stock'    => 230,
+			'cat_slug' => 'mikrosxemy',
+			'attrs'    => array(),
 		),
 		array(
-			'name'   => 'CC2530F256RHAR',
-			'price'  => 230,
-			'stock'  => 56,
-			'cat_id' => $cat_chips_id,
-			'attrs'  => array(),
+			'name'     => 'CC2530F256RHAR',
+			'price'    => 230,
+			'stock'    => 56,
+			'cat_slug' => 'mikrosxemy',
+			'attrs'    => array(),
 		),
 	);
 
+	// Map slugs to IDs
+	$cat_map = array(
+		'razemy'     => $cat_connectors_id,
+		'mikrosxemy' => $cat_chips_id,
+	);
+
 	foreach ( $products as $data ) {
+		$cat_id = isset( $cat_map[ $data['cat_slug'] ] ) ? intval( $cat_map[ $data['cat_slug'] ] ) : 0;
+
+		// Check if product already exists by name
+		$existing = wc_get_products( array(
+			'limit'  => 1,
+			'status' => 'any',
+			's'      => $data['name'],
+		) );
+
+		if ( ! empty( $existing ) ) {
+			// Product exists — just fix the category via wp_set_object_terms
+			$product = $existing[0];
+			if ( $cat_id ) {
+				wp_set_object_terms( $product->get_id(), $cat_id, 'product_cat' );
+			}
+			continue;
+		}
+
 		$product = new WC_Product_Simple();
 		$product->set_name( $data['name'] );
 		$product->set_regular_price( $data['price'] );
@@ -474,7 +493,6 @@ function titan_create_demo_products() {
 		$product->set_stock_status( $data['stock'] > 0 ? 'instock' : 'outofstock' );
 		$product->set_catalog_visibility( 'visible' );
 		$product->set_status( 'publish' );
-		$product->set_category_ids( array( intval( $data['cat_id'] ) ) );
 
 		if ( $placeholder_img_id ) {
 			$product->set_image_id( $placeholder_img_id );
@@ -494,9 +512,25 @@ function titan_create_demo_products() {
 		}
 
 		$product->save();
+
+		// Assign category directly via wp_set_object_terms (more reliable)
+		if ( $cat_id && $product->get_id() ) {
+			wp_set_object_terms( $product->get_id(), $cat_id, 'product_cat' );
+		}
 	}
 
-	update_option( 'titan_wc_demo_v1', true );
+	update_option( 'titan_wc_demo_v2', true );
+}
+
+function titan_ensure_product_cat( $name ) {
+	$term = term_exists( $name, 'product_cat' );
+	if ( ! $term ) {
+		$term = wp_insert_term( $name, 'product_cat' );
+	}
+	if ( is_wp_error( $term ) ) {
+		return 0;
+	}
+	return is_array( $term ) ? intval( $term['term_id'] ) : intval( $term );
 }
 
 function titan_upload_placeholder_image() {
