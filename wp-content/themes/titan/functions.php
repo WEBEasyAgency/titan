@@ -613,6 +613,18 @@ function titan_render_catalog_table( $category_id = null ) {
 	$products = array_filter( array_map( 'wc_get_product', wp_list_pluck( $query->posts, 'ID' ) ) );
 	wp_reset_postdata();
 
+	// Sort products: in-stock first, then out-of-stock
+	$in_stock     = array();
+	$out_of_stock = array();
+	foreach ( $products as $product ) {
+		if ( $product->is_in_stock() ) {
+			$in_stock[] = $product;
+		} else {
+			$out_of_stock[] = $product;
+		}
+	}
+	$products = array_merge( $in_stock, $out_of_stock );
+
 	ob_start();
 	?>
 	<div class="catalog-table">
