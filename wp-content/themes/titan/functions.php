@@ -570,7 +570,37 @@ function titan_upload_placeholder_image() {
 add_action( 'init', 'titan_create_demo_products', 20 );
 
 // =========================================
-// 16. WooCommerce: Set RUB currency defaults
+// 16. WooCommerce: Force classic cart/checkout templates
+// =========================================
+function titan_force_classic_cart_checkout() {
+	// Cart page
+	$cart_page_id = wc_get_page_id( 'cart' );
+	if ( $cart_page_id > 0 ) {
+		$cart_page = get_post( $cart_page_id );
+		if ( $cart_page && has_blocks( $cart_page->post_content ) ) {
+			wp_update_post( array(
+				'ID'           => $cart_page_id,
+				'post_content' => '[woocommerce_cart]',
+			) );
+		}
+	}
+
+	// Checkout page
+	$checkout_page_id = wc_get_page_id( 'checkout' );
+	if ( $checkout_page_id > 0 ) {
+		$checkout_page = get_post( $checkout_page_id );
+		if ( $checkout_page && has_blocks( $checkout_page->post_content ) ) {
+			wp_update_post( array(
+				'ID'           => $checkout_page_id,
+				'post_content' => '[woocommerce_checkout]',
+			) );
+		}
+	}
+}
+add_action( 'init', 'titan_force_classic_cart_checkout', 25 );
+
+// =========================================
+// 17. WooCommerce: Set RUB currency defaults
 // =========================================
 function titan_set_wc_defaults() {
 	if ( get_option( 'titan_wc_defaults_v2' ) ) {
@@ -590,7 +620,7 @@ function titan_set_wc_defaults() {
 add_action( 'init', 'titan_set_wc_defaults', 5 );
 
 // =========================================
-// 17. Catalog Table Renderer
+// 18. Catalog Table Renderer
 // =========================================
 function titan_render_catalog_table( $category_id = null ) {
 	$query_args = array(
