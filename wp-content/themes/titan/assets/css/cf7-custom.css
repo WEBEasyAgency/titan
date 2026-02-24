@@ -158,3 +158,8 @@ label.checkbox .check.checked {
 		padding-bottom: 40px;
 	}
 }
+
+/* Hide WooCommerce privacy policy text in registration form */
+.woocommerce-privacy-policy-text {
+	display: none;
+}
