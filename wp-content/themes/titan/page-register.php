@@ -54,7 +54,7 @@ get_header();
 
 								<input type="submit" value="Зарегистрироваться">
 
-								<a href="<?php echo esc_url( get_permalink( get_page_by_path( 'login' ) ) ); ?>" class="to_login">У меня есть аккаунт. Войти</a>
+								<a href="<?php echo esc_url( get_permalink( get_page_by_title( 'Авторизация' ) ) ); ?>" class="to_login">У меня есть аккаунт. Войти</a>
 							</form>
 						</div>
 
@@ -97,7 +97,7 @@ get_header();
 
 								<input type="submit" value="Зарегистрироваться">
 
-								<a href="<?php echo esc_url( get_permalink( get_page_by_path( 'login' ) ) ); ?>" class="to_login">У меня есть аккаунт. Войти</a>
+								<a href="<?php echo esc_url( get_permalink( get_page_by_title( 'Авторизация' ) ) ); ?>" class="to_login">У меня есть аккаунт. Войти</a>
 							</form>
 						</div>
 					</div>

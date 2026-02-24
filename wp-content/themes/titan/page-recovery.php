@@ -13,7 +13,7 @@ get_header();
 					<div class="title">Вам отправлено письмо с ссылкой для восстановления пароля.<br> Используйте его для сброса пароля</div>
 					<div class="sub__title">Если вы не получили письмо, пожалуйста, проверьте папку «Спам».</div>
 
-					<a href="<?php echo esc_url( get_permalink( get_page_by_path( 'login' ) ) ); ?>" class="btn">Войти</a>
+					<a href="<?php echo esc_url( get_permalink( get_page_by_title( 'Авторизация' ) ) ); ?>" class="btn">Войти</a>
 				</div>
 			<?php else : ?>
 				<div class="recovery">
@@ -33,8 +33,8 @@ get_header();
 					</form>
 
 					<div class="action__block">
-						<a href="<?php echo esc_url( get_permalink( get_page_by_path( 'register' ) ) ); ?>">Регистрация</a>
-						<a href="<?php echo esc_url( get_permalink( get_page_by_path( 'login' ) ) ); ?>">Войти</a>
+						<a href="<?php echo esc_url( get_permalink( get_page_by_title( 'Регистрация' ) ) ); ?>">Регистрация</a>
+						<a href="<?php echo esc_url( get_permalink( get_page_by_title( 'Авторизация' ) ) ); ?>">Войти</a>
 					</div>
 				</div>
 			<?php endif; ?>

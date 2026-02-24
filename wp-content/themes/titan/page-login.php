@@ -30,8 +30,8 @@ get_header();
 				</form>
 
 				<div class="action__block">
-					<a href="<?php echo esc_url( get_permalink( get_page_by_path( 'register' ) ) ); ?>">Регистрация</a>
-					<a href="<?php echo esc_url( get_permalink( get_page_by_path( 'password-recovery' ) ) ); ?>">Забыли пароль?</a>
+					<a href="<?php echo esc_url( get_permalink( get_page_by_title( 'Регистрация' ) ) ); ?>">Регистрация</a>
+					<a href="<?php echo esc_url( get_permalink( get_page_by_title( 'Восстановление пароля' ) ) ); ?>">Забыли пароль?</a>
 				</div>
 			</div>
 		</div>
