@@ -15,7 +15,7 @@ if ( function_exists( 'is_cart' ) && is_cart() ) {
 	$main_class .= ' checkout-page';
 } elseif ( function_exists( 'is_account_page' ) && is_account_page() ) {
 	$main_class .= ' account-page';
-	$main_style = ' style="padding-top: 60px; padding-bottom: 60px; min-height: calc(100vh - 140px);"';
+	$main_style = ' style="padding-top: 60px; padding-bottom: 60px;"';
 }
 ?>
 
