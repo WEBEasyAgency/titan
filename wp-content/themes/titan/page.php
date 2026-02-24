@@ -6,6 +6,7 @@
 get_header();
 
 $main_class = 'inner-page';
+$main_style = '';
 
 // Detect WooCommerce pages by function
 if ( function_exists( 'is_cart' ) && is_cart() ) {
@@ -14,10 +15,11 @@ if ( function_exists( 'is_cart' ) && is_cart() ) {
 	$main_class .= ' checkout-page';
 } elseif ( function_exists( 'is_account_page' ) && is_account_page() ) {
 	$main_class .= ' account-page';
+	$main_style = ' style="padding-top: 60px; padding-bottom: 60px; min-height: calc(100vh - 140px);"';
 }
 ?>
 
-<main class="<?php echo esc_attr( $main_class ); ?>">
+<main class="<?php echo esc_attr( $main_class ); ?>"<?php echo $main_style; ?>>
 	<?php
 	while ( have_posts() ) :
 		the_post();
