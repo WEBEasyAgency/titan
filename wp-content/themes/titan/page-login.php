@@ -6,7 +6,7 @@ get_header();
 ?>
 
 <main class="main-page">
-	<section class="top-block">
+	<section class="top-block" style="padding-top: 60px; padding-bottom: 60px; min-height: calc(100vh - 140px);">
 		<div class="container">
 			<div class="authorization">
 				<div class="title">Авторизация</div>
