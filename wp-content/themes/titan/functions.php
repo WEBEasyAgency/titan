@@ -156,9 +156,6 @@ function titan_create_menus() {
 	$pages = array(
 		'Производство'       => 'page-production.php',
 		'Контакты'          => 'page-contacts.php',
-		'Авторизация'        => 'page-login.php',
-		'Регистрация'        => 'page-register.php',
-		'Восстановление пароля' => 'page-recovery.php',
 	);
 
 	foreach ( $pages as $title => $template ) {
@@ -623,129 +620,6 @@ function titan_set_wc_defaults() {
 	update_option( 'titan_wc_defaults_v3', true );
 }
 add_action( 'init', 'titan_set_wc_defaults', 5 );
-
-// =========================================
-// 18. User Registration & Login Handlers
-// =========================================
-
-// Handle custom registration
-function titan_handle_registration() {
-	if ( ! isset( $_POST['titan_register_nonce'] ) || ! wp_verify_nonce( $_POST['titan_register_nonce'], 'titan_register' ) ) {
-		return;
-	}
-
-	$user_type = sanitize_text_field( $_POST['user_type'] ?? 'individual' ); // individual | business
-	$email     = sanitize_email( $_POST['email'] ?? '' );
-	$password  = $_POST['password'] ?? '';
-	$password2 = $_POST['password2'] ?? '';
-
-	// Validation
-	$errors = array();
-
-	if ( empty( $email ) || ! is_email( $email ) ) {
-		$errors[] = 'Некорректный email';
-	}
-	if ( email_exists( $email ) ) {
-		$errors[] = 'Этот email уже зарегистрирован';
-	}
-	if ( strlen( $password ) < 6 || strlen( $password ) > 24 ) {
-		$errors[] = 'Пароль должен быть от 6 до 24 символов';
-	}
-	if ( $password !== $password2 ) {
-		$errors[] = 'Пароли не совпадают';
-	}
-
-	if ( ! empty( $errors ) ) {
-		wp_redirect( add_query_arg( array( 'register_error' => urlencode( implode( '; ', $errors ) ) ), wp_get_referer() ) );
-		exit;
-	}
-
-	// Create user
-	$user_id = wp_create_user( $email, $password, $email );
-
-	if ( is_wp_error( $user_id ) ) {
-		wp_redirect( add_query_arg( array( 'register_error' => urlencode( $user_id->get_error_message() ) ), wp_get_referer() ) );
-		exit;
-	}
-
-	// Update user meta
-	wp_update_user( array(
-		'ID'         => $user_id,
-		'first_name' => sanitize_text_field( $_POST['name'] ?? '' ),
-		'last_name'  => sanitize_text_field( $_POST['lastname'] ?? '' ),
-	) );
-
-	update_user_meta( $user_id, 'surname', sanitize_text_field( $_POST['surname'] ?? '' ) );
-	update_user_meta( $user_id, 'phone', sanitize_text_field( $_POST['tel'] ?? '' ) );
-	update_user_meta( $user_id, 'user_type', $user_type );
-
-	if ( $user_type === 'business' ) {
-		update_user_meta( $user_id, 'inn', sanitize_text_field( $_POST['inn'] ?? '' ) );
-		update_user_meta( $user_id, 'organization', sanitize_text_field( $_POST['organization'] ?? '' ) );
-	}
-
-	// Auto login
-	wp_set_auth_cookie( $user_id, true );
-	wp_redirect( home_url( '/my-account/' ) );
-	exit;
-}
-add_action( 'template_redirect', 'titan_handle_registration' );
-
-// Handle custom login
-function titan_handle_login() {
-	if ( ! isset( $_POST['titan_login_nonce'] ) || ! wp_verify_nonce( $_POST['titan_login_nonce'], 'titan_login' ) ) {
-		return;
-	}
-
-	$email    = sanitize_email( $_POST['email'] ?? '' );
-	$password = $_POST['password'] ?? '';
-
-	$user = wp_authenticate( $email, $password );
-
-	if ( is_wp_error( $user ) ) {
-		wp_redirect( add_query_arg( array( 'login_error' => urlencode( $user->get_error_message() ) ), wp_get_referer() ) );
-		exit;
-	}
-
-	wp_set_auth_cookie( $user->ID, true );
-	wp_redirect( home_url( '/my-account/' ) );
-	exit;
-}
-add_action( 'template_redirect', 'titan_handle_login' );
-
-// Handle password recovery
-function titan_handle_password_recovery() {
-	if ( ! isset( $_POST['titan_recovery_nonce'] ) || ! wp_verify_nonce( $_POST['titan_recovery_nonce'], 'titan_recovery' ) ) {
-		return;
-	}
-
-	$email = sanitize_email( $_POST['email'] ?? '' );
-
-	if ( empty( $email ) || ! email_exists( $email ) ) {
-		wp_redirect( add_query_arg( array( 'recovery_error' => urlencode( 'Email не найден' ) ), wp_get_referer() ) );
-		exit;
-	}
-
-	$user = get_user_by( 'email', $email );
-
-	// Generate reset key
-	$key = get_password_reset_key( $user );
-
-	if ( is_wp_error( $key ) ) {
-		wp_redirect( add_query_arg( array( 'recovery_error' => urlencode( $key->get_error_message() ) ), wp_get_referer() ) );
-		exit;
-	}
-
-	// Send email
-	$reset_url = network_site_url( "wp-login.php?action=rp&key=$key&login=" . rawurlencode( $user->user_login ), 'login' );
-	$message   = "Для восстановления пароля перейдите по ссылке:\n\n$reset_url";
-
-	wp_mail( $email, 'Восстановление пароля на ' . get_bloginfo( 'name' ), $message );
-
-	wp_redirect( add_query_arg( array( 'recovery_success' => '1' ), wp_get_referer() ) );
-	exit;
-}
-add_action( 'template_redirect', 'titan_handle_password_recovery' );
 
 // Save custom fields on WooCommerce registration
 function titan_save_wc_registration_fields( $customer_id ) {
