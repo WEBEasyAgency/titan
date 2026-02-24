@@ -606,7 +606,7 @@ add_action( 'init', 'titan_force_classic_cart_checkout', 25 );
 // 17. WooCommerce: Set RUB currency defaults
 // =========================================
 function titan_set_wc_defaults() {
-	if ( get_option( 'titan_wc_defaults_v2' ) ) {
+	if ( get_option( 'titan_wc_defaults_v3' ) ) {
 		return;
 	}
 	if ( ! function_exists( 'WC' ) ) {
@@ -618,7 +618,9 @@ function titan_set_wc_defaults() {
 	update_option( 'woocommerce_price_decimal_sep', ',' );
 	update_option( 'woocommerce_price_num_decimals', 0 );
 	update_option( 'woocommerce_coming_soon', 'no' );
-	update_option( 'titan_wc_defaults_v2', true );
+	update_option( 'woocommerce_enable_myaccount_registration', 'yes' );
+	update_option( 'woocommerce_registration_generate_password', 'no' );
+	update_option( 'titan_wc_defaults_v3', true );
 }
 add_action( 'init', 'titan_set_wc_defaults', 5 );
 
