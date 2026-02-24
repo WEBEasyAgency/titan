@@ -145,3 +145,18 @@ label.checkbox .check.checked {
 		flex-direction: column;
 	}
 }
+
+/* Auth pages: отступы и минимальная высота */
+.main-page .top-block {
+	padding-top: 60px;
+	padding-bottom: 60px;
+	min-height: calc(100vh - 140px);
+}
+
+@media (max-width: 767px) {
+	.main-page .top-block {
+		padding-top: 40px;
+		padding-bottom: 40px;
+		min-height: calc(100vh - 100px);
+	}
+}
