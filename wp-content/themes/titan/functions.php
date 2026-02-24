@@ -745,6 +745,20 @@ function titan_handle_password_recovery() {
 }
 add_action( 'template_redirect', 'titan_handle_password_recovery' );
 
+// Save custom fields on WooCommerce registration
+function titan_save_wc_registration_fields( $customer_id ) {
+	if ( isset( $_POST['user_type'] ) ) {
+		update_user_meta( $customer_id, 'user_type', sanitize_text_field( $_POST['user_type'] ) );
+	}
+	if ( isset( $_POST['inn'] ) ) {
+		update_user_meta( $customer_id, 'inn', sanitize_text_field( $_POST['inn'] ) );
+	}
+	if ( isset( $_POST['surname'] ) ) {
+		update_user_meta( $customer_id, 'surname', sanitize_text_field( $_POST['surname'] ) );
+	}
+}
+add_action( 'woocommerce_created_customer', 'titan_save_wc_registration_fields' );
+
 // =========================================
 // 19. Catalog Table Renderer
 // =========================================
