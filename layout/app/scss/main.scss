@@ -2188,6 +2188,10 @@ label.password {
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  .woocommerce-notices-wrapper:empty {
+    display: none;
+  }
 }
 
 .profile-card {
