@@ -458,6 +458,7 @@ jQuery(function($) {
 	var cdekWidget = null;
 	var cdekOfficesData = null;
 	var cdekCityCode = null;
+	var cdekCityName = null;
 	var cdekTimer;
 
 	// City input: fetch offices from CDEK API
@@ -484,6 +485,7 @@ jQuery(function($) {
 				if (response.success) {
 					cdekOfficesData = response.data.offices;
 					cdekCityCode = response.data.city_code;
+					cdekCityName = city;
 					$('input[name="cdek_city_code"]').val(cdekCityCode);
 					$('.cdek-select-btn').prop('disabled', false).text('Выбрать пункт выдачи');
 					resetCdekSelection();
@@ -491,6 +493,7 @@ jQuery(function($) {
 					$('.cdek-select-btn').prop('disabled', true).text('Город не найден');
 					cdekOfficesData = null;
 					cdekCityCode = null;
+					cdekCityName = null;
 					resetCdekSelection();
 				}
 			}).fail(function() {
@@ -557,7 +560,7 @@ jQuery(function($) {
 				apiKey: (window.cdek && window.cdek.key) || '',
 				popup: true,
 				lang: (window.cdek && window.cdek.lang) || 'rus',
-				defaultLocation: cdekCityCode,
+				defaultLocation: cdekCityName || '',
 				officesRaw: offices,
 				hideDeliveryOptions: { door: true },
 				onChoose: function(type, tariff, office) {
@@ -590,7 +593,7 @@ jQuery(function($) {
 				cdekWidget = new CDEKWidget(widgetConfig);
 			} else {
 				cdekWidget.updateOfficesRaw(offices);
-				cdekWidget.updateLocation(cdekCityCode);
+				cdekWidget.updateLocation(cdekCityName || '');
 			}
 
 			cdekWidget.open();
