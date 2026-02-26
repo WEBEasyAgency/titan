@@ -343,6 +343,18 @@ jQuery(function($) {
 		var buyerType = $btn.data('buyer-type');
 		var $panel = $btn.closest('.checkout-buyer-panel');
 
+		// Validate checkboxes
+		var allChecked = true;
+		$panel.find('.checkbox input[type="checkbox"]').each(function() {
+			if (!$(this).is(':checked')) {
+				allChecked = false;
+				$(this).closest('.checkbox').find('.check').addClass('error');
+			} else {
+				$(this).closest('.checkbox').find('.check').removeClass('error');
+			}
+		});
+		if (!allChecked) return;
+
 		$btn.prop('disabled', true).text('...');
 
 		var formData = new FormData();
@@ -382,8 +394,12 @@ jQuery(function($) {
 			success: function(response) {
 				$btn.prop('disabled', false).text(buyerType === 'legal' ? 'Выставить счёт' : 'Заказать');
 				if (response.success) {
-					$('#popup-checkout-success').addClass('active');
 					$('.cart-count').text('0');
+					if (response.data.payment_url) {
+						window.location.href = response.data.payment_url;
+					} else {
+						$('#popup-checkout-success').addClass('active');
+					}
 				} else {
 					alert(response.data || 'Ошибка при оформлении заказа');
 				}

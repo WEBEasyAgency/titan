@@ -1091,9 +1091,26 @@ function titan_ajax_place_order() {
 	// Clear the cart
 	$cart->empty_cart();
 
-	wp_send_json_success( array(
+	$response = array(
 		'order_id' => $order->get_id(),
-	) );
+	);
+
+	// Physical person → redirect to payment gateway
+	if ( $buyer_type === 'physical' ) {
+		// Set default payment gateway
+		$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
+		if ( ! empty( $available_gateways ) ) {
+			$gateway = reset( $available_gateways );
+			$order->set_payment_method( $gateway );
+			$order->save();
+		}
+		$response['payment_url'] = $order->get_checkout_payment_url();
+	} else {
+		// Legal entity → "on-hold" status (invoice issued, no online payment)
+		$order->update_status( 'on-hold', 'Выставлен счёт для юридического лица' );
+	}
+
+	wp_send_json_success( $response );
 }
 add_action( 'wp_ajax_titan_place_order', 'titan_ajax_place_order' );
 
