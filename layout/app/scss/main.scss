@@ -1218,6 +1218,28 @@ h4 {
   }
 }
 
+.cart-block--empty {
+  padding: 60px 0 80px;
+  .title {
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+  }
+  .btn {
+    display: block;
+    max-width: 328px;
+    margin-top: 40px;
+  }
+}
+
+.wc-empty-cart-message,
+.cart-empty.woocommerce-info,
+.return-to-shop {
+  display: none;
+}
+
 .cart-page {
   margin-top: 40px;
   .cart-table {
