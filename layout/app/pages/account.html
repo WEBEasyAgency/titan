@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Личный кабинет</title>
+	<link rel="stylesheet" href="css/libs.min.css">
+	<link rel="stylesheet" href="css/app.min.css">
+</head>
+<body>
+	@@include('../html/header.html')
+	<main class="account-page">
+		<div class="container">
+			<h1 class="account-page__title">Личный кабинет</h1>
+			<div class="account-page__inner">
+				<aside class="account-sidebar">
+					<a href="#" class="account-sidebar__item active" data-tab="profile">Профиль</a>
+					<a href="#" class="account-sidebar__item" data-tab="checkout">Оформление заказа</a>
+					<a href="#" class="account-sidebar__item" data-tab="orders">Заказы</a>
+					<a href="#" class="account-sidebar__item" data-tab="history">История заказов</a>
+					<a href="#" class="account-sidebar__item account-sidebar__item--logout">Выйти</a>
+				</aside>
+				<div class="account-content">
+
+					<!-- ===================== -->
+					<!-- Панель: Профиль -->
+					<!-- ===================== -->
+					<div class="account-panel" data-panel="profile">
+
+					<!-- Блок профиля -->
+					<div class="profile-card">
+						<div class="profile-card__header">
+							<div class="profile-card__info">
+								<h2 class="profile-card__name">Иванов Иван Иванович</h2>
+								<div class="profile-card__type">Физическое лицо</div>
+							</div>
+							<div class="profile-card__contacts">
+								<div class="profile-card__email">ivanov@mail.ru</div>
+								<div class="profile-card__phone">+7 (999) 888-77-66</div>
+							</div>
+						</div>
+
+						<!-- Состояние: просмотр -->
+						<div class="profile-card__actions" id="profile-view-actions">
+							<button class="btn" id="btn-edit-profile">Редактировать</button>
+							<button class="btn" id="btn-change-password">Изменить пароль</button>
+						</div>
+
+						<!-- Состояние: смена пароля -->
+						<div class="profile-card__password-form" id="password-form" style="display: none;">
+							<div class="password-fields">
+								<label class="password">
+									<input type="password" placeholder="Текущий пароль">
+									<div class="visible__text"></div>
+								</label>
+								<label class="password">
+									<input type="password" placeholder="Новый пароль">
+									<div class="visible__text"></div>
+								</label>
+								<label class="password">
+									<input type="password" placeholder="Повторите пароль">
+									<div class="visible__text"></div>
+								</label>
+							</div>
+							<button class="btn" id="btn-save-password">Сохранить изменения</button>
+						</div>
+
+						<!-- Состояние: редактирование профиля -->
+						<div class="profile-card__edit-form" id="edit-profile-form" style="display: none;">
+							<div class="profile-card__separator"></div>
+							<div class="profile-card__edit-title">Редактирование данных</div>
+							<div class="profile-edit-fields">
+								<input type="text" name="lastname" value="Иванов" placeholder="Фамилия">
+								<input type="text" name="firstname" value="Иван" placeholder="Имя">
+								<input type="text" name="patronymic" value="Иванович" placeholder="Отчество">
+								<input type="email" name="email" value="ivanov@mail.ru" placeholder="Почта" disabled>
+								<input type="tel" name="phone" value="+7 (999) 888-77-66" placeholder="Телефон">
+							</div>
+							<label class="checkbox">
+								<input type="checkbox" name="personal_data">
+								<span class="check"></span>
+								<span class="label">Согласен на обработку персональных данных согласно ФЗ от 27 июля 2006 г. № 152-ФЗ «О персональных данных»</span>
+							</label>
+							<div class="profile-card__edit-actions">
+								<button class="btn btn-outline" id="btn-cancel-edit">Не сохранять</button>
+								<button class="btn" id="btn-save-profile">Сохранить изменения</button>
+							</div>
+						</div>
+					</div>
+
+					<!-- Блок юридических лиц -->
+					<div class="legal-entities">
+						<h2 class="legal-entities__title">Юридические лица</h2>
+
+						<div class="legal-entities__list" id="legal-entities-list">
+							<!-- Пример существующего юр. лица -->
+							<div class="legal-entity" data-id="1">
+								<div class="legal-entity__header">
+									<div class="legal-entity__name">ИП Иванов Иван Иванович</div>
+									<div class="legal-entity__controls">
+										<button class="legal-entity__btn-edit" title="Редактировать">
+											<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+												<path d="M15.7279 9.57629L14.3137 8.16207L5 17.4758V18.8901H6.41421L15.7279 9.57629ZM17.1421 8.16207L18.5563 6.74786L17.1421 5.33365L15.7279 6.74786L17.1421 8.16207ZM7.24264 20.8901H3V16.6474L16.435 3.21233C16.8256 2.8218 17.4587 2.8218 17.8492 3.21233L20.6777 6.04075C21.0682 6.43128 21.0682 7.06444 20.6777 7.45497L7.24264 20.8901Z" fill="black"/>
+											</svg>
+										</button>
+										<button class="legal-entity__btn-delete" title="Удалить">
+											<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+												<path d="M20 5C20 5.55228 19.5523 6 19 6H18.997L18.064 19.142C18.0281 19.6466 17.8023 20.1188 17.4321 20.4636C17.0619 20.8083 16.5749 20.9999 16.069 21H7.93C7.42414 20.9999 6.93707 20.8083 6.56688 20.4636C6.19669 20.1188 5.97093 19.6466 5.935 19.142L5.003 6H5C4.44772 6 4 5.55228 4 5C4 4.44772 4.44772 4 5 4H9C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4H19C19.5523 4 20 4.44772 20 5ZM7.003 6L7.931 19H16.069L16.997 6H7.003Z" fill="black"/>
+											</svg>
+										</button>
+									</div>
+								</div>
+								<!-- Форма редактирования юр. лица (скрыта по умолчанию) -->
+								<div class="legal-entity__edit-form" style="display: none;">
+									<div class="legal-entity__separator"></div>
+									<div class="legal-entity__edit-title">Редактирование данных</div>
+									<div class="legal-entity__fields">
+										<input type="text" name="org_name" value="ИП Иванов Иван Иванович" placeholder="Наименование организации">
+										<input type="text" name="inn" value="112233445566778899" placeholder="ИНН Организации или ИП">
+										<input type="text" name="kpp" value="1122334455667788990" placeholder="КПП Организации или ИП">
+										<input type="text" name="legal_address" value="Росия, Алтайский край, г. Барнаул, пр-т Ленина 1, Офис №1" placeholder="Адрес юридический">
+										<input type="text" name="postal_code" value="656006" placeholder="Почтовый индекс">
+										<input type="text" name="region" value="Алтайский край" placeholder="Область/край/республика">
+										<input type="text" name="district" value="Ленинский район" placeholder="Район">
+										<input type="text" name="city" value="Барнаул" placeholder="Населенный пункт">
+										<input type="text" name="address" value="Офис №1" placeholder="Дом/офис/квартира">
+									</div>
+									<label class="checkbox">
+										<input type="checkbox" name="authorized" checked>
+										<span class="check"></span>
+										<span class="label">Я подтверждаю, что уполномочен представлять интересы данного юридического лица или ИП</span>
+									</label>
+									<label class="checkbox">
+										<input type="checkbox" name="personal_data" checked>
+										<span class="check"></span>
+										<span class="label">Согласен на обработку персональных данных согласно ФЗ от 27 июля 2006 г. № 152-ФЗ «О персональных данных»</span>
+									</label>
+									<div class="legal-entity__edit-actions">
+										<button class="btn btn-outline legal-entity__btn-cancel">Не сохранять</button>
+										<button class="btn legal-entity__btn-save">Сохранить изменения</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<button class="btn" id="btn-add-legal-entity">+ Новое юридическое лицо</button>
+
+						<!-- Форма добавления нового юр. лица (скрыта по умолчанию) -->
+						<div class="legal-entity__add-form" id="add-legal-entity-form" style="display: none;">
+							<div class="legal-entity__fields">
+								<input type="text" name="org_name" placeholder="Наименование организации">
+								<input type="text" name="inn" placeholder="ИНН Организации или ИП">
+								<input type="text" name="kpp" placeholder="КПП Организации или ИП">
+								<input type="text" name="legal_address" placeholder="Адрес юридический">
+								<input type="text" name="postal_code" placeholder="Почтовый индекс">
+								<input type="text" name="region" placeholder="Область/край/республика">
+								<input type="text" name="district" placeholder="Район">
+								<input type="text" name="city" placeholder="Населенный пункт">
+								<input type="text" name="address" placeholder="Дом/офис/квартира">
+							</div>
+							<label class="checkbox">
+								<input type="checkbox" name="authorized">
+								<span class="check"></span>
+								<span class="label">Я подтверждаю, что уполномочен представлять интересы данного юридического лица или ИП</span>
+							</label>
+							<label class="checkbox">
+								<input type="checkbox" name="personal_data" checked>
+								<span class="check"></span>
+								<span class="label">Согласен на обработку персональных данных согласно ФЗ от 27 июля 2006 г. № 152-ФЗ «О персональных данных»</span>
+							</label>
+							<div class="legal-entity__edit-actions">
+								<button class="btn btn-outline legal-entity__btn-cancel-add">Не сохранять</button>
+								<button class="btn btn-disabled legal-entity__btn-add" disabled>Добавить</button>
+							</div>
+						</div>
+					</div>
+
+					</div><!-- /.account-panel[profile] -->
+
+					<!-- ===================== -->
+					<!-- Панель: Оформление заказа -->
+					<!-- ===================== -->
+					<div class="account-panel" data-panel="checkout" style="display: none;">
+
+						<!-- Состав заказа -->
+						<div class="checkout-section">
+							<h2 class="checkout-section__title">Состав заказа:</h2>
+							<div class="checkout-table">
+								<div class="checkout-table__head grid">
+									<div class="checkout-table__cell">Фото</div>
+									<div class="checkout-table__cell">Наименование</div>
+									<div class="checkout-table__cell">Цена за 1 ед.</div>
+									<div class="checkout-table__cell">Кол-во</div>
+									<div class="checkout-table__cell">Сумма</div>
+								</div>
+								<div class="checkout-table__body">
+									<div class="checkout-table__row grid">
+										<div class="checkout-table__cell photo"><img src="img/dest/cart-img1.jpg" alt=""></div>
+										<div class="checkout-table__cell name">USB3.1 TYPE-C 24PF-014, Разъём USB , 24 контакта</div>
+										<div class="checkout-table__cell price">48 ₽</div>
+										<div class="checkout-table__cell quantity">
+											<div class="quantity-block">
+												<div class="sign minus">
+													<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+														<path d="M19 12.998H5V10.998H19V12.998Z" fill="black"/>
+													</svg>
+												</div>
+												<input type="text" class="number" value="1">
+												<div class="sign plus">
+													<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+														<path d="M19 12.998H13V18.998H11V12.998H5V10.998H11V4.99805H13V10.998H19V12.998Z" fill="black"/>
+													</svg>
+												</div>
+											</div>
+										</div>
+										<div class="checkout-table__cell total">48 ₽</div>
+									</div>
+									<div class="checkout-table__row grid">
+										<div class="checkout-table__cell photo"><img src="img/dest/cart-img2.jpg" alt=""></div>
+										<div class="checkout-table__cell name">543630289, ВЧ-разъем</div>
+										<div class="checkout-table__cell price">230 ₽</div>
+										<div class="checkout-table__cell quantity">
+											<div class="quantity-block">
+												<div class="sign minus">
+													<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+														<path d="M19 12.998H5V10.998H19V12.998Z" fill="black"/>
+													</svg>
+												</div>
+												<input type="text" class="number" value="1">
+												<div class="sign plus">
+													<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+														<path d="M19 12.998H13V18.998H11V12.998H5V10.998H11V4.99805H13V10.998H19V12.998Z" fill="black"/>
+													</svg>
+												</div>
+											</div>
+										</div>
+										<div class="checkout-table__cell total">230 ₽</div>
+									</div>
+								</div>
+							</div>
+							<div class="checkout-subtotal">
+								<span>Сумма без доставки</span>
+								<span class="checkout-subtotal__val">278 ₽</span>
+							</div>
+						</div>
+
+						<!-- Покупатель -->
+						<div class="checkout-section">
+							<h2 class="checkout-section__title">Покупатель:</h2>
+
+							<!-- Табы: Физическое / Юридическое лицо -->
+							<div class="checkout-buyer-tabs">
+								<button class="checkout-buyer-tab active" data-buyer="physical">Физическое лицо</button>
+								<button class="checkout-buyer-tab" data-buyer="legal">Юридическое лицо</button>
+							</div>
+
+							<!-- Форма: Физическое лицо -->
+							<div class="checkout-buyer-panel" data-buyer-panel="physical">
+								<div class="checkout-fields">
+									<input type="text" name="lastname" placeholder="Фамилия">
+									<input type="text" name="firstname" placeholder="Имя">
+									<input type="text" name="patronymic" placeholder="Отчество">
+									<input type="email" name="email" placeholder="Email">
+									<input type="tel" name="phone" placeholder="Телефон">
+								</div>
+
+								<!-- Табы доставки -->
+								<div class="checkout-delivery-tabs">
+									<button class="checkout-delivery-tab active" data-delivery="delivery">Доставка</button>
+									<button class="checkout-delivery-tab" data-delivery="pickup">Самовывоз</button>
+								</div>
+
+								<!-- Модуль СДЭК -->
+								<div class="checkout-delivery-panel" data-delivery-panel="delivery">
+									<div class="checkout-cdek-module">
+										Модуль доставки СДЭК
+									</div>
+								</div>
+
+								<div class="checkout-delivery-panel" data-delivery-panel="pickup" style="display: none;">
+									<div class="checkout-pickup-info">
+										<p>Самовывоз со склада по адресу: ул. Дружбы 5-40, г. Альметьевск, респ. Татарстан, Россия, 423453</p>
+									</div>
+								</div>
+
+								<div class="checkout-fields checkout-fields--extra">
+									<input type="text" name="recipient" placeholder="ФИО получателя">
+									<textarea name="comment" placeholder="Комментарий к заказу" rows="4"></textarea>
+								</div>
+
+								<label class="checkbox">
+									<input type="checkbox" name="personal_data">
+									<span class="check"></span>
+									<span class="label">Согласен на обработку персональных данных согласно ФЗ от 27 июля 2006 г. № 152-ФЗ «О персональных данных»</span>
+								</label>
+
+								<!-- Итоговая сумма -->
+								<div class="checkout-total">
+									<div class="checkout-total__header">
+										<span>Итоговая сумма</span>
+										<span class="checkout-total__val">350 ₽</span>
+										<button class="checkout-total__toggle">
+											<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+												<path d="M8 6L12 10H4L8 6Z" fill="black"/>
+											</svg>
+										</button>
+									</div>
+									<div class="checkout-total__details">
+										<div class="checkout-total__row">
+											<span>Стоимость заказа</span>
+											<span>278 ₽</span>
+										</div>
+										<div class="checkout-total__row">
+											<span>Доставка</span>
+											<span>72 ₽</span>
+										</div>
+									</div>
+								</div>
+
+								<button class="btn checkout-submit">Заказать</button>
+							</div>
+
+							<!-- Форма: Юридическое лицо -->
+							<div class="checkout-buyer-panel" data-buyer-panel="legal" style="display: none;">
+								<div class="checkout-fields">
+									<input type="text" name="lastname" placeholder="Фамилия">
+									<input type="text" name="firstname" placeholder="Имя">
+									<input type="text" name="patronymic" placeholder="Отчество">
+									<input type="email" name="email" placeholder="Email">
+									<input type="tel" name="phone" placeholder="Телефон">
+								</div>
+
+								<div class="checkout-fields">
+									<div class="checkout-select">
+										<select name="legal_entity">
+											<option value="" disabled selected>Выберите покупателя из списка добавленных юридических лиц</option>
+											<option value="1">ИП Иванов Иван Иванович</option>
+										</select>
+										<div class="checkout-select__arrow">
+											<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+												<path d="M8 10L4 6H12L8 10Z" fill="black"/>
+											</svg>
+										</div>
+									</div>
+									<input type="text" name="inn" placeholder="ИНН Организации или ИП">
+									<input type="text" name="kpp" placeholder="КПП Организации или ИП">
+									<textarea name="comment" placeholder="Комментарий к заказу" rows="4"></textarea>
+								</div>
+
+								<!-- Прикрепленные файлы -->
+								<div class="checkout-attachments">
+									<div class="checkout-attachment" style="display: none;">
+										<span class="checkout-attachment__name"></span>
+										<button class="checkout-attachment__delete">
+											<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+												<path d="M20 5C20 5.55228 19.5523 6 19 6H18.997L18.064 19.142C18.0281 19.6466 17.8023 20.1188 17.4321 20.4636C17.0619 20.8083 16.5749 20.9999 16.069 21H7.93C7.42414 20.9999 6.93707 20.8083 6.56688 20.4636C6.19669 20.1188 5.97093 19.6466 5.935 19.142L5.003 6H5C4.44772 6 4 5.55228 4 5C4 4.44772 4.44772 4 5 4H9C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4H19C19.5523 4 20 4.44772 20 5ZM7.003 6L7.931 19H16.069L16.997 6H7.003Z" fill="black"/>
+											</svg>
+										</button>
+									</div>
+									<label class="btn btn-outline checkout-attach-btn">
+										<input type="file" name="requisites" style="display: none;">
+										Прикрепить реквизиты
+									</label>
+								</div>
+
+								<label class="checkbox">
+									<input type="checkbox" name="authorized">
+									<span class="check"></span>
+									<span class="label">Я подтверждаю, что уполномочен представлять интересы данного юридического лица или ИП</span>
+								</label>
+								<label class="checkbox">
+									<input type="checkbox" name="personal_data">
+									<span class="check"></span>
+									<span class="label">Согласен на обработку персональных данных согласно ФЗ от 27 июля 2006 г. № 152-ФЗ «О персональных данных»</span>
+								</label>
+
+								<button class="btn checkout-submit">Выставить счёт</button>
+							</div>
+						</div>
+
+					</div><!-- /.account-panel[checkout] -->
+
+					<!-- ===================== -->
+					<!-- Панель: Заказы -->
+					<!-- ===================== -->
+					<div class="account-panel" data-panel="orders" style="display: none;">
+						<div class="orders-section">
+							<h2 class="orders-section__title">Заказы</h2>
+							<div class="orders-table">
+								<div class="orders-table__head grid">
+									<div class="orders-table__cell">№</div>
+									<div class="orders-table__cell">№ Заказа</div>
+									<div class="orders-table__cell">Кол-во товаров</div>
+									<div class="orders-table__cell">Статус</div>
+									<div class="orders-table__cell">Трек номер</div>
+									<div class="orders-table__cell">Сумма</div>
+									<div class="orders-table__cell">Итого с доставкой</div>
+								</div>
+								<div class="orders-table__body">
+									<div class="orders-table__row grid">
+										<div class="orders-table__cell num">1</div>
+										<div class="orders-table__cell order-id">
+											<span class="order-id__number">MSKBRN134679</span>
+											<span class="order-id__date">от 13.12.2025</span>
+										</div>
+										<div class="orders-table__cell">2</div>
+										<div class="orders-table__cell status">Отправлен</div>
+										<div class="orders-table__cell"><a href="#">1P56790OP</a></div>
+										<div class="orders-table__cell">300 ₽</div>
+										<div class="orders-table__cell">350 ₽</div>
+									</div>
+									<div class="orders-table__row grid">
+										<div class="orders-table__cell num">2</div>
+										<div class="orders-table__cell order-id">
+											<span class="order-id__number">CSCFWQ234672</span>
+											<span class="order-id__date">от 13.12.2025</span>
+										</div>
+										<div class="orders-table__cell">1</div>
+										<div class="orders-table__cell status">Получен</div>
+										<div class="orders-table__cell"><a href="#">1P56790OP</a></div>
+										<div class="orders-table__cell">300 ₽</div>
+										<div class="orders-table__cell">278 ₽</div>
+									</div>
+									<div class="orders-table__row grid">
+										<div class="orders-table__cell num">3</div>
+										<div class="orders-table__cell order-id">
+											<span class="order-id__number">DXCFWQ234673</span>
+											<span class="order-id__date">от 13.12.2025</span>
+										</div>
+										<div class="orders-table__cell">2</div>
+										<div class="orders-table__cell status">В процессе</div>
+										<div class="orders-table__cell"><a href="#">1P56791OP</a></div>
+										<div class="orders-table__cell">300 ₽</div>
+										<div class="orders-table__cell">350 ₽</div>
+									</div>
+									<div class="orders-table__row grid">
+										<div class="orders-table__cell num">4</div>
+										<div class="orders-table__cell order-id">
+											<span class="order-id__number">EXCFWQ234674</span>
+											<span class="order-id__date">от 13.12.2025</span>
+										</div>
+										<div class="orders-table__cell">1</div>
+										<div class="orders-table__cell status">Отменен</div>
+										<div class="orders-table__cell"><a href="#">1P56792OP</a></div>
+										<div class="orders-table__cell">300 ₽</div>
+										<div class="orders-table__cell">450 ₽</div>
+									</div>
+									<div class="orders-table__row grid">
+										<div class="orders-table__cell num">5</div>
+										<div class="orders-table__cell order-id">
+											<span class="order-id__number">FXCFWQ234675</span>
+											<span class="order-id__date">от 13.12.2025</span>
+										</div>
+										<div class="orders-table__cell">3</div>
+										<div class="orders-table__cell status">Получен</div>
+										<div class="orders-table__cell"><a href="#">1P56793OP</a></div>
+										<div class="orders-table__cell">300 ₽</div>
+										<div class="orders-table__cell">220 ₽</div>
+									</div>
+									<div class="orders-table__row grid">
+										<div class="orders-table__cell num">6</div>
+										<div class="orders-table__cell order-id">
+											<span class="order-id__number">GXCFWQ234676</span>
+											<span class="order-id__date">от 13.12.2025</span>
+										</div>
+										<div class="orders-table__cell">2</div>
+										<div class="orders-table__cell status">В процессе</div>
+										<div class="orders-table__cell"><a href="#">1P56794OP</a></div>
+										<div class="orders-table__cell">300 ₽</div>
+										<div class="orders-table__cell">300 ₽</div>
+									</div>
+									<div class="orders-table__row grid">
+										<div class="orders-table__cell num">7</div>
+										<div class="orders-table__cell order-id">
+											<span class="order-id__number">HXCFWQ234677</span>
+											<span class="order-id__date">от 13.12.2025</span>
+										</div>
+										<div class="orders-table__cell">4</div>
+										<div class="orders-table__cell status">Получен</div>
+										<div class="orders-table__cell"><a href="#">1P56795OP</a></div>
+										<div class="orders-table__cell">300 ₽</div>
+										<div class="orders-table__cell">500 ₽</div>
+									</div>
+									<div class="orders-table__row grid">
+										<div class="orders-table__cell num">8</div>
+										<div class="orders-table__cell order-id">
+											<span class="order-id__number">IXCFWQ234678</span>
+											<span class="order-id__date">от 13.12.2025</span>
+										</div>
+										<div class="orders-table__cell">1</div>
+										<div class="orders-table__cell status">Отменен</div>
+										<div class="orders-table__cell"><a href="#">1P56796OP</a></div>
+										<div class="orders-table__cell">300 ₽</div>
+										<div class="orders-table__cell">600 ₽</div>
+									</div>
+									<div class="orders-table__row grid">
+										<div class="orders-table__cell num">9</div>
+										<div class="orders-table__cell order-id">
+											<span class="order-id__number">JXCFWQ234679</span>
+											<span class="order-id__date">от 13.12.2025</span>
+										</div>
+										<div class="orders-table__cell">5</div>
+										<div class="orders-table__cell status">В процессе</div>
+										<div class="orders-table__cell"><a href="#">1P56797OP</a></div>
+										<div class="orders-table__cell">300 ₽</div>
+										<div class="orders-table__cell">410 ₽</div>
+									</div>
+									<div class="orders-table__row grid">
+										<div class="orders-table__cell num">10</div>
+										<div class="orders-table__cell order-id">
+											<span class="order-id__number">KXCFWQ234680</span>
+											<span class="order-id__date">от 13.12.2025</span>
+										</div>
+										<div class="orders-table__cell">2</div>
+										<div class="orders-table__cell status">Получен</div>
+										<div class="orders-table__cell"><a href="#">1P56798OP</a></div>
+										<div class="orders-table__cell">300 ₽</div>
+										<div class="orders-table__cell">370 ₽</div>
+									</div>
+									<div class="orders-table__row grid">
+										<div class="orders-table__cell num">11</div>
+										<div class="orders-table__cell order-id">
+											<span class="order-id__number">LXCFWQ234681</span>
+											<span class="order-id__date">от 13.12.2025</span>
+										</div>
+										<div class="orders-table__cell">3</div>
+										<div class="orders-table__cell status">Отменен</div>
+										<div class="orders-table__cell"><a href="#">1P56799OP</a></div>
+										<div class="orders-table__cell">300 ₽</div>
+										<div class="orders-table__cell">230 ₽</div>
+									</div>
+									<div class="orders-table__row grid">
+										<div class="orders-table__cell num">12</div>
+										<div class="orders-table__cell order-id">
+											<span class="order-id__number">MXCFWQ234682</span>
+											<span class="order-id__date">от 13.12.2025</span>
+										</div>
+										<div class="orders-table__cell">4</div>
+										<div class="orders-table__cell status">Получен</div>
+										<div class="orders-table__cell"><a href="#">1P568000P</a></div>
+										<div class="orders-table__cell">300 ₽</div>
+										<div class="orders-table__cell">450 ₽</div>
+									</div>
+									<div class="orders-table__row grid">
+										<div class="orders-table__cell num">13</div>
+										<div class="orders-table__cell order-id">
+											<span class="order-id__number">NXCFWQ234683</span>
+											<span class="order-id__date">от 13.12.2025</span>
+										</div>
+										<div class="orders-table__cell">1</div>
+										<div class="orders-table__cell status">В процессе</div>
+										<div class="orders-table__cell"><a href="#">1P56801OP</a></div>
+										<div class="orders-table__cell">300 ₽</div>
+										<div class="orders-table__cell">300 ₽</div>
+									</div>
+								</div>
+							</div>
+							<a href="#" class="btn orders-section__btn">Перейти в магазин</a>
+						</div>
+					</div><!-- /.account-panel[orders] -->
+
+					<!-- ===================== -->
+					<!-- Панель: История заказов -->
+					<!-- ===================== -->
+					<div class="account-panel" data-panel="history" style="display: none;">
+						<div class="history-section">
+							<h2 class="history-section__title">История заказов</h2>
+							<div class="history-table">
+								<div class="history-table__head grid">
+									<div class="history-table__cell">№</div>
+									<div class="history-table__cell">№ Заказа</div>
+									<div class="history-table__cell">Дата</div>
+									<div class="history-table__cell">Сумма</div>
+									<div class="history-table__cell">Итого с дос-й</div>
+									<div class="history-table__cell">Статус</div>
+									<div class="history-table__cell"></div>
+									<div class="history-table__cell"></div>
+								</div>
+								<div class="history-table__body">
+									<!-- Строка 1 -->
+									<div class="history-table__row grid">
+										<div class="history-table__cell num">1</div>
+										<div class="history-table__cell">MSKBRN134679</div>
+										<div class="history-table__cell align-right">13.12.2025</div>
+										<div class="history-table__cell align-right">270 ₽</div>
+										<div class="history-table__cell align-right">350 ₽</div>
+										<div class="history-table__cell align-right">Получен</div>
+										<div class="history-table__cell actions"><a href="#" class="history-details-toggle">Подробнее</a></div>
+										<div class="history-table__cell actions"></div>
+									</div>
+									<!-- Детализация строки 1 (скрыта) -->
+									<div class="history-table__detail" style="display: none;">
+										<div class="history-detail-table">
+											<div class="history-detail-table__head grid">
+												<div class="history-detail-table__cell">Фото</div>
+												<div class="history-detail-table__cell">Наименование</div>
+												<div class="history-detail-table__cell">Цена за 1 ед.</div>
+												<div class="history-detail-table__cell">Кол-во</div>
+												<div class="history-detail-table__cell">Сумма</div>
+											</div>
+											<div class="history-detail-table__body">
+												<div class="history-detail-table__row grid">
+													<div class="history-detail-table__cell photo"><img src="img/dest/cart-img1.jpg" alt=""></div>
+													<div class="history-detail-table__cell name">USB3.1 TYPE-C 24PF-014, Разъём USB , 24 контакта</div>
+													<div class="history-detail-table__cell align-right">48 ₽</div>
+													<div class="history-detail-table__cell align-right">1</div>
+													<div class="history-detail-table__cell align-right">48 ₽</div>
+												</div>
+												<div class="history-detail-table__row grid">
+													<div class="history-detail-table__cell photo"><img src="img/dest/cart-img2.jpg" alt=""></div>
+													<div class="history-detail-table__cell name">543630289, ВЧ-разъем</div>
+													<div class="history-detail-table__cell align-right">230 ₽</div>
+													<div class="history-detail-table__cell align-right">1</div>
+													<div class="history-detail-table__cell align-right">230 ₽</div>
+												</div>
+											</div>
+										</div>
+										<div class="history-detail-total">
+											<span>Итого с доставкой</span>
+											<span class="history-detail-total__val">350 ₽</span>
+										</div>
+										<a href="#" class="history-detail-close">Закрыть</a>
+									</div>
+
+									<!-- Строка 2 (серая, юр. лицо) -->
+									<div class="history-table__row history-table__row--alt grid">
+										<div class="history-table__cell num">2</div>
+										<div class="history-table__cell">—</div>
+										<div class="history-table__cell align-right">13.12.2025</div>
+										<div class="history-table__cell align-right">—</div>
+										<div class="history-table__cell align-right">350 ₽</div>
+										<div class="history-table__cell align-right">Отменён</div>
+										<div class="history-table__cell actions"><a href="#" class="history-details-toggle">Подробнее</a></div>
+										<div class="history-table__cell actions"><a href="#" class="history-invoice-link">Посмотреть счёт</a></div>
+									</div>
+									<!-- Детализация строки 2 (скрыта) -->
+									<div class="history-table__detail" style="display: none;">
+										<div class="history-detail-table">
+											<div class="history-detail-table__head grid">
+												<div class="history-detail-table__cell">Фото</div>
+												<div class="history-detail-table__cell">Наименование</div>
+												<div class="history-detail-table__cell">Цена за 1 ед.</div>
+												<div class="history-detail-table__cell">Кол-во</div>
+												<div class="history-detail-table__cell">Сумма</div>
+											</div>
+											<div class="history-detail-table__body">
+												<div class="history-detail-table__row grid">
+													<div class="history-detail-table__cell photo"><img src="img/dest/cart-img1.jpg" alt=""></div>
+													<div class="history-detail-table__cell name">USB3.1 TYPE-C 24PF-014, Разъём USB , 24 контакта</div>
+													<div class="history-detail-table__cell align-right">48 ₽</div>
+													<div class="history-detail-table__cell align-right">1</div>
+													<div class="history-detail-table__cell align-right">48 ₽</div>
+												</div>
+												<div class="history-detail-table__row grid">
+													<div class="history-detail-table__cell photo"><img src="img/dest/cart-img2.jpg" alt=""></div>
+													<div class="history-detail-table__cell name">543630289, ВЧ-разъем</div>
+													<div class="history-detail-table__cell align-right">230 ₽</div>
+													<div class="history-detail-table__cell align-right">1</div>
+													<div class="history-detail-table__cell align-right">230 ₽</div>
+												</div>
+											</div>
+										</div>
+										<div class="history-detail-total">
+											<span>Итого с доставкой</span>
+											<span class="history-detail-total__val">350 ₽</span>
+										</div>
+										<a href="#" class="history-detail-close">Закрыть</a>
+									</div>
+
+									<!-- Строка 3 -->
+									<div class="history-table__row grid">
+										<div class="history-table__cell num">2</div>
+										<div class="history-table__cell">CSCFWQ234672</div>
+										<div class="history-table__cell align-right">24.11.2025</div>
+										<div class="history-table__cell align-right">278 ₽</div>
+										<div class="history-table__cell align-right">350 ₽</div>
+										<div class="history-table__cell align-right">Отменён</div>
+										<div class="history-table__cell actions"><a href="#" class="history-details-toggle">Подробнее</a></div>
+										<div class="history-table__cell actions"></div>
+									</div>
+									<!-- Детализация строки 3 (скрыта) -->
+									<div class="history-table__detail" style="display: none;">
+										<div class="history-detail-table">
+											<div class="history-detail-table__head grid">
+												<div class="history-detail-table__cell">Фото</div>
+												<div class="history-detail-table__cell">Наименование</div>
+												<div class="history-detail-table__cell">Цена за 1 ед.</div>
+												<div class="history-detail-table__cell">Кол-во</div>
+												<div class="history-detail-table__cell">Сумма</div>
+											</div>
+											<div class="history-detail-table__body">
+												<div class="history-detail-table__row grid">
+													<div class="history-detail-table__cell photo"><img src="img/dest/cart-img1.jpg" alt=""></div>
+													<div class="history-detail-table__cell name">USB3.1 TYPE-C 24PF-014, Разъём USB , 24 контакта</div>
+													<div class="history-detail-table__cell align-right">48 ₽</div>
+													<div class="history-detail-table__cell align-right">1</div>
+													<div class="history-detail-table__cell align-right">48 ₽</div>
+												</div>
+											</div>
+										</div>
+										<div class="history-detail-total">
+											<span>Итого с доставкой</span>
+											<span class="history-detail-total__val">278 ₽</span>
+										</div>
+										<a href="#" class="history-detail-close">Закрыть</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div><!-- /.account-panel[history] -->
+
+				</div>
+			</div>
+		</div>
+	</main>
+	@@include('../html/footer.html')
+
+	<!-- Попап: успешная смена пароля -->
+	<div class="popupblock popup-password-success" id="popup-password-success">
+		<div class="inner">
+			<div class="close">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M12 13.4L7.1 18.3C6.91667 18.4834 6.68334 18.575 6.4 18.575C6.11667 18.575 5.88334 18.4834 5.7 18.3C5.51667 18.1167 5.425 17.8834 5.425 17.6C5.425 17.3167 5.51667 17.0834 5.7 16.9L10.6 12L5.7 7.10005C5.51667 6.91672 5.425 6.68338 5.425 6.40005C5.425 6.11672 5.51667 5.88338 5.7 5.70005C5.88334 5.51672 6.11667 5.42505 6.4 5.42505C6.68334 5.42505 6.91667 5.51672 7.1 5.70005L12 10.6L16.9 5.70005C17.0833 5.51672 17.3167 5.42505 17.6 5.42505C17.8833 5.42505 18.1167 5.51672 18.3 5.70005C18.4833 5.88338 18.575 6.11672 18.575 6.40005C18.575 6.68338 18.4833 6.91672 18.3 7.10005L13.4 12L18.3 16.9C18.4833 17.0834 18.575 17.3167 18.575 17.6C18.575 17.8834 18.4833 18.1167 18.3 18.3C18.1167 18.4834 17.8833 18.575 17.6 18.575C17.3167 18.575 17.0833 18.4834 16.9 18.3L12 13.4Z" fill="#231F20"/>
+				</svg>
+			</div>
+			<div class="text-block">
+				<h3>Спасибо!</h3>
+				<div class="text">Пароль успешно обновлён</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Попап: подтверждение удаления юр. лица -->
+	<div class="popupblock popup-delete-confirm" id="popup-delete-confirm">
+		<div class="inner">
+			<div class="close">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M12 13.4L7.1 18.3C6.91667 18.4834 6.68334 18.575 6.4 18.575C6.11667 18.575 5.88334 18.4834 5.7 18.3C5.51667 18.1167 5.425 17.8834 5.425 17.6C5.425 17.3167 5.51667 17.0834 5.7 16.9L10.6 12L5.7 7.10005C5.51667 6.91672 5.425 6.68338 5.425 6.40005C5.425 6.11672 5.51667 5.88338 5.7 5.70005C5.88334 5.51672 6.11667 5.42505 6.4 5.42505C6.68334 5.42505 6.91667 5.51672 7.1 5.70005L12 10.6L16.9 5.70005C17.0833 5.51672 17.3167 5.42505 17.6 5.42505C17.8833 5.42505 18.1167 5.51672 18.3 5.70005C18.4833 5.88338 18.575 6.11672 18.575 6.40005C18.575 6.68338 18.4833 6.91672 18.3 7.10005L13.4 12L18.3 16.9C18.4833 17.0834 18.575 17.3167 18.575 17.6C18.575 17.8834 18.4833 18.1167 18.3 18.3C18.1167 18.4834 17.8833 18.575 17.6 18.575C17.3167 18.575 17.0833 18.4834 16.9 18.3L12 13.4Z" fill="#231F20"/>
+				</svg>
+			</div>
+			<div class="text-block">
+				<h3>Удалить Юр.лицо?</h3>
+				<div class="text">Подтвердите удаление юридического лица</div>
+				<button class="btn" id="btn-confirm-delete">Подтверждаю</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Попап: юр. лицо удалено -->
+	<div class="popupblock popup-delete-success" id="popup-delete-success">
+		<div class="inner">
+			<div class="close">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M12 13.4L7.1 18.3C6.91667 18.4834 6.68334 18.575 6.4 18.575C6.11667 18.575 5.88334 18.4834 5.7 18.3C5.51667 18.1167 5.425 17.8834 5.425 17.6C5.425 17.3167 5.51667 17.0834 5.7 16.9L10.6 12L5.7 7.10005C5.51667 6.91672 5.425 6.68338 5.425 6.40005C5.425 6.11672 5.51667 5.88338 5.7 5.70005C5.88334 5.51672 6.11667 5.42505 6.4 5.42505C6.68334 5.42505 6.91667 5.51672 7.1 5.70005L12 10.6L16.9 5.70005C17.0833 5.51672 17.3167 5.42505 17.6 5.42505C17.8833 5.42505 18.1167 5.51672 18.3 5.70005C18.4833 5.88338 18.575 6.11672 18.575 6.40005C18.575 6.68338 18.4833 6.91672 18.3 7.10005L13.4 12L18.3 16.9C18.4833 17.0834 18.575 17.3167 18.575 17.6C18.575 17.8834 18.4833 18.1167 18.3 18.3C18.1167 18.4834 17.8831 18.575 17.6 18.575C17.3167 18.575 17.0833 18.4834 16.9 18.3L12 13.4Z" fill="#231F20"/>
+				</svg>
+			</div>
+			<div class="text-block">
+				<h3>Юр.лицо успешно удалено</h3>
+			</div>
+		</div>
+	</div>
+
+	<!-- Попап: заказ успешно отправлен -->
+	<div class="popupblock popup-checkout-success" id="popup-checkout-success">
+		<div class="inner">
+			<div class="close">
+				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M12 13.4L7.1 18.3C6.91667 18.4834 6.68334 18.575 6.4 18.575C6.11667 18.575 5.88334 18.4834 5.7 18.3C5.51667 18.1167 5.425 17.8834 5.425 17.6C5.425 17.3167 5.51667 17.0834 5.7 16.9L10.6 12L5.7 7.10005C5.51667 6.91672 5.425 6.68338 5.425 6.40005C5.425 6.11672 5.51667 5.88338 5.7 5.70005C5.88334 5.51672 6.11667 5.42505 6.4 5.42505C6.68334 5.42505 6.91667 5.51672 7.1 5.70005L12 10.6L16.9 5.70005C17.0833 5.51672 17.3167 5.42505 17.6 5.42505C17.8833 5.42505 18.1167 5.51672 18.3 5.70005C18.4833 5.88338 18.575 6.11672 18.575 6.40005C18.575 6.68338 18.4833 6.91672 18.3 7.10005L13.4 12L18.3 16.9C18.4833 17.0834 18.575 17.3167 18.575 17.6C18.575 17.8834 18.4833 18.1167 18.3 18.3C18.1167 18.4834 17.8833 18.575 17.6 18.575C17.3167 18.575 17.0833 18.4834 16.9 18.3L12 13.4Z" fill="#231F20"/>
+				</svg>
+			</div>
+			<div class="text-block">
+				<h3>Спасибо!</h3>
+				<div class="text">Ваша заявка успешно отправлена. Мы свяжемся с Вами в ближайшее время.</div>
+				<button class="btn" id="btn-back-to-account">Вернуться в личный кабинет</button>
+			</div>
+		</div>
+	</div>
+
+	@@include('../html/cookies-block.html')
+	@@include('../html/burger-menu.html')
+	<script src="js/libs.min.js"></script>
+	<script src="js/app.min.js"></script>
+</body>
+</html>
