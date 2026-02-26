@@ -34,4 +34,10 @@ if ( function_exists( 'is_cart' ) && is_cart() ) {
 	get_template_part( 'template-parts/wc-scripts' );
 }
 
+// Add account scripts and popups
+if ( function_exists( 'is_account_page' ) && is_account_page() && is_user_logged_in() ) {
+	get_template_part( 'template-parts/account-popups' );
+	get_template_part( 'template-parts/account-scripts' );
+}
+
 get_footer();

@@ -57,8 +57,8 @@ get_header(); ?>
 								<div class="select">
 									<div class="current">Электронные компоненты</div>
 									<div class="list">
-										<a href="#" class="option component1 components" data-percent="10">Заказчика</a>
-										<a href="#" class="option component2 components" data-overprice="1.25" data-wash="46" data-percent="10">Исполнителя</a>
+										<a href="#" class="option component1 components" data-overprice="1.25" data-wash="46" data-percent="10">Заказчика</a>
+										<a href="#" class="option component2 components" data-wash="46" data-percent="10">Исполнителя</a>
 									</div>
 								</div>
 								<input type="hidden" name="components-sum">

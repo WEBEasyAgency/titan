@@ -283,9 +283,10 @@ function titan_wc_localize() {
 		return;
 	}
 	wp_localize_script( 'titan-app', 'titan_wc', array(
-		'ajax_url' => admin_url( 'admin-ajax.php' ),
-		'nonce'    => wp_create_nonce( 'titan_wc_nonce' ),
-		'cart_url' => wc_get_cart_url(),
+		'ajax_url'    => admin_url( 'admin-ajax.php' ),
+		'nonce'       => wp_create_nonce( 'titan_wc_nonce' ),
+		'cart_url'    => wc_get_cart_url(),
+		'account_url' => wc_get_page_permalink( 'myaccount' ),
 	) );
 }
 add_action( 'wp_enqueue_scripts', 'titan_wc_localize', 20 );
@@ -716,4 +717,448 @@ function titan_render_catalog_table( $category_id = null ) {
 	</div>
 	<?php
 	return ob_get_clean();
+}
+
+// =========================================
+// 20. My Account: Custom Endpoints
+// =========================================
+function titan_account_endpoints() {
+	add_rewrite_endpoint( 'titan-checkout', EP_ROOT | EP_PAGES );
+	add_rewrite_endpoint( 'titan-orders', EP_ROOT | EP_PAGES );
+	add_rewrite_endpoint( 'titan-history', EP_ROOT | EP_PAGES );
+}
+add_action( 'init', 'titan_account_endpoints' );
+
+add_filter( 'query_vars', function ( $vars ) {
+	$vars[] = 'titan-checkout';
+	$vars[] = 'titan-orders';
+	$vars[] = 'titan-history';
+	return $vars;
+} );
+
+// Register custom menu items for My Account
+function titan_account_menu_items( $items ) {
+	$new_items = array(
+		'dashboard'      => 'Профиль',
+		'titan-checkout' => 'Оформление заказа',
+		'titan-orders'   => 'Заказы',
+		'titan-history'  => 'История заказов',
+		'customer-logout' => 'Выйти',
+	);
+	return $new_items;
+}
+add_filter( 'woocommerce_account_menu_items', 'titan_account_menu_items' );
+
+// Endpoint content callbacks
+function titan_account_checkout_content() {
+	wc_get_template( 'myaccount/titan-checkout.php' );
+}
+add_action( 'woocommerce_account_titan-checkout_endpoint', 'titan_account_checkout_content' );
+
+function titan_account_orders_content() {
+	wc_get_template( 'myaccount/titan-orders.php' );
+}
+add_action( 'woocommerce_account_titan-orders_endpoint', 'titan_account_orders_content' );
+
+function titan_account_history_content() {
+	wc_get_template( 'myaccount/titan-history.php' );
+}
+add_action( 'woocommerce_account_titan-history_endpoint', 'titan_account_history_content' );
+
+// Endpoint titles
+add_filter( 'woocommerce_endpoint_titan-checkout_title', function() { return 'Оформление заказа'; } );
+add_filter( 'woocommerce_endpoint_titan-orders_title', function() { return 'Заказы'; } );
+add_filter( 'woocommerce_endpoint_titan-history_title', function() { return 'История заказов'; } );
+
+// Flush rewrite rules on theme switch
+function titan_flush_rewrite_rules() {
+	titan_account_endpoints();
+	flush_rewrite_rules();
+}
+add_action( 'after_switch_theme', 'titan_flush_rewrite_rules' );
+
+// =========================================
+// 21. CPT: Legal Entity
+// =========================================
+function titan_register_legal_entity_cpt() {
+	register_post_type( 'legal_entity', array(
+		'labels'       => array(
+			'name'          => 'Юридические лица',
+			'singular_name' => 'Юридическое лицо',
+		),
+		'public'       => false,
+		'show_ui'      => false,
+		'show_in_menu' => false,
+		'supports'     => array( 'title' ),
+	) );
+}
+add_action( 'init', 'titan_register_legal_entity_cpt' );
+
+/**
+ * Get legal entities for a user.
+ */
+function titan_get_legal_entities( $user_id = null ) {
+	if ( ! $user_id ) {
+		$user_id = get_current_user_id();
+	}
+	$posts = get_posts( array(
+		'post_type'      => 'legal_entity',
+		'post_status'    => 'publish',
+		'posts_per_page' => -1,
+		'meta_key'       => '_legal_user_id',
+		'meta_value'     => $user_id,
+		'orderby'        => 'date',
+		'order'          => 'ASC',
+	) );
+
+	$entities = array();
+	foreach ( $posts as $post ) {
+		$entities[] = array(
+			'id'          => $post->ID,
+			'org_name'    => get_post_meta( $post->ID, '_legal_org_name', true ),
+			'inn'         => get_post_meta( $post->ID, '_legal_inn', true ),
+			'kpp'         => get_post_meta( $post->ID, '_legal_kpp', true ),
+			'address'     => get_post_meta( $post->ID, '_legal_address', true ),
+			'postal_code' => get_post_meta( $post->ID, '_legal_postal_code', true ),
+			'region'      => get_post_meta( $post->ID, '_legal_region', true ),
+			'district'    => get_post_meta( $post->ID, '_legal_district', true ),
+			'city'        => get_post_meta( $post->ID, '_legal_city', true ),
+			'office'      => get_post_meta( $post->ID, '_legal_office', true ),
+		);
+	}
+	return $entities;
+}
+
+// =========================================
+// 22. AJAX: Update Profile
+// =========================================
+function titan_ajax_update_profile() {
+	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
+
+	if ( ! is_user_logged_in() ) {
+		wp_send_json_error( 'Not authorized' );
+	}
+
+	$user_id = get_current_user_id();
+
+	$last_name  = sanitize_text_field( $_POST['last_name'] ?? '' );
+	$first_name = sanitize_text_field( $_POST['first_name'] ?? '' );
+	$surname    = sanitize_text_field( $_POST['surname'] ?? '' );
+	$phone      = sanitize_text_field( $_POST['phone'] ?? '' );
+
+	wp_update_user( array(
+		'ID'         => $user_id,
+		'first_name' => $first_name,
+		'last_name'  => $last_name,
+	) );
+
+	update_user_meta( $user_id, 'surname', $surname );
+	update_user_meta( $user_id, 'billing_phone', $phone );
+	update_user_meta( $user_id, 'billing_first_name', $first_name );
+	update_user_meta( $user_id, 'billing_last_name', $last_name );
+
+	$user = get_userdata( $user_id );
+	$full_name = trim( $last_name . ' ' . $first_name . ' ' . $surname );
+	$user_type_raw = get_user_meta( $user_id, 'user_type', true );
+	$user_type_label = $user_type_raw === 'business' ? 'Юридическое лицо' : 'Физическое лицо';
+
+	wp_send_json_success( array(
+		'full_name'  => $full_name,
+		'email'      => $user->user_email,
+		'phone'      => $phone,
+		'user_type'  => $user_type_label,
+		'last_name'  => $last_name,
+		'first_name' => $first_name,
+		'surname'    => $surname,
+	) );
+}
+add_action( 'wp_ajax_titan_update_profile', 'titan_ajax_update_profile' );
+
+// =========================================
+// 23. AJAX: Change Password
+// =========================================
+function titan_ajax_change_password() {
+	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
+
+	if ( ! is_user_logged_in() ) {
+		wp_send_json_error( 'Not authorized' );
+	}
+
+	$user = wp_get_current_user();
+	$current  = $_POST['current_password'] ?? '';
+	$new_pass = $_POST['new_password'] ?? '';
+	$confirm  = $_POST['confirm_password'] ?? '';
+
+	if ( ! wp_check_password( $current, $user->user_pass, $user->ID ) ) {
+		wp_send_json_error( 'Неверный текущий пароль' );
+	}
+
+	if ( strlen( $new_pass ) < 6 ) {
+		wp_send_json_error( 'Пароль должен содержать минимум 6 символов' );
+	}
+
+	if ( $new_pass !== $confirm ) {
+		wp_send_json_error( 'Пароли не совпадают' );
+	}
+
+	wp_set_password( $new_pass, $user->ID );
+	wp_set_auth_cookie( $user->ID );
+	wp_set_current_user( $user->ID );
+
+	wp_send_json_success();
+}
+add_action( 'wp_ajax_titan_change_password', 'titan_ajax_change_password' );
+
+// =========================================
+// 24. AJAX: Legal Entity CRUD
+// =========================================
+function titan_ajax_legal_entity_save() {
+	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
+
+	if ( ! is_user_logged_in() ) {
+		wp_send_json_error( 'Not authorized' );
+	}
+
+	$user_id   = get_current_user_id();
+	$entity_id = intval( $_POST['entity_id'] ?? 0 );
+
+	$fields = array(
+		'org_name'    => sanitize_text_field( $_POST['org_name'] ?? '' ),
+		'inn'         => sanitize_text_field( $_POST['inn'] ?? '' ),
+		'kpp'         => sanitize_text_field( $_POST['kpp'] ?? '' ),
+		'address'     => sanitize_text_field( $_POST['legal_address'] ?? '' ),
+		'postal_code' => sanitize_text_field( $_POST['postal_code'] ?? '' ),
+		'region'      => sanitize_text_field( $_POST['region'] ?? '' ),
+		'district'    => sanitize_text_field( $_POST['district'] ?? '' ),
+		'city'        => sanitize_text_field( $_POST['city'] ?? '' ),
+		'office'      => sanitize_text_field( $_POST['address'] ?? '' ),
+	);
+
+	if ( empty( $fields['org_name'] ) ) {
+		wp_send_json_error( 'Наименование организации обязательно' );
+	}
+
+	if ( $entity_id ) {
+		// Update existing
+		$post = get_post( $entity_id );
+		if ( ! $post || $post->post_type !== 'legal_entity' ) {
+			wp_send_json_error( 'Entity not found' );
+		}
+		$owner = get_post_meta( $entity_id, '_legal_user_id', true );
+		if ( intval( $owner ) !== $user_id ) {
+			wp_send_json_error( 'Access denied' );
+		}
+
+		wp_update_post( array(
+			'ID'         => $entity_id,
+			'post_title' => $fields['org_name'],
+		) );
+	} else {
+		// Create new
+		$entity_id = wp_insert_post( array(
+			'post_type'   => 'legal_entity',
+			'post_title'  => $fields['org_name'],
+			'post_status' => 'publish',
+		) );
+
+		if ( is_wp_error( $entity_id ) ) {
+			wp_send_json_error( 'Failed to create entity' );
+		}
+
+		update_post_meta( $entity_id, '_legal_user_id', $user_id );
+	}
+
+	// Save meta fields
+	foreach ( $fields as $key => $value ) {
+		update_post_meta( $entity_id, '_legal_' . $key, $value );
+	}
+
+	wp_send_json_success( array(
+		'id'     => $entity_id,
+		'fields' => $fields,
+	) );
+}
+add_action( 'wp_ajax_titan_legal_entity_save', 'titan_ajax_legal_entity_save' );
+
+function titan_ajax_legal_entity_delete() {
+	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
+
+	if ( ! is_user_logged_in() ) {
+		wp_send_json_error( 'Not authorized' );
+	}
+
+	$user_id   = get_current_user_id();
+	$entity_id = intval( $_POST['entity_id'] ?? 0 );
+
+	if ( ! $entity_id ) {
+		wp_send_json_error( 'Invalid entity' );
+	}
+
+	$post = get_post( $entity_id );
+	if ( ! $post || $post->post_type !== 'legal_entity' ) {
+		wp_send_json_error( 'Entity not found' );
+	}
+
+	$owner = get_post_meta( $entity_id, '_legal_user_id', true );
+	if ( intval( $owner ) !== $user_id ) {
+		wp_send_json_error( 'Access denied' );
+	}
+
+	wp_delete_post( $entity_id, true );
+	wp_send_json_success();
+}
+add_action( 'wp_ajax_titan_legal_entity_delete', 'titan_ajax_legal_entity_delete' );
+
+// =========================================
+// 25. AJAX: Place Order
+// =========================================
+function titan_ajax_place_order() {
+	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
+
+	if ( ! is_user_logged_in() ) {
+		wp_send_json_error( 'Not authorized' );
+	}
+
+	$cart = WC()->cart;
+	if ( $cart->is_empty() ) {
+		wp_send_json_error( 'Корзина пуста' );
+	}
+
+	$user_id    = get_current_user_id();
+	$user       = get_userdata( $user_id );
+	$buyer_type = sanitize_text_field( $_POST['buyer_type'] ?? 'physical' );
+
+	$order = wc_create_order( array(
+		'customer_id' => $user_id,
+		'status'      => 'pending',
+	) );
+
+	if ( is_wp_error( $order ) ) {
+		wp_send_json_error( 'Не удалось создать заказ' );
+	}
+
+	// Add cart items to order
+	foreach ( $cart->get_cart() as $cart_item ) {
+		$product  = $cart_item['data'];
+		$quantity = $cart_item['quantity'];
+		$order->add_product( $product, $quantity );
+	}
+
+	// Set billing info
+	$last_name  = sanitize_text_field( $_POST['last_name'] ?? $user->last_name );
+	$first_name = sanitize_text_field( $_POST['first_name'] ?? $user->first_name );
+	$email      = sanitize_email( $_POST['email'] ?? $user->user_email );
+	$phone      = sanitize_text_field( $_POST['phone'] ?? get_user_meta( $user_id, 'billing_phone', true ) );
+
+	$order->set_billing_first_name( $first_name );
+	$order->set_billing_last_name( $last_name );
+	$order->set_billing_email( $email );
+	$order->set_billing_phone( $phone );
+
+	// Save custom meta
+	$order->update_meta_data( '_buyer_type', $buyer_type );
+	$order->update_meta_data( '_surname', sanitize_text_field( $_POST['surname'] ?? '' ) );
+
+	if ( $buyer_type === 'physical' ) {
+		$delivery_method = sanitize_text_field( $_POST['delivery_method'] ?? 'delivery' );
+		$order->update_meta_data( '_delivery_method', $delivery_method );
+		$order->update_meta_data( '_recipient_name', sanitize_text_field( $_POST['recipient'] ?? '' ) );
+		$order->update_meta_data( '_order_comment', sanitize_textarea_field( $_POST['comment'] ?? '' ) );
+	} else {
+		$legal_entity_id = intval( $_POST['legal_entity_id'] ?? 0 );
+		$order->update_meta_data( '_legal_entity_id', $legal_entity_id );
+		$order->update_meta_data( '_legal_inn', sanitize_text_field( $_POST['inn'] ?? '' ) );
+		$order->update_meta_data( '_legal_kpp', sanitize_text_field( $_POST['kpp'] ?? '' ) );
+		$order->update_meta_data( '_order_comment', sanitize_textarea_field( $_POST['comment'] ?? '' ) );
+	}
+
+	$order->calculate_totals();
+	$order->save();
+
+	// Handle file upload for legal entity
+	if ( $buyer_type === 'legal' && ! empty( $_FILES['requisites'] ) && $_FILES['requisites']['error'] === UPLOAD_ERR_OK ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$attach_id = media_handle_upload( 'requisites', 0 );
+		if ( ! is_wp_error( $attach_id ) ) {
+			$order->update_meta_data( '_requisites_file_id', $attach_id );
+			$order->save();
+		}
+	}
+
+	// Clear the cart
+	$cart->empty_cart();
+
+	wp_send_json_success( array(
+		'order_id' => $order->get_id(),
+	) );
+}
+add_action( 'wp_ajax_titan_place_order', 'titan_ajax_place_order' );
+
+// =========================================
+// 26. AJAX: Update Checkout Quantity
+// =========================================
+function titan_ajax_update_checkout_qty() {
+	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
+
+	$cart_item_key = sanitize_text_field( $_POST['cart_item_key'] ?? '' );
+	$quantity      = intval( $_POST['quantity'] ?? 1 );
+
+	if ( ! $cart_item_key ) {
+		wp_send_json_error();
+	}
+
+	if ( $quantity <= 0 ) {
+		WC()->cart->remove_cart_item( $cart_item_key );
+	} else {
+		WC()->cart->set_quantity( $cart_item_key, $quantity );
+	}
+
+	WC()->cart->calculate_totals();
+
+	// Build updated cart data
+	$items = array();
+	foreach ( WC()->cart->get_cart() as $key => $cart_item ) {
+		$product = $cart_item['data'];
+		$items[] = array(
+			'key'       => $key,
+			'price'     => $product->get_price(),
+			'quantity'  => $cart_item['quantity'],
+			'subtotal'  => $cart_item['line_total'],
+		);
+	}
+
+	wp_send_json_success( array(
+		'items'      => $items,
+		'subtotal'   => WC()->cart->get_cart_subtotal(),
+		'total'      => WC()->cart->get_cart_total(),
+		'total_raw'  => WC()->cart->get_total( 'raw' ),
+		'cart_count' => WC()->cart->get_cart_contents_count(),
+	) );
+}
+add_action( 'wp_ajax_titan_update_checkout_qty', 'titan_ajax_update_checkout_qty' );
+
+// =========================================
+// 27. WooCommerce: Hide default navigation wrapper
+// =========================================
+function titan_remove_wc_account_navigation() {
+	remove_action( 'woocommerce_account_navigation', 'woocommerce_account_navigation' );
+}
+add_action( 'init', 'titan_remove_wc_account_navigation' );
+
+// Helper: Get WC order status label in Russian
+function titan_order_status_label( $status ) {
+	$statuses = array(
+		'pending'    => 'Ожидает оплаты',
+		'processing' => 'В процессе',
+		'on-hold'    => 'На удержании',
+		'completed'  => 'Получен',
+		'cancelled'  => 'Отменён',
+		'refunded'   => 'Возвращён',
+		'failed'     => 'Неудачный',
+	);
+	$status = str_replace( 'wc-', '', $status );
+	return $statuses[ $status ] ?? $status;
 }
