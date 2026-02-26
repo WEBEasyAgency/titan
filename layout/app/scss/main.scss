@@ -2111,6 +2111,179 @@ label.password {
 }
 
 // =========================================
+// Страница оплаты заказа
+// =========================================
+.checkout-page {
+  padding: 60px 0;
+
+  .woocommerce {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .woocommerce-notices-wrapper:empty {
+    display: none;
+  }
+
+  // Order table
+  .shop_table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    line-height: 1.4;
+
+    thead {
+      th {
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--black);
+        color: var(--black);
+
+        &.product-total {
+          text-align: right;
+        }
+
+        &.product-quantity {
+          text-align: center;
+        }
+      }
+    }
+
+    tbody {
+      .order_item td {
+        padding: 16px 0;
+        border-bottom: 1px solid var(--gray3);
+        vertical-align: top;
+
+        &.product-name {
+          padding-right: 16px;
+        }
+
+        &.product-quantity {
+          text-align: center;
+        }
+
+        &.product-subtotal {
+          text-align: right;
+          white-space: nowrap;
+        }
+      }
+    }
+
+    tfoot {
+      tr {
+        th, td {
+          padding: 10px 0;
+          font-size: 14px;
+          border: none;
+        }
+
+        th {
+          text-align: left;
+          font-weight: 400;
+          color: var(--gray);
+        }
+
+        td.product-total {
+          text-align: right;
+          font-weight: 600;
+        }
+
+        &:last-child {
+          th, td {
+            padding-top: 12px;
+            border-top: 1px solid var(--gray3);
+            font-weight: 600;
+            color: var(--black);
+          }
+        }
+      }
+    }
+  }
+
+  // Payment section
+  #payment {
+    margin-top: 32px;
+
+    .wc_payment_methods {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 24px;
+
+      li {
+        padding: 16px;
+        border: 1px solid var(--gray3);
+        border-radius: 4px;
+
+        label {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-weight: 600;
+          font-size: 15px;
+          cursor: pointer;
+
+          img {
+            height: 24px;
+            width: auto;
+          }
+        }
+
+        .payment_box {
+          margin-top: 8px;
+          padding-top: 8px;
+          border-top: 1px solid var(--gray3);
+          font-size: 13px;
+          color: var(--gray);
+
+          p {
+            margin: 0;
+          }
+        }
+      }
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .woocommerce-privacy-policy-text {
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--gray);
+
+      a {
+        color: var(--black);
+        text-decoration: underline;
+      }
+    }
+
+    #place_order {
+      display: block;
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      color: #fff;
+      background: var(--black);
+      border: none;
+      cursor: pointer;
+      transition: opacity .2s;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+}
+
+// =========================================
 // Личный кабинет
 // =========================================
 .account-page {
