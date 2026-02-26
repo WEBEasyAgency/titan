@@ -457,9 +457,11 @@ jQuery(function($) {
 	// ============ CDEK Integration ============
 	var cdekWidget = null;
 	var cdekOfficesData = null;
+	var cdekOfficesParsed = null;
 	var cdekCityCode = null;
 	var cdekCityName = null;
 	var cdekTimer;
+	var cdekWidgetAvailable = (typeof CDEKWidget !== 'undefined') && window.cdek && window.cdek.key;
 
 	// City input: fetch offices from CDEK API
 	$(document).on('input', '.cdek-city-input', function() {
@@ -469,6 +471,7 @@ jQuery(function($) {
 		if (city.length < 2) {
 			$('.cdek-select-btn').prop('disabled', true);
 			cdekOfficesData = null;
+			cdekOfficesParsed = null;
 			cdekCityCode = null;
 			resetCdekSelection();
 			return;
@@ -487,11 +490,25 @@ jQuery(function($) {
 					cdekCityCode = response.data.city_code;
 					cdekCityName = city;
 					$('input[name="cdek_city_code"]').val(cdekCityCode);
-					$('.cdek-select-btn').prop('disabled', false).text('Выбрать пункт выдачи');
+
+					try {
+						cdekOfficesParsed = JSON.parse(cdekOfficesData);
+					} catch(e) {
+						cdekOfficesParsed = [];
+					}
+
 					resetCdekSelection();
+
+					if (cdekWidgetAvailable) {
+						$('.cdek-select-btn').show().prop('disabled', false).text('Выбрать пункт выдачи на карте');
+					} else {
+						// No widget — show fallback list immediately
+						renderCdekOfficesList(cdekOfficesParsed);
+					}
 				} else {
 					$('.cdek-select-btn').prop('disabled', true).text('Город не найден');
 					cdekOfficesData = null;
+					cdekOfficesParsed = null;
 					cdekCityCode = null;
 					cdekCityName = null;
 					resetCdekSelection();
@@ -505,6 +522,7 @@ jQuery(function($) {
 	function resetCdekSelection() {
 		$('.cdek-office-selected').hide();
 		$('.cdek-delivery-cost').hide();
+		$('.cdek-offices-list').hide();
 		$('input[name="cdek_office_code"]').val('');
 		$('input[name="cdek_delivery_cost"]').val('');
 		$('input[name="cdek_tariff_code"]').val('');
@@ -544,61 +562,140 @@ jQuery(function($) {
 		});
 	}
 
-	// Open CDEK widget popup
+	function selectCdekOffice(office) {
+		var code = office.code || '';
+		var name = office.name || office.code || '';
+		var address = '';
+
+		if (office.location) {
+			address = (office.location.city ? office.location.city + ', ' : '') + (office.location.address || '');
+		} else {
+			address = office.address || '';
+		}
+
+		$('input[name="cdek_office_code"]').val(code);
+		$('input[name="cdek_office_address"]').val(address);
+
+		$('.cdek-office-selected__name').text(name);
+		$('.cdek-office-selected__address').text(address);
+		$('.cdek-office-selected').show();
+		$('.cdek-offices-list').hide();
+
+		// Mark selected in list
+		$('.cdek-offices-list__items .cdek-office-item').removeClass('active');
+		$('.cdek-offices-list__items .cdek-office-item[data-code="' + code + '"]').addClass('active');
+
+		// Save to WC session
+		if (window.cdek && window.cdek.saver) {
+			$.post(window.cdek.saver, { code: code });
+		}
+
+		calculateCdekCost();
+	}
+
+	// Render fallback list of offices (when widget is unavailable)
+	function renderCdekOfficesList(offices) {
+		if (!offices || !offices.length) {
+			$('.cdek-offices-list').hide();
+			$('.cdek-select-btn').prop('disabled', true).text('Нет пунктов выдачи');
+			return;
+		}
+
+		var $list = $('.cdek-offices-list__items');
+		$list.empty();
+
+		$.each(offices, function(i, office) {
+			var addr = '';
+			if (office.location) {
+				addr = office.location.address || '';
+			} else {
+				addr = office.address || '';
+			}
+			var workTime = office.work_time || '';
+
+			var $item = $('<div class="cdek-office-item" data-code="' + (office.code || '') + '">' +
+				'<div class="cdek-office-item__name">' + escapeHtml(office.name || office.code || '') + '</div>' +
+				'<div class="cdek-office-item__address">' + escapeHtml(addr) + '</div>' +
+				(workTime ? '<div class="cdek-office-item__time">' + escapeHtml(workTime) + '</div>' : '') +
+				'</div>');
+
+			$item.data('office', office);
+			$list.append($item);
+		});
+
+		$('.cdek-offices-search').val('');
+		$('.cdek-offices-list').show();
+		$('.cdek-select-btn').hide();
+	}
+
+	function escapeHtml(str) {
+		return $('<span>').text(str).html();
+	}
+
+	// Click on office in fallback list
+	$(document).on('click', '.cdek-office-item', function() {
+		var office = $(this).data('office');
+		if (office) selectCdekOffice(office);
+	});
+
+	// Search in fallback list
+	$(document).on('input', '.cdek-offices-search', function() {
+		var query = $(this).val().toLowerCase();
+		$('.cdek-offices-list__items .cdek-office-item').each(function() {
+			var text = $(this).text().toLowerCase();
+			$(this).toggle(text.indexOf(query) !== -1);
+		});
+	});
+
+	// Open CDEK widget popup (map mode)
 	$(document).on('click', '.cdek-select-btn', function(e) {
 		e.preventDefault();
-		if (!cdekOfficesData || typeof CDEKWidget === 'undefined') return;
+		if (!cdekOfficesParsed || !cdekOfficesParsed.length) return;
+
+		// If widget is not available, show fallback list
+		if (!cdekWidgetAvailable) {
+			renderCdekOfficesList(cdekOfficesParsed);
+			return;
+		}
 
 		try {
-			var offices = JSON.parse(cdekOfficesData);
-			if (!offices.length) {
-				alert('В этом городе нет пунктов выдачи СДЭК');
-				return;
-			}
-
 			var widgetConfig = {
-				apiKey: (window.cdek && window.cdek.key) || '',
+				apiKey: window.cdek.key,
 				popup: true,
-				lang: (window.cdek && window.cdek.lang) || 'rus',
+				debug: true,
+				lang: window.cdek.lang || 'rus',
 				defaultLocation: cdekCityName || '',
-				officesRaw: offices,
+				officesRaw: cdekOfficesParsed,
 				hideDeliveryOptions: { door: true },
 				onChoose: function(type, tariff, office) {
-					$('input[name="cdek_office_code"]').val(office.code);
-					$('input[name="cdek_office_address"]').val(
-						(office.location ? office.location.address : office.address) || ''
-					);
+					selectCdekOffice(office);
 
-					$('.cdek-office-selected__name').text(office.name || office.code);
-					$('.cdek-office-selected__address').text(
-						office.location ? (office.location.city + ', ' + office.location.address) : (office.address || '')
-					);
-					$('.cdek-office-selected').show();
-
-					// Save to WC session
-					if (window.cdek && window.cdek.saver) {
-						$.post(window.cdek.saver, { code: office.code });
-					}
-
-					if (window.cdek && window.cdek.close && cdekWidget) {
+					if (window.cdek.close && cdekWidget) {
 						cdekWidget.close();
 					}
-
-					// Calculate delivery cost
-					calculateCdekCost();
+				},
+				onError: function(err) {
+					console.warn('[CDEK] Widget error, switching to fallback list:', err);
+					cdekWidgetAvailable = false;
+					if (cdekWidget) {
+						try { cdekWidget.close(); } catch(e) {}
+					}
+					renderCdekOfficesList(cdekOfficesParsed);
 				}
 			};
 
 			if (cdekWidget === null) {
 				cdekWidget = new CDEKWidget(widgetConfig);
 			} else {
-				cdekWidget.updateOfficesRaw(offices);
+				cdekWidget.updateOfficesRaw(cdekOfficesParsed);
 				cdekWidget.updateLocation(cdekCityName || '');
 			}
 
 			cdekWidget.open();
 		} catch (err) {
-			console.error('CDEK widget error:', err);
+			console.warn('[CDEK] Widget failed, switching to fallback list:', err);
+			cdekWidgetAvailable = false;
+			renderCdekOfficesList(cdekOfficesParsed);
 		}
 	});
 });

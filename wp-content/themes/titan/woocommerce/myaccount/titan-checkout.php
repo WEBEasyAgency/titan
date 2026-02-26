@@ -112,7 +112,13 @@ $cart_total     = $cart->get_cart_total();
 				<div class="cdek-city-row">
 					<input type="text" name="cdek_city" class="cdek-city-input" placeholder="Введите город доставки" autocomplete="off">
 				</div>
-				<button type="button" class="btn btn-outline cdek-select-btn" disabled>Выбрать пункт выдачи</button>
+				<button type="button" class="btn btn-outline cdek-select-btn" disabled>Выбрать пункт выдачи на карте</button>
+				<div class="cdek-offices-list" style="display: none;">
+					<div class="cdek-offices-list__search">
+						<input type="text" class="cdek-offices-search" placeholder="Поиск по адресу...">
+					</div>
+					<div class="cdek-offices-list__items"></div>
+				</div>
 				<div class="cdek-office-selected" style="display: none;">
 					<div class="cdek-office-selected__name"></div>
 					<div class="cdek-office-selected__address"></div>
