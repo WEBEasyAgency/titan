@@ -24,23 +24,25 @@ $menu_items = array(
 );
 ?>
 
-<h1 class="account-page__title">Личный кабинет</h1>
-<div class="account-page__inner">
-	<aside class="account-sidebar">
-		<?php foreach ( $menu_items as $key => $item ) :
-			$is_active = ( $key === $current_endpoint );
-			$class = 'account-sidebar__item';
-			if ( $is_active ) {
-				$class .= ' active';
-			}
-			if ( $key === 'logout' ) {
-				$class .= ' account-sidebar__item--logout';
-			}
-		?>
-			<a href="<?php echo esc_url( $item['url'] ); ?>" class="<?php echo esc_attr( $class ); ?>"><?php echo esc_html( $item['label'] ); ?></a>
-		<?php endforeach; ?>
-	</aside>
-	<div class="account-content">
-		<?php do_action( 'woocommerce_account_content' ); ?>
+<div class="container">
+	<h1 class="account-page__title">Личный кабинет</h1>
+	<div class="account-page__inner">
+		<aside class="account-sidebar">
+			<?php foreach ( $menu_items as $key => $item ) :
+				$is_active = ( $key === $current_endpoint );
+				$class = 'account-sidebar__item';
+				if ( $is_active ) {
+					$class .= ' active';
+				}
+				if ( $key === 'logout' ) {
+					$class .= ' account-sidebar__item--logout';
+				}
+			?>
+				<a href="<?php echo esc_url( $item['url'] ); ?>" class="<?php echo esc_attr( $class ); ?>"><?php echo esc_html( $item['label'] ); ?></a>
+			<?php endforeach; ?>
+		</aside>
+		<div class="account-content">
+			<?php do_action( 'woocommerce_account_content' ); ?>
+		</div>
 	</div>
 </div>
