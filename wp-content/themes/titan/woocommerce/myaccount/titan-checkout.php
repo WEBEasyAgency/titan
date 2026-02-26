@@ -112,27 +112,19 @@ $cart_total     = $cart->get_cart_total();
 				<div class="cdek-city-row">
 					<input type="text" name="cdek_city" class="cdek-city-input" placeholder="Введите город доставки" autocomplete="off">
 				</div>
-				<button type="button" class="btn btn-outline cdek-select-btn" disabled>Выбрать пункт выдачи на карте</button>
-				<div class="cdek-offices-list" style="display: none;">
-					<div class="cdek-offices-list__search">
-						<input type="text" class="cdek-offices-search" placeholder="Поиск по адресу...">
-					</div>
-					<div class="cdek-offices-list__items"></div>
+				<div class="open-pvz-btn" data-city="" style="display: none;">
+					<script type="application/cdek-offices">[]</script>
+					<a><?php esc_html_e( 'Выбрать пункт выдачи', 'flavor' ); ?></a>
 				</div>
-				<div class="cdek-office-selected" style="display: none;">
-					<div class="cdek-office-selected__name"></div>
-					<div class="cdek-office-selected__address"></div>
-				</div>
+				<input name="office_code" class="cdek-office-code" type="hidden" value="">
 				<div class="cdek-delivery-cost" style="display: none;">
 					<span class="cdek-delivery-cost__label">Стоимость доставки:</span>
 					<span class="cdek-delivery-cost__val"></span>
 					<span class="cdek-delivery-cost__days"></span>
 				</div>
-				<input type="hidden" name="cdek_office_code" value="">
 				<input type="hidden" name="cdek_city_code" value="">
 				<input type="hidden" name="cdek_delivery_cost" value="">
 				<input type="hidden" name="cdek_tariff_code" value="">
-				<input type="hidden" name="cdek_office_address" value="">
 			</div>
 		</div>
 

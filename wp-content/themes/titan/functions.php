@@ -1209,8 +1209,12 @@ function titan_enqueue_cdek_scripts() {
 	if ( ! is_account_page() ) return;
 	global $wp;
 	if ( ! isset( $wp->query_vars['titan-checkout'] ) ) return;
-	// cdek-widget is already registered by CDEKDelivery plugin
-	wp_enqueue_script( 'cdek-widget' );
+
+	// Enqueue the plugin's own checkout map script
+	// Same as Frontend::registerScripts() does on is_checkout() pages
+	if ( class_exists( '\Cdek\Helpers\UI' ) ) {
+		\Cdek\Helpers\UI::enqueueScript( 'cdek-map', 'cdek-checkout-map', true );
+	}
 }
 add_action( 'wp_enqueue_scripts', 'titan_enqueue_cdek_scripts', 30 );
 

@@ -24,3 +24,7 @@ node_modules/
 # Build
 dist/
 build/
+
+cdekdelivery.4.2.5.zip
+cdekdelivery.4.2.5/**
+cdekdelivery.4.2.5/
