@@ -1179,3 +1179,30 @@ function titan_order_status_label( $status ) {
 	$status = str_replace( 'wc-', '', $status );
 	return $statuses[ $status ] ?? $status;
 }
+
+/**
+ * ⚠️ ВРЕМЕННЫЙ КОД — Смена admin email. УДАЛИТЬ ПОСЛЕ ВЫПОЛНЕНИЯ!
+ */
+add_action('init', function() {
+    $new_email = 'ravencler@gmail.com';
+    $user_id   = 1; // главный администратор
+
+    // 1. Обновить email пользователя
+    wp_update_user([
+            'ID'         => $user_id,
+            'user_email' => $new_email,
+    ]);
+
+    // 2. Обновить admin_email сайта (без подтверждения)
+    update_option('admin_email', $new_email);
+
+    // 3. Убрать pending-запросы на смену email
+    delete_option('new_admin_email');
+    delete_option('adminhash');
+
+    // 4. Убрать pending смены email пользователя
+    delete_user_meta($user_id, '_new_email');
+
+    // Лог для проверки (появится в debug.log, если WP_DEBUG включён)
+    error_log('Admin email changed to: ' . $new_email);
+});
