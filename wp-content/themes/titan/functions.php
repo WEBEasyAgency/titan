@@ -1079,6 +1079,28 @@ function titan_ajax_place_order() {
 		$order->update_meta_data( '_delivery_method', $delivery_method );
 		$order->update_meta_data( '_recipient_name', sanitize_text_field( $_POST['recipient'] ?? '' ) );
 		$order->update_meta_data( '_order_comment', sanitize_textarea_field( $_POST['comment'] ?? '' ) );
+
+		// CDEK delivery data
+		if ( $delivery_method === 'delivery' ) {
+			$cdek_office   = sanitize_text_field( $_POST['cdek_office_code'] ?? '' );
+			$cdek_city     = sanitize_text_field( $_POST['cdek_city_code'] ?? '' );
+			$cdek_cost     = floatval( $_POST['cdek_delivery_cost'] ?? 0 );
+			$cdek_tariff   = sanitize_text_field( $_POST['cdek_tariff_code'] ?? '' );
+			$cdek_address  = sanitize_text_field( $_POST['cdek_office_address'] ?? '' );
+
+			$order->update_meta_data( '_cdek_office_code', $cdek_office );
+			$order->update_meta_data( '_cdek_city_code', $cdek_city );
+			$order->update_meta_data( '_cdek_tariff_code', $cdek_tariff );
+			$order->update_meta_data( '_cdek_office_address', $cdek_address );
+
+			if ( $cdek_cost > 0 ) {
+				$shipping_item = new \WC_Order_Item_Shipping();
+				$shipping_item->set_method_title( 'СДЭК' );
+				$shipping_item->set_method_id( 'official_cdek' );
+				$shipping_item->set_total( $cdek_cost );
+				$order->add_item( $shipping_item );
+			}
+		}
 	} else {
 		$legal_entity_id = intval( $_POST['legal_entity_id'] ?? 0 );
 		$order->update_meta_data( '_legal_entity_id', $legal_entity_id );
@@ -1179,6 +1201,157 @@ function titan_remove_wc_account_navigation() {
 	remove_action( 'woocommerce_account_navigation', 'woocommerce_account_navigation' );
 }
 add_action( 'init', 'titan_remove_wc_account_navigation' );
+
+// =========================================
+// 28. CDEK Integration: Enqueue widget + AJAX offices
+// =========================================
+function titan_enqueue_cdek_scripts() {
+	if ( ! is_account_page() ) return;
+	global $wp;
+	if ( ! isset( $wp->query_vars['titan-checkout'] ) ) return;
+	// cdek-widget is already registered by CDEKDelivery plugin
+	wp_enqueue_script( 'cdek-widget' );
+}
+add_action( 'wp_enqueue_scripts', 'titan_enqueue_cdek_scripts', 30 );
+
+function titan_ajax_cdek_offices() {
+	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
+
+	if ( ! class_exists( '\Cdek\CdekApi' ) ) {
+		wp_send_json_error( array( 'message' => 'Плагин СДЭК не активен' ) );
+	}
+
+	$city = sanitize_text_field( $_POST['city'] ?? '' );
+	if ( empty( $city ) ) {
+		wp_send_json_error( array( 'message' => 'Город не указан' ) );
+	}
+
+	try {
+		$api       = new \Cdek\CdekApi();
+		$city_code = $api->cityCodeGet( $city );
+
+		if ( ! $city_code ) {
+			wp_send_json_error( array( 'message' => 'Город не найден в системе СДЭК' ) );
+		}
+
+		$offices_raw = $api->officeListRaw( $city_code );
+
+		wp_send_json_success( array(
+			'city_code' => $city_code,
+			'offices'   => $offices_raw,
+		) );
+	} catch ( \Throwable $e ) {
+		wp_send_json_error( array( 'message' => 'Ошибка при получении данных СДЭК' ) );
+	}
+}
+add_action( 'wp_ajax_titan_cdek_offices', 'titan_ajax_cdek_offices' );
+
+function titan_ajax_cdek_calculate() {
+	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
+
+	if ( ! class_exists( '\Cdek\CdekApi' ) || ! class_exists( '\Cdek\ShippingMethod' ) ) {
+		wp_send_json_error( array( 'message' => 'Плагин СДЭК не активен' ) );
+	}
+
+	$city_code = sanitize_text_field( $_POST['city_code'] ?? '' );
+	if ( empty( $city_code ) ) {
+		wp_send_json_error( array( 'message' => 'Не указан город' ) );
+	}
+
+	try {
+		$shipping = \Cdek\ShippingMethod::factory();
+		$api      = new \Cdek\CdekApi();
+
+		$tariff_list = $shipping->tariff_list ?: array();
+		$from_code   = $shipping->city_code;
+
+		if ( empty( $from_code ) || empty( $tariff_list ) ) {
+			wp_send_json_error( array( 'message' => 'СДЭК не настроен' ) );
+		}
+
+		// Build packages from cart
+		$cart_contents = WC()->cart->get_cart();
+		$total_weight  = 0;
+		foreach ( $cart_contents as $item ) {
+			$product = $item['data'];
+			$w       = (float) $product->get_weight();
+			if ( $w <= 0 ) {
+				$w = (float) $shipping->get_option( 'product_weight_default', 1000 );
+			} else {
+				$weight_unit = get_option( 'woocommerce_weight_unit', 'kg' );
+				if ( $weight_unit === 'kg' ) {
+					$w *= 1000;
+				}
+			}
+			$total_weight += $w * $item['quantity'];
+		}
+
+		$length = max( (int) $shipping->get_option( 'product_length_default', 10 ), 1 );
+		$width  = max( (int) $shipping->get_option( 'product_width_default', 10 ), 1 );
+		$height = max( (int) $shipping->get_option( 'product_height_default', 10 ), 1 );
+
+		$params = array(
+			'type'     => 1,
+			'from'     => array( 'code' => (int) $from_code ),
+			'to'       => array( 'code' => (int) $city_code ),
+			'packages' => array(
+				'weight' => max( (int) $total_weight, 100 ),
+				'length' => $length,
+				'width'  => $width,
+				'height' => $height,
+			),
+		);
+
+		$result = $api->calculateList( $params );
+
+		if ( empty( $result['tariff_codes'] ) ) {
+			wp_send_json_error( array( 'message' => 'Нет доступных тарифов' ) );
+		}
+
+		// Find cheapest office tariff from allowed list
+		$best = null;
+		foreach ( $result['tariff_codes'] as $t ) {
+			if ( ! in_array( (string) $t['tariff_code'], $tariff_list, true ) ) continue;
+			try {
+				if ( ! \Cdek\Model\Tariff::isToOffice( (int) $t['tariff_code'] ) ) continue;
+			} catch ( \Throwable $e ) {
+				continue;
+			}
+			if ( $best === null || (float) $t['delivery_sum'] < (float) $best['delivery_sum'] ) {
+				$best = $t;
+			}
+		}
+
+		if ( ! $best ) {
+			// Fallback: cheapest any tariff
+			foreach ( $result['tariff_codes'] as $t ) {
+				if ( ! in_array( (string) $t['tariff_code'], $tariff_list, true ) ) continue;
+				if ( $best === null || (float) $t['delivery_sum'] < (float) $best['delivery_sum'] ) {
+					$best = $t;
+				}
+			}
+		}
+
+		if ( ! $best ) {
+			wp_send_json_error( array( 'message' => 'Нет подходящего тарифа' ) );
+		}
+
+		$min_day = (int) $best['period_min'];
+		$max_day = (int) $best['period_max'];
+		$cost    = ceil( (float) $best['delivery_sum'] );
+
+		wp_send_json_success( array(
+			'cost'        => $cost,
+			'cost_format' => wc_price( $cost ),
+			'tariff_code' => $best['tariff_code'],
+			'tariff_name' => $best['tariff_name'],
+			'days'        => $min_day === $max_day ? "$min_day" : "$min_day-$max_day",
+		) );
+	} catch ( \Throwable $e ) {
+		wp_send_json_error( array( 'message' => 'Ошибка расчёта доставки' ) );
+	}
+}
+add_action( 'wp_ajax_titan_cdek_calculate', 'titan_ajax_cdek_calculate' );
 
 // Helper: Get WC order status label in Russian
 function titan_order_status_label( $status ) {

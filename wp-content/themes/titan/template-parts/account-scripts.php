@@ -376,6 +376,15 @@ jQuery(function($) {
 			formData.append('delivery_method', deliveryMethod);
 			formData.append('recipient', $panel.find('input[name="recipient"]').val());
 			formData.append('comment', $panel.find('textarea[name="comment"]').val());
+
+			// CDEK data
+			if (deliveryMethod === 'delivery') {
+				formData.append('cdek_office_code', $('input[name="cdek_office_code"]').val());
+				formData.append('cdek_city_code', $('input[name="cdek_city_code"]').val());
+				formData.append('cdek_delivery_cost', $('input[name="cdek_delivery_cost"]').val());
+				formData.append('cdek_tariff_code', $('input[name="cdek_tariff_code"]').val());
+				formData.append('cdek_office_address', $('input[name="cdek_office_address"]').val());
+			}
 		} else {
 			formData.append('legal_entity_id', $panel.find('select[name="legal_entity"]').val() || '');
 			formData.append('inn', $panel.find('input[name="inn"]').val());
@@ -442,6 +451,151 @@ jQuery(function($) {
 	$(document).on('click', '.popupblock', function(e) {
 		if (e.target === this) {
 			$(this).removeClass('active');
+		}
+	});
+
+	// ============ CDEK Integration ============
+	var cdekWidget = null;
+	var cdekOfficesData = null;
+	var cdekCityCode = null;
+	var cdekTimer;
+
+	// City input: fetch offices from CDEK API
+	$(document).on('input', '.cdek-city-input', function() {
+		var city = $(this).val().trim();
+		clearTimeout(cdekTimer);
+
+		if (city.length < 2) {
+			$('.cdek-select-btn').prop('disabled', true);
+			cdekOfficesData = null;
+			cdekCityCode = null;
+			resetCdekSelection();
+			return;
+		}
+
+		cdekTimer = setTimeout(function() {
+			$('.cdek-select-btn').prop('disabled', true).text('Загрузка...');
+
+			$.post(titan_wc.ajax_url, {
+				action: 'titan_cdek_offices',
+				nonce: titan_wc.nonce,
+				city: city
+			}, function(response) {
+				if (response.success) {
+					cdekOfficesData = response.data.offices;
+					cdekCityCode = response.data.city_code;
+					$('input[name="cdek_city_code"]').val(cdekCityCode);
+					$('.cdek-select-btn').prop('disabled', false).text('Выбрать пункт выдачи');
+					resetCdekSelection();
+				} else {
+					$('.cdek-select-btn').prop('disabled', true).text('Город не найден');
+					cdekOfficesData = null;
+					cdekCityCode = null;
+					resetCdekSelection();
+				}
+			}).fail(function() {
+				$('.cdek-select-btn').prop('disabled', true).text('Ошибка загрузки');
+			});
+		}, 600);
+	});
+
+	function resetCdekSelection() {
+		$('.cdek-office-selected').hide();
+		$('.cdek-delivery-cost').hide();
+		$('input[name="cdek_office_code"]').val('');
+		$('input[name="cdek_delivery_cost"]').val('');
+		$('input[name="cdek_tariff_code"]').val('');
+		$('input[name="cdek_office_address"]').val('');
+		updateDeliveryCostDisplay('—');
+	}
+
+	function updateDeliveryCostDisplay(val) {
+		$('.checkout-total__details .checkout-total__row').last().find('span').last().html(val);
+	}
+
+	function calculateCdekCost() {
+		if (!cdekCityCode) return;
+
+		$.post(titan_wc.ajax_url, {
+			action: 'titan_cdek_calculate',
+			nonce: titan_wc.nonce,
+			city_code: cdekCityCode
+		}, function(response) {
+			if (response.success) {
+				var d = response.data;
+				$('input[name="cdek_delivery_cost"]').val(d.cost);
+				$('input[name="cdek_tariff_code"]').val(d.tariff_code);
+
+				$('.cdek-delivery-cost__val').html(d.cost_format);
+				$('.cdek-delivery-cost__days').text('(' + d.days + ' дн.)');
+				$('.cdek-delivery-cost').show();
+
+				// Update total
+				updateDeliveryCostDisplay(d.cost_format);
+
+				// Update total sum
+				var cartTotal = parseFloat($('.checkout-subtotal__val').text().replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+				var newTotal = cartTotal + parseFloat(d.cost);
+				$('.checkout-total__val').html(newTotal.toLocaleString('ru-RU') + ' ₽');
+			}
+		});
+	}
+
+	// Open CDEK widget popup
+	$(document).on('click', '.cdek-select-btn', function(e) {
+		e.preventDefault();
+		if (!cdekOfficesData || typeof CDEKWidget === 'undefined') return;
+
+		try {
+			var offices = JSON.parse(cdekOfficesData);
+			if (!offices.length) {
+				alert('В этом городе нет пунктов выдачи СДЭК');
+				return;
+			}
+
+			var widgetConfig = {
+				apiKey: (window.cdek && window.cdek.key) || '',
+				popup: true,
+				lang: (window.cdek && window.cdek.lang) || 'rus',
+				defaultLocation: cdekCityCode,
+				officesRaw: offices,
+				hideDeliveryOptions: { door: true },
+				onChoose: function(type, tariff, office) {
+					$('input[name="cdek_office_code"]').val(office.code);
+					$('input[name="cdek_office_address"]').val(
+						(office.location ? office.location.address : office.address) || ''
+					);
+
+					$('.cdek-office-selected__name').text(office.name || office.code);
+					$('.cdek-office-selected__address').text(
+						office.location ? (office.location.city + ', ' + office.location.address) : (office.address || '')
+					);
+					$('.cdek-office-selected').show();
+
+					// Save to WC session
+					if (window.cdek && window.cdek.saver) {
+						$.post(window.cdek.saver, { code: office.code });
+					}
+
+					if (window.cdek && window.cdek.close && cdekWidget) {
+						cdekWidget.close();
+					}
+
+					// Calculate delivery cost
+					calculateCdekCost();
+				}
+			};
+
+			if (cdekWidget === null) {
+				cdekWidget = new CDEKWidget(widgetConfig);
+			} else {
+				cdekWidget.updateOfficesRaw(offices);
+				cdekWidget.updateLocation(cdekCityCode);
+			}
+
+			cdekWidget.open();
+		} catch (err) {
+			console.error('CDEK widget error:', err);
 		}
 	});
 });

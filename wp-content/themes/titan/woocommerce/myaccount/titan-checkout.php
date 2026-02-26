@@ -109,7 +109,24 @@ $cart_total     = $cart->get_cart_total();
 		<!-- CDEK Module -->
 		<div class="checkout-delivery-panel" data-delivery-panel="delivery">
 			<div class="checkout-cdek-module">
-				Модуль доставки СДЭК
+				<div class="cdek-city-row">
+					<input type="text" name="cdek_city" class="cdek-city-input" placeholder="Введите город доставки" autocomplete="off">
+				</div>
+				<button type="button" class="btn btn-outline cdek-select-btn" disabled>Выбрать пункт выдачи</button>
+				<div class="cdek-office-selected" style="display: none;">
+					<div class="cdek-office-selected__name"></div>
+					<div class="cdek-office-selected__address"></div>
+				</div>
+				<div class="cdek-delivery-cost" style="display: none;">
+					<span class="cdek-delivery-cost__label">Стоимость доставки:</span>
+					<span class="cdek-delivery-cost__val"></span>
+					<span class="cdek-delivery-cost__days"></span>
+				</div>
+				<input type="hidden" name="cdek_office_code" value="">
+				<input type="hidden" name="cdek_city_code" value="">
+				<input type="hidden" name="cdek_delivery_cost" value="">
+				<input type="hidden" name="cdek_tariff_code" value="">
+				<input type="hidden" name="cdek_office_address" value="">
 			</div>
 		</div>
 
