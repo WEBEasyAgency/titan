@@ -1,6 +1,10 @@
 <script>
 jQuery(function($) {
 
+	function updateCartBadge(count) {
+		$('.cart-count').text(count).toggleClass('hidden', parseInt(count) < 1);
+	}
+
 	// ============ AJAX Add to Cart ============
 	$(document).on('click', '.titan-add-to-cart', function(e) {
 		e.preventDefault();
@@ -22,7 +26,7 @@ jQuery(function($) {
 		}, function(response) {
 			if (response.success) {
 				$btn.text('В корзине');
-				$('.cart-count').text(response.data.cart_count);
+				updateCartBadge(response.data.cart_count);
 				setTimeout(function() {
 					$btn.text(origText).removeClass('loading');
 				}, 2000);
@@ -96,7 +100,7 @@ jQuery(function($) {
 			}, function(response) {
 				if (response.success) {
 					$('#titan-cart-total').html(response.data.cart_total);
-					$('.cart-count').text(response.data.cart_count);
+					updateCartBadge(response.data.cart_count);
 					if (qty <= 0) {
 						$row.fadeOut(300, function() { $(this).remove(); });
 					}
@@ -120,7 +124,7 @@ jQuery(function($) {
 			if (response.success) {
 				$row.fadeOut(300, function() { $(this).remove(); });
 				$('#titan-cart-total').html(response.data.cart_total);
-				$('.cart-count').text(response.data.cart_count);
+				updateCartBadge(response.data.cart_count);
 				if (response.data.cart_count === 0) {
 					location.reload();
 				}

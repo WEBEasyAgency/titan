@@ -1,6 +1,10 @@
 <script>
 jQuery(function($) {
 
+	function updateCartBadge(count) {
+		$('.cart-count').text(count).toggleClass('hidden', parseInt(count) < 1);
+	}
+
 	// ============ Profile: Change Password ============
 	$('#btn-change-password').on('click', function() {
 		$('#profile-view-actions').hide();
@@ -304,7 +308,7 @@ jQuery(function($) {
 				});
 				$('.checkout-subtotal__val').html(d.subtotal);
 				$('.checkout-total__val').html(d.total);
-				$('.cart-count').text(d.cart_count);
+				updateCartBadge(d.cart_count);
 			}
 		});
 	});
@@ -394,7 +398,7 @@ jQuery(function($) {
 			success: function(response) {
 				$btn.prop('disabled', false).text(buyerType === 'legal' ? 'Выставить счёт' : 'Заказать');
 				if (response.success) {
-					$('.cart-count').text('0');
+					updateCartBadge(0);
 					if (response.data.payment_url) {
 						window.location.href = response.data.payment_url;
 					} else {
