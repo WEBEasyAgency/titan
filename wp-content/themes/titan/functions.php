@@ -600,20 +600,17 @@ function titan_force_classic_cart_checkout() {
 }
 add_action( 'init', 'titan_force_classic_cart_checkout', 25 );
 
-// Redirect from /checkout/ to account (checkout or login)
+// Redirect logged-in users from /checkout/ to account checkout
 function titan_redirect_checkout_to_account() {
 	if ( ! is_checkout() || is_wc_endpoint_url( 'order-pay' ) || is_wc_endpoint_url( 'order-received' ) ) {
 		return;
 	}
 
-	$account_url = wc_get_page_permalink( 'myaccount' );
-
 	if ( is_user_logged_in() ) {
+		$account_url = wc_get_page_permalink( 'myaccount' );
 		wp_safe_redirect( wc_get_endpoint_url( 'titan-checkout', '', $account_url ) );
-	} else {
-		wp_safe_redirect( $account_url );
+		exit;
 	}
-	exit;
 }
 add_action( 'template_redirect', 'titan_redirect_checkout_to_account' );
 

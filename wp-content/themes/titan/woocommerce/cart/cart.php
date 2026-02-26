@@ -75,13 +75,23 @@ defined( 'ABSPATH' ) || exit;
 			</div>
 		</div>
 
+		<?php if ( ! is_user_logged_in() ) : ?>
+		<div class="cart-auth-notice">
+			<p>Для оформления заказа <a href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>">авторизуйтесь или зарегистрируйтесь</a></p>
+		</div>
+		<?php endif; ?>
+
 		<div class="total-container">
 			<div class="total-btn">
 				<div class="total">
 					<div class="caption">Итого</div>
 					<div class="val" id="titan-cart-total"><?php echo WC()->cart->get_cart_total(); ?></div>
 				</div>
-				<a href="<?php echo esc_url( wc_get_checkout_url() ); ?>" class="btn">Оформить заказ</a>
+				<?php if ( is_user_logged_in() ) : ?>
+					<a href="<?php echo esc_url( wc_get_checkout_url() ); ?>" class="btn">Оформить заказ</a>
+				<?php else : ?>
+					<span class="btn btn-disabled">Оформить заказ</span>
+				<?php endif; ?>
 			</div>
 		</div>
 
