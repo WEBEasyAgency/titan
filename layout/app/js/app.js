@@ -129,15 +129,16 @@ $(document).ready(function(){
 				mod = $('.calc-form .select .quantity.active').attr('data-val');
 
 		if(valIndot != ''){
-			var price1 = parseInt(valIndot) * parseInt(dataIn);
+			var price1 = parseFloat(valIndot) * parseFloat(dataIn);
 		}else{
 			var price1 = 0;
 		}
 		if(valOutdot != ''){
-			var price2 = parseInt(valOutdot) * parseInt(dataOut);
+			var price2 = parseFloat(valOutdot) * parseFloat(dataOut);
 		}else{
 			var price2 = 0;
 		}
+
 		if($('.calc-form .select .trafaret').hasClass('active')){
 			var stage1 = price1 + price2;
 		} else{
@@ -147,15 +148,17 @@ $(document).ready(function(){
 		console.log('этап 1 ' + stage1);
 
 		if($('.calc-form .select .component1').hasClass('active')){
-			var resultPercent = stage1/100 * percent
-			stage2 = parseInt(resultPercent) + stage1;
+			var r1 = parseFloat(stage1) * parseFloat(overprice);
+			var r2 = parseFloat(r1) + parseFloat(wash);
+			var resultPercent = r2/100 * percent
+			stage2 = parseFloat(r2) + resultPercent;
 		}
 		if($('.calc-form .select .component2').hasClass('active')){
-			var r1 = stage1 * overprice;
-			var r2 = parseInt(r1) + wash;
-			var stage2 = r2/100 * percent
+			var r1 = parseFloat(stage1) + parseFloat(wash);
+			var r2 = parseFloat(r1)/100 * percent;
+			var stage2 = parseFloat(r1) + parseFloat(r2)
 		}
-		
+
 		console.log('этап 2 ' + stage2);
 
 		var sum = stage2 * mod;
@@ -163,6 +166,8 @@ $(document).ready(function(){
 
 		if(stage1 != 0 && stage2 != 0 && stage3 != 0){
 			$('.calc-form .result-block .val span').html(stage3);
+		} else{
+			$('.calc-form .result-block .val span').html('0');
 		}
 
 		console.log('этап 3 ' + stage3);
@@ -194,7 +199,7 @@ $(document).ready(function(){
 
 	$('.search .clean').on('click', function(){
 		$(this).fadeOut(300).parents('.search').find('input[type="search"]').val('');
-	});
+	}); 
 
 	// =========================================
 	// Личный кабинет — Профиль
