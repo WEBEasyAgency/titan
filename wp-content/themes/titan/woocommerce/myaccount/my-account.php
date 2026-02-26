@@ -11,7 +11,15 @@ if ( ! is_user_logged_in() ) {
 }
 
 // Determine which endpoint is active
-$current_endpoint = WC()->query->get_current_endpoint();
+global $wp;
+$current_endpoint = '';
+$custom_endpoints = array( 'titan-checkout', 'titan-orders', 'titan-history' );
+foreach ( $custom_endpoints as $ep ) {
+	if ( isset( $wp->query_vars[ $ep ] ) ) {
+		$current_endpoint = $ep;
+		break;
+	}
+}
 
 $account_url = wc_get_page_permalink( 'myaccount' );
 
