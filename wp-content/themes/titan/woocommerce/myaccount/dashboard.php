@@ -110,8 +110,8 @@ $legal_entities = titan_get_legal_entities( $user_id );
 				<div class="legal-entity__edit-title">Редактирование данных</div>
 				<div class="legal-entity__fields">
 					<input type="text" name="org_name" value="<?php echo esc_attr( $entity['org_name'] ); ?>" placeholder="Наименование организации">
-					<input type="text" name="inn" value="<?php echo esc_attr( $entity['inn'] ); ?>" placeholder="ИНН Организации или ИП">
-					<input type="text" name="kpp" value="<?php echo esc_attr( $entity['kpp'] ); ?>" placeholder="КПП Организации или ИП">
+					<input type="text" name="inn" inputmode="numeric" pattern="[0-9]*" value="<?php echo esc_attr( $entity['inn'] ); ?>" placeholder="ИНН Организации или ИП">
+					<input type="text" name="kpp" inputmode="numeric" pattern="[0-9]*" value="<?php echo esc_attr( $entity['kpp'] ); ?>" placeholder="КПП Организации или ИП">
 					<input type="text" name="legal_address" value="<?php echo esc_attr( $entity['address'] ); ?>" placeholder="Адрес юридический">
 					<input type="text" name="postal_code" value="<?php echo esc_attr( $entity['postal_code'] ); ?>" placeholder="Почтовый индекс">
 					<input type="text" name="region" value="<?php echo esc_attr( $entity['region'] ); ?>" placeholder="Область/край/республика">
@@ -144,8 +144,8 @@ $legal_entities = titan_get_legal_entities( $user_id );
 	<div class="legal-entity__add-form" id="add-legal-entity-form" style="display: none;">
 		<div class="legal-entity__fields">
 			<input type="text" name="org_name" placeholder="Наименование организации">
-			<input type="text" name="inn" placeholder="ИНН Организации или ИП">
-			<input type="text" name="kpp" placeholder="КПП Организации или ИП">
+			<input type="text" name="inn" inputmode="numeric" pattern="[0-9]*" placeholder="ИНН Организации или ИП">
+			<input type="text" name="kpp" inputmode="numeric" pattern="[0-9]*" placeholder="КПП Организации или ИП">
 			<input type="text" name="legal_address" placeholder="Адрес юридический">
 			<input type="text" name="postal_code" placeholder="Почтовый индекс">
 			<input type="text" name="region" placeholder="Область/край/республика">

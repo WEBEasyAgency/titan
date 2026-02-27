@@ -119,6 +119,11 @@ jQuery(function($) {
 		}
 	});
 
+	// ============ INN/KPP: digits only ============
+	$(document).on('input', 'input[name="inn"], input[name="kpp"]', function() {
+		this.value = this.value.replace(/\D/g, '');
+	});
+
 	// ============ Checkbox visual state ============
 	$(document).on('change', '.checkbox input[type="checkbox"]', function() {
 		$(this).closest('.checkbox').find('.check').toggleClass('checked', $(this).is(':checked'));
