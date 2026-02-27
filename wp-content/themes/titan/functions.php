@@ -1123,10 +1123,60 @@ add_filter( 'woocommerce_order_button_text', function() {
 	return 'Заказать';
 } );
 
-// Render recipient, comment and consent checkbox between shipping and payment.
-// Fires on initial page render only (priority 15, between review-order at 10 and payment at 20).
-// WC AJAX update_order_review calls template functions directly, NOT this hook,
-// so these fields survive AJAX fragment replacements as static DOM elements.
+// Generate "Итоговая сумма" totals HTML (used on initial render and AJAX fragment).
+function titan_checkout_totals_html() {
+	$cart = WC()->cart;
+	ob_start();
+	?>
+	<div class="checkout-total-wrapper">
+		<div class="checkout-total">
+			<div class="checkout-total__header">
+				<span>Итоговая сумма</span>
+				<span class="checkout-total__val"><?php wc_cart_totals_order_total_html(); ?></span>
+				<button type="button" class="checkout-total__toggle">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M8 6L12 10H4L8 6Z" fill="black"/>
+					</svg>
+				</button>
+			</div>
+			<div class="checkout-total__details">
+				<div class="checkout-total__row">
+					<span>Стоимость заказа</span>
+					<span><?php wc_cart_totals_subtotal_html(); ?></span>
+				</div>
+				<?php foreach ( $cart->get_coupons() as $code => $coupon ) : ?>
+					<div class="checkout-total__row">
+						<span><?php wc_cart_totals_coupon_label( $coupon ); ?></span>
+						<span><?php wc_cart_totals_coupon_html( $coupon ); ?></span>
+					</div>
+				<?php endforeach; ?>
+				<div class="checkout-total__row">
+					<span>Доставка</span>
+					<span><?php echo wp_kses_post( $cart->get_cart_shipping_total() ); ?></span>
+				</div>
+				<?php foreach ( $cart->get_fees() as $fee ) : ?>
+					<div class="checkout-total__row">
+						<span><?php echo esc_html( $fee->name ); ?></span>
+						<span><?php wc_cart_totals_fee_html( $fee ); ?></span>
+					</div>
+				<?php endforeach; ?>
+				<?php if ( wc_tax_enabled() && ! $cart->display_prices_including_tax() ) : ?>
+					<div class="checkout-total__row">
+						<span><?php echo esc_html( WC()->countries->tax_or_vat() ); ?></span>
+						<span><?php wc_cart_totals_taxes_total_html(); ?></span>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+	</div>
+	<?php
+	return ob_get_clean();
+}
+
+// Render extra fields (recipient, comment, checkbox) between shipping and totals.
+// Priority 15: after review-order.php (10), before totals (16) and payment.php (20).
+// WC AJAX calls template functions directly, NOT this hook — so these fields
+// survive AJAX fragment replacements as static DOM elements.
 add_action( 'woocommerce_checkout_order_review', function() {
 	?>
 	<div class="checkout-extra-fields">
@@ -1142,6 +1192,17 @@ add_action( 'woocommerce_checkout_order_review', function() {
 	</div>
 	<?php
 }, 15 );
+
+// Render totals block on initial page load (priority 16: after extra fields, before payment).
+add_action( 'woocommerce_checkout_order_review', function() {
+	echo titan_checkout_totals_html();
+}, 16 );
+
+// Update totals via AJAX: add .checkout-total-wrapper as a replaceable fragment.
+add_filter( 'woocommerce_update_order_review_fragments', function( $fragments ) {
+	$fragments['.checkout-total-wrapper'] = titan_checkout_totals_html();
+	return $fragments;
+} );
 
 // Make address fields not required (legal entities don't fill billing address).
 add_filter( 'woocommerce_default_address_fields', function( $fields ) {
