@@ -2937,17 +2937,23 @@ label.password {
   }
 }
 
-.checkout-buyer-tabs {
+.checkout-buyer-tabs,
+.checkout-delivery-tabs {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   @media only screen and (max-width: 500px) {
     gap: 8px;
   }
 }
 
-.checkout-buyer-tab {
+.checkout-buyer-tabs {
+  margin-bottom: 24px;
+}
+
+.checkout-buyer-tab,
+.checkout-delivery-tab {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3210,6 +3216,16 @@ label.password {
       margin-bottom: 2px;
     }
   }
+}
+
+// Address field (shown only for courier delivery)
+.checkout-address-field {
+  margin-top: 16px;
+}
+
+// Error highlight for inputs
+.input-error {
+  border-color: var(--red) !important;
 }
 
 // Extra fields between shipping and payment (recipient, comment, checkbox)

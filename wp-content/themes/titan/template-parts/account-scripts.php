@@ -414,22 +414,32 @@ jQuery(function($) {
 	});
 
 	// ============ Checkout: Show address field for courier delivery ============
-	function checkCourierDelivery() {
+	function isCourierSelected() {
 		var $checked = $('input[name="shipping_method[0]"]:checked');
-		if (!$checked.length) {
-			$('.checkout-address-field').hide();
-			return;
-		}
+		if (!$checked.length) return false;
 		var label = $('label[for="' + $checked.attr('id') + '"]').text().toLowerCase();
-		var isCourier = label.indexOf('курьер') !== -1;
-		if (isCourier) {
-			$('.checkout-address-field').show();
-		} else {
-			$('.checkout-address-field').hide();
+		return label.indexOf('курьер') !== -1;
+	}
+	function checkCourierDelivery() {
+		var courier = isCourierSelected();
+		$('.checkout-address-field').toggle(courier);
+		if (!courier) {
+			$('#billing_address_1').removeClass('input-error');
 		}
 	}
 	$(document).on('change', 'input[name="shipping_method[0]"]', checkCourierDelivery);
-	$(document.body).on('updated_checkout', checkCourierDelivery);
+
+	// Client-side validation: highlight address field on checkout error
+	$(document).on('checkout_error', function() {
+		if (isCourierSelected() && !$('#billing_address_1').val().trim()) {
+			$('#billing_address_1').addClass('input-error');
+		}
+	});
+	$(document).on('input', '#billing_address_1', function() {
+		if ($(this).val().trim()) {
+			$(this).removeClass('input-error');
+		}
+	});
 
 	// ============ Checkout: Totals toggle ============
 	$(document).on('click', '.checkout-total__header', function() {

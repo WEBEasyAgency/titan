@@ -1292,6 +1292,23 @@ add_action( 'woocommerce_after_checkout_validation', function( $data, $errors ) 
 		if ( empty( $_POST['titan_personal_data'] ) ) {
 			$errors->add( 'titan_personal_data', 'Необходимо дать согласие на обработку персональных данных.' );
 		}
+		// Require address for courier delivery.
+		$shipping_method = $_POST['shipping_method'][0] ?? '';
+		if ( $shipping_method && strpos( $shipping_method, 'local_pickup' ) === false ) {
+			$label = '';
+			$packages = WC()->shipping()->get_packages();
+			foreach ( $packages as $package ) {
+				foreach ( $package['rates'] as $rate ) {
+					if ( $rate->get_id() === $shipping_method ) {
+						$label = strtolower( $rate->get_label() );
+						break 2;
+					}
+				}
+			}
+			if ( strpos( $label, 'курьер' ) !== false && empty( trim( $_POST['billing_address_1'] ?? '' ) ) ) {
+				$errors->add( 'billing_address_1', 'Укажите адрес доставки для курьерской доставки.' );
+			}
+		}
 	} else {
 		if ( empty( $_POST['titan_personal_data_legal'] ) ) {
 			$errors->add( 'titan_personal_data_legal', 'Необходимо дать согласие на обработку персональных данных.' );
