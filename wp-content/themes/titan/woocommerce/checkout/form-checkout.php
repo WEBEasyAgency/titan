@@ -117,18 +117,21 @@ $cart_subtotal  = $cart->get_cart_subtotal();
 			</div>
 
 			<?php
-			// Hidden fields required by WC to calculate shipping rates
+			// Country hidden (always RU), city visible — WC needs city to calculate shipping
 			$default_country = explode( ':', get_option( 'woocommerce_default_country', 'RU' ) )[0];
 			$billing_city    = get_user_meta( $user_id, 'billing_city', true );
 			?>
 			<input type="hidden" name="billing_country" id="billing_country" value="<?php echo esc_attr( $default_country ); ?>">
 			<input type="hidden" name="shipping_country" id="shipping_country" value="<?php echo esc_attr( $default_country ); ?>">
-			<input type="hidden" name="billing_city" id="billing_city" value="<?php echo esc_attr( $billing_city ); ?>">
-			<input type="hidden" name="shipping_city" id="shipping_city" value="<?php echo esc_attr( $billing_city ); ?>">
 			<input type="hidden" name="billing_address_1" id="billing_address_1" value="">
 			<input type="hidden" name="shipping_address_1" id="shipping_address_1" value="">
 
-			<!-- WC Shipping Methods (CDEK + Local Pickup appear here via update_order_review) -->
+			<!-- Delivery section -->
+			<h3 class="checkout-section__subtitle">Доставка:</h3>
+			<div class="checkout-fields">
+				<input type="text" name="billing_city" id="billing_city" value="<?php echo esc_attr( $billing_city ); ?>" placeholder="Город доставки" class="input-text" autocomplete="address-level2">
+				<input type="hidden" name="shipping_city" id="shipping_city" value="<?php echo esc_attr( $billing_city ); ?>">
+			</div>
 
 			<div class="checkout-fields checkout-fields--extra">
 				<input type="text" name="titan_recipient" placeholder="ФИО получателя" class="input-text">

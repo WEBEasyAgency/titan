@@ -279,6 +279,11 @@ jQuery(function($) {
 		}
 	});
 
+	// ============ Checkout: Sync billing_city → shipping_city ============
+	$(document).on('input change', '#billing_city', function() {
+		$('#shipping_city').val($(this).val());
+	});
+
 	// ============ Checkout: Quantity Update ============
 	// Note: app.js already handles +/- value change on .quantity-block .minus/.plus
 	// We only need to sync with server and trigger WC checkout refresh
