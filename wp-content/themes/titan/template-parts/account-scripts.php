@@ -344,7 +344,7 @@ jQuery(function($) {
 					$(document.body).trigger('update_checkout');
 				}
 			});
-		}, 300);
+		}, 150);
 	}
 	$(document).on('click', '.checkout-table .quantity-block .sign', function() {
 		syncCheckoutQty($(this).closest('.checkout-table__row'));
