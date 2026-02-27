@@ -146,7 +146,9 @@ jQuery(function($) {
 	// ============ Request Popup: Fill product info ============
 	$(document).on('click', '.popup[data-product-name]', function() {
 		var name = $(this).data('product-name');
-		$('#request-product .product-info .name, #request-product .popup-name').text(name);
+		var price = $(this).data('product-price');
+		$('#request-product .product-info .name').text(name);
+		$('#request-product .product-info .price').text(price ? price + ' ₽' : '');
 	});
 });
 </script>

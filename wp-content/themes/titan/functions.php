@@ -750,7 +750,7 @@ function titan_render_catalog_table( $category_id = null ) {
 					<?php if ( $in_stock ) : ?>
 						<a href="#" class="btn titan-add-to-cart" data-product-id="<?php echo esc_attr( $product->get_id() ); ?>">Купить</a>
 					<?php else : ?>
-						<a href="#request-product" class="btn btn-gray popup" data-product-name="<?php echo esc_attr( $product->get_name() ); ?>">Запросить</a>
+						<a href="#request-product" class="btn btn-gray popup" data-product-name="<?php echo esc_attr( $product->get_name() ); ?>" data-product-price="<?php echo esc_attr( $product->get_price() ); ?>">Запросить</a>
 					<?php endif; ?>
 				</div>
 			</div>

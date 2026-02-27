@@ -43,7 +43,7 @@
 							<label class="checkbox">
 								<input type="checkbox" name="policy">
 								<span class="check"></span>
-								<span class="label">Я соглашаюсь с условиями хранения и обработки персональных данных</span>
+								<span class="label">Согласен на обработку персональных данных согласно ФЗ от 27 июля 2006 г. № 152-ФЗ «О персональных данных»</span>
 							</label>
 						</div>
 						<div class="btn-block">

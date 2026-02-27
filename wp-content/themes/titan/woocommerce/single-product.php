@@ -65,7 +65,7 @@ while ( have_posts() ) :
 					</div>
 					<?php else : ?>
 					<div class="btn-block">
-						<a href="#request-product" class="btn btn-gray popup" data-product-name="<?php echo esc_attr( $product->get_name() ); ?>">Запросить</a>
+						<a href="#request-product" class="btn btn-gray popup" data-product-name="<?php echo esc_attr( $product->get_name() ); ?>" data-product-price="<?php echo esc_attr( $product->get_price() ); ?>">Запросить</a>
 					</div>
 					<?php endif; ?>
 				</div>
