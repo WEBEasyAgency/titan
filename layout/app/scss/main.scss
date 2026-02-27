@@ -3052,6 +3052,28 @@ label.password {
       }
     }
   }
+  .cdek-delivery-type {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    &__option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 24px;
+      input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--black);
+        cursor: pointer;
+      }
+    }
+  }
+  .cdek-door-section {
+    margin-bottom: 12px;
+  }
   .cdek-delivery-cost {
     font-size: 14px;
     line-height: 24px;

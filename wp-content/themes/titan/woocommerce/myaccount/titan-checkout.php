@@ -113,11 +113,32 @@ $cart_total     = $cart->get_cart_total();
 					<input type="text" name="cdek_city" class="cdek-city-input" placeholder="Введите город доставки" autocomplete="off">
 					<div class="cdek-city-suggestions"></div>
 				</div>
-				<div class="open-pvz-btn" data-city="" style="display: none;">
-					<script type="application/cdek-offices">[]</script>
-					<a><?php esc_html_e( 'Выбрать пункт выдачи', 'flavor' ); ?></a>
+
+				<div class="cdek-delivery-type" style="display: none;">
+					<label class="cdek-delivery-type__option">
+						<input type="radio" name="cdek_delivery_type" value="office" checked>
+						<span>До пункта выдачи</span>
+					</label>
+					<label class="cdek-delivery-type__option">
+						<input type="radio" name="cdek_delivery_type" value="door">
+						<span>Курьером до двери</span>
+					</label>
 				</div>
-				<input name="office_code" class="cdek-office-code" type="hidden" value="">
+
+				<div class="cdek-office-section">
+					<div class="open-pvz-btn" data-city="" style="display: none;">
+						<script type="application/cdek-offices">[]</script>
+						<a><?php esc_html_e( 'Выбрать пункт выдачи', 'flavor' ); ?></a>
+					</div>
+					<input name="office_code" class="cdek-office-code" type="hidden" value="">
+				</div>
+
+				<div class="cdek-door-section" style="display: none;">
+					<div class="checkout-fields">
+						<input type="text" name="cdek_door_address" placeholder="Улица, дом, квартира">
+					</div>
+				</div>
+
 				<div class="cdek-delivery-cost" style="display: none;">
 					<span class="cdek-delivery-cost__label">Стоимость доставки:</span>
 					<span class="cdek-delivery-cost__val"></span>

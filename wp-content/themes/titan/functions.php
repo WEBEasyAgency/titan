@@ -1082,20 +1082,32 @@ function titan_ajax_place_order() {
 
 		// CDEK delivery data
 		if ( $delivery_method === 'delivery' ) {
-			$cdek_office    = sanitize_text_field( $_POST['cdek_office_code'] ?? '' );
-			$cdek_city_code = sanitize_text_field( $_POST['cdek_city_code'] ?? '' );
-			$cdek_cost      = floatval( $_POST['cdek_delivery_cost'] ?? 0 );
-			$cdek_tariff    = sanitize_text_field( $_POST['cdek_tariff_code'] ?? '' );
-			$cdek_address   = sanitize_text_field( $_POST['cdek_office_address'] ?? '' );
-			$cdek_city_name = sanitize_text_field( $_POST['cdek_city_name'] ?? '' );
-			$country        = explode( ':', get_option( 'woocommerce_default_country', 'RU' ) )[0];
+			$cdek_delivery_type = sanitize_text_field( $_POST['cdek_delivery_type'] ?? 'office' );
+			$cdek_office        = sanitize_text_field( $_POST['cdek_office_code'] ?? '' );
+			$cdek_city_code     = sanitize_text_field( $_POST['cdek_city_code'] ?? '' );
+			$cdek_cost          = floatval( $_POST['cdek_delivery_cost'] ?? 0 );
+			$cdek_tariff        = sanitize_text_field( $_POST['cdek_tariff_code'] ?? '' );
+			$cdek_office_addr   = sanitize_text_field( $_POST['cdek_office_address'] ?? '' );
+			$cdek_door_addr     = sanitize_text_field( $_POST['cdek_door_address'] ?? '' );
+			$cdek_city_name     = sanitize_text_field( $_POST['cdek_city_name'] ?? '' );
+			$country            = explode( ':', get_option( 'woocommerce_default_country', 'RU' ) )[0];
+
+			// Determine shipping address based on delivery type
+			$shipping_address = ( $cdek_delivery_type === 'door' ) ? $cdek_door_addr : $cdek_office_addr;
 
 			// Set shipping address on order (CDEKDelivery reads it via Order model)
 			$order->set_shipping_first_name( $first_name );
 			$order->set_shipping_last_name( $last_name );
 			$order->set_shipping_city( $cdek_city_name );
 			$order->set_shipping_country( $country );
-			$order->set_shipping_address_1( $cdek_address );
+			$order->set_shipping_address_1( $shipping_address );
+
+			// Also set billing address (required by some payment gateways)
+			$order->set_billing_city( $cdek_city_name );
+			$order->set_billing_country( $country );
+			$order->set_billing_address_1( $shipping_address );
+
+			$order->update_meta_data( '_cdek_delivery_type', $cdek_delivery_type );
 
 			if ( $cdek_cost > 0 ) {
 				// Find CDEK shipping method instance_id
@@ -1129,12 +1141,16 @@ function titan_ajax_place_order() {
 
 				// Meta keys expected by CDEKDelivery plugin (Cdek\MetaKeys)
 				$shipping_item->add_meta_data( '_official_cdek_tariff_code', $cdek_tariff, true );
-				$shipping_item->add_meta_data( '_official_cdek_office_code', $cdek_office, true );
 				$shipping_item->add_meta_data( '_official_cdek_city', $cdek_city_code, true );
 				$shipping_item->add_meta_data( '_official_cdek_length', $cdek_length, true );
 				$shipping_item->add_meta_data( '_official_cdek_width', $cdek_width, true );
 				$shipping_item->add_meta_data( '_official_cdek_height', $cdek_height, true );
 				$shipping_item->add_meta_data( '_official_cdek_weight', $cdek_weight, true );
+
+				// Office code only for PVZ delivery
+				if ( $cdek_delivery_type === 'office' && $cdek_office ) {
+					$shipping_item->add_meta_data( '_official_cdek_office_code', $cdek_office, true );
+				}
 
 				$order->add_item( $shipping_item );
 			}
@@ -1373,22 +1389,26 @@ function titan_ajax_cdek_calculate() {
 			wp_send_json_error( array( 'message' => 'Нет доступных тарифов' ) );
 		}
 
-		// Find cheapest office tariff from allowed list
+		// Filter tariffs based on delivery type
+		$delivery_type = sanitize_text_field( $_POST['delivery_type'] ?? 'office' );
 		$best = null;
 		foreach ( $result['tariff_codes'] as $t ) {
 			if ( ! in_array( (string) $t['tariff_code'], $tariff_list, true ) ) continue;
 			try {
-				if ( ! \Cdek\Model\Tariff::isToOffice( (int) $t['tariff_code'] ) ) continue;
+				$is_to_office = \Cdek\Model\Tariff::isToOffice( (int) $t['tariff_code'] );
 			} catch ( \Throwable $e ) {
 				continue;
 			}
+			// office/pickup → isToOffice tariffs, door → NOT isToOffice tariffs
+			if ( $delivery_type === 'door' && $is_to_office ) continue;
+			if ( $delivery_type === 'office' && ! $is_to_office ) continue;
 			if ( $best === null || (float) $t['delivery_sum'] < (float) $best['delivery_sum'] ) {
 				$best = $t;
 			}
 		}
 
 		if ( ! $best ) {
-			// Fallback: cheapest any tariff
+			// Fallback: cheapest any tariff from allowed list
 			foreach ( $result['tariff_codes'] as $t ) {
 				if ( ! in_array( (string) $t['tariff_code'], $tariff_list, true ) ) continue;
 				if ( $best === null || (float) $t['delivery_sum'] < (float) $best['delivery_sum'] ) {

@@ -379,12 +379,35 @@ jQuery(function($) {
 
 			// CDEK data
 			if (deliveryMethod === 'delivery') {
+				var cdekDeliveryType = $('input[name="cdek_delivery_type"]:checked').val() || 'office';
+				var cdekCost = $('input[name="cdek_delivery_cost"]').val();
+
+				if (!cdekCost || parseFloat(cdekCost) <= 0) {
+					alert('Рассчитайте стоимость доставки перед оформлением заказа');
+					$btn.prop('disabled', false).text('Заказать');
+					return;
+				}
+
+				if (cdekDeliveryType === 'office' && !$('.cdek-office-code').val()) {
+					alert('Выберите пункт выдачи');
+					$btn.prop('disabled', false).text('Заказать');
+					return;
+				}
+
+				if (cdekDeliveryType === 'door' && !$('input[name="cdek_door_address"]').val().trim()) {
+					alert('Укажите адрес доставки');
+					$btn.prop('disabled', false).text('Заказать');
+					return;
+				}
+
+				formData.append('cdek_delivery_type', cdekDeliveryType);
 				formData.append('cdek_office_code', $('.cdek-office-code').val());
 				formData.append('cdek_city_code', $('input[name="cdek_city_code"]').val());
 				formData.append('cdek_city_name', $('.cdek-city-input').val());
-				formData.append('cdek_delivery_cost', $('input[name="cdek_delivery_cost"]').val());
+				formData.append('cdek_delivery_cost', cdekCost);
 				formData.append('cdek_tariff_code', $('input[name="cdek_tariff_code"]').val());
 				formData.append('cdek_office_address', $('.cdek-office-info').text() || '');
+				formData.append('cdek_door_address', $('input[name="cdek_door_address"]').val() || '');
 			}
 		} else {
 			formData.append('legal_entity_id', $panel.find('select[name="legal_entity"]').val() || '');
@@ -471,12 +494,7 @@ jQuery(function($) {
 			return;
 		}
 
-		// Reset state when user types (city not confirmed yet)
-		$('.open-pvz-btn').hide();
-		$('.cdek-office-info').remove();
-		$('.cdek-office-code').val('');
-		cdekCityCode = null;
-		resetCdekCost();
+		resetCdekState();
 
 		cdekSuggestTimer = setTimeout(function() {
 			if (cdekSuggestXhr) cdekSuggestXhr.abort();
@@ -512,7 +530,6 @@ jQuery(function($) {
 		$('.cdek-city-input').val(cityName);
 		$('.cdek-city-suggestions').hide().empty();
 
-		// Load offices for selected city
 		loadCdekOffices(cityName);
 	});
 
@@ -537,7 +554,20 @@ jQuery(function($) {
 				$pvzBtn.attr('data-city', cityName);
 				$pvzBtn.find('script').text(response.data.offices);
 				$pvzBtn.find('a').text('Выбрать пункт выдачи');
-				$pvzBtn.show();
+
+				// Show delivery type selector
+				$('.cdek-delivery-type').show();
+
+				var deliveryType = $('input[name="cdek_delivery_type"]:checked').val();
+				if (deliveryType === 'office') {
+					$('.cdek-office-section').show();
+					$('.cdek-door-section').hide();
+					$pvzBtn.show();
+				} else {
+					$('.cdek-office-section').hide();
+					$('.cdek-door-section').show();
+					calculateCdekCost('door');
+				}
 
 				$('.cdek-office-info').remove();
 				$('.cdek-office-code').val('');
@@ -546,10 +576,35 @@ jQuery(function($) {
 		});
 	}
 
+	// Delivery type toggle: office vs door
+	$(document).on('change', 'input[name="cdek_delivery_type"]', function() {
+		var type = $(this).val();
+		resetCdekCost();
+
+		if (type === 'office') {
+			$('.cdek-office-section').show();
+			$('.cdek-door-section').hide();
+			if (cdekCityCode) {
+				$('.open-pvz-btn').show();
+			}
+		} else {
+			$('.cdek-office-section').hide();
+			$('.cdek-door-section').show();
+			$('.cdek-office-info').remove();
+			$('.cdek-office-code').val('');
+			if (cdekCityCode) {
+				calculateCdekCost('door');
+			}
+		}
+	});
+
 	function resetCdekState() {
 		$('.open-pvz-btn').hide();
 		$('.cdek-office-info').remove();
 		$('.cdek-office-code').val('');
+		$('.cdek-delivery-type').hide();
+		$('.cdek-office-section').show();
+		$('.cdek-door-section').hide();
 		cdekCityCode = null;
 		resetCdekCost();
 	}
@@ -558,7 +613,7 @@ jQuery(function($) {
 	$(document.body).on('update_checkout', function() {
 		var officeCode = $('.cdek-office-code').val();
 		if (officeCode && cdekCityCode) {
-			calculateCdekCost();
+			calculateCdekCost('office');
 		}
 	});
 
@@ -567,15 +622,17 @@ jQuery(function($) {
 		$('input[name="cdek_delivery_cost"]').val('');
 		$('input[name="cdek_tariff_code"]').val('');
 		$('.checkout-total__details .checkout-total__row').last().find('span').last().html('—');
+		updateTotalWithDelivery(0);
 	}
 
-	function calculateCdekCost() {
+	function calculateCdekCost(deliveryType) {
 		if (!cdekCityCode) return;
 
 		$.post(titan_wc.ajax_url, {
 			action: 'titan_cdek_calculate',
 			nonce: titan_wc.nonce,
-			city_code: cdekCityCode
+			city_code: cdekCityCode,
+			delivery_type: deliveryType || 'office'
 		}, function(response) {
 			if (response.success) {
 				var d = response.data;
@@ -587,12 +644,15 @@ jQuery(function($) {
 				$('.cdek-delivery-cost').show();
 
 				$('.checkout-total__details .checkout-total__row').last().find('span').last().html(d.cost_format);
-
-				var cartTotal = parseFloat($('.checkout-subtotal__val').text().replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
-				var newTotal = cartTotal + parseFloat(d.cost);
-				$('.checkout-total__val').html(newTotal.toLocaleString('ru-RU') + ' ₽');
+				updateTotalWithDelivery(parseFloat(d.cost));
 			}
 		});
+	}
+
+	function updateTotalWithDelivery(deliveryCost) {
+		var cartTotal = parseFloat($('.checkout-subtotal__val').text().replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+		var newTotal = cartTotal + deliveryCost;
+		$('.checkout-total__val').html(newTotal.toLocaleString('ru-RU') + ' ₽');
 	}
 });
 </script>
