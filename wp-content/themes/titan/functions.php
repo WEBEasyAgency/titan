@@ -1080,8 +1080,8 @@ add_filter( 'woocommerce_payment_gateways', function( $gateways ) {
 // 26. WC Checkout: Custom Fields & Order Meta
 // =========================================
 
-// Add patronymic field to billing; keep all standard WC billing/shipping fields
-// intact — CDEK plugin needs country, city, state, postcode for calculate_shipping().
+// Customize WC billing fields: add patronymic, remove unnecessary fields.
+// Keep country, city, state, postcode, address_1 — CDEK needs them for calculate_shipping().
 add_filter( 'woocommerce_checkout_fields', function( $fields ) {
 	$fields['billing']['billing_patronymic'] = array(
 		'type'     => 'text',
@@ -1089,73 +1089,20 @@ add_filter( 'woocommerce_checkout_fields', function( $fields ) {
 		'required' => false,
 		'priority' => 25,
 	);
+	unset( $fields['billing']['billing_company'] );
+	unset( $fields['billing']['billing_address_2'] );
 	return $fields;
 } );
 
-// Make billing_country and billing_city not required (CDEK handles shipping address)
+// Make address fields not required (legal entities don't fill billing address).
 add_filter( 'woocommerce_default_address_fields', function( $fields ) {
-	$optional = array( 'country', 'state', 'city', 'postcode', 'address_1', 'address_2' );
+	$optional = array( 'country', 'state', 'city', 'postcode', 'address_1' );
 	foreach ( $optional as $key ) {
 		if ( isset( $fields[ $key ] ) ) {
 			$fields[ $key ]['required'] = false;
 		}
 	}
 	return $fields;
-} );
-
-// =========================================
-// DEBUG: Shipping calculation (TEMPORARY — remove after fixing CDEK)
-// =========================================
-add_filter( 'woocommerce_shipping_packages', function( $packages ) {
-	$log = wc_get_logger();
-	$ctx = array( 'source' => 'titan-shipping' );
-
-	// Find ALL cdek-related options in DB
-	global $wpdb;
-	$cdek_options = $wpdb->get_results(
-		"SELECT option_name, LENGTH(option_value) as val_len FROM {$wpdb->options} WHERE option_name LIKE '%cdek%' OR option_name LIKE '%official_cdek%' ORDER BY option_name",
-		ARRAY_A
-	);
-	$log->debug( '=== ALL CDEK OPTIONS IN DB ===', $ctx );
-	foreach ( $cdek_options as $opt ) {
-		$log->debug( "  {$opt['option_name']} (len={$opt['val_len']})", $ctx );
-	}
-
-	// Try multiple possible option names
-	foreach ( array(
-		'woocommerce_official_cdek_2_settings',
-		'woocommerce_official_cdek_settings',
-		'woocommerce_cdekdelivery_2_settings',
-		'woocommerce_cdekdelivery_settings',
-		'cdekdelivery_settings',
-	) as $opt_name ) {
-		$val = get_option( $opt_name, '__NOT_FOUND__' );
-		if ( $val !== '__NOT_FOUND__' ) {
-			$keys = is_array( $val ) ? implode( ', ', array_keys( $val ) ) : '(not array: ' . substr( (string) $val, 0, 200 ) . ')';
-			$log->debug( "Option $opt_name EXISTS, keys: $keys", $ctx );
-			if ( is_array( $val ) && isset( $val['city_code'] ) ) {
-				$log->debug( "  -> city_code: {$val['city_code']}", $ctx );
-				$log->debug( "  -> tariff_list: " . wp_json_encode( $val['tariff_list'] ?? 'N/A' ), $ctx );
-				$log->debug( "  -> client_id: " . ( ! empty( $val['client_id'] ) ? 'SET' : 'EMPTY' ), $ctx );
-			}
-		}
-	}
-
-	$log->debug( '=== SHIPPING PACKAGES ===', $ctx );
-	foreach ( $packages as $i => $pkg ) {
-		$log->debug( "Package $i destination: " . wp_json_encode( $pkg['destination'] ), $ctx );
-		$log->debug( "Package $i rates count: " . count( $pkg['rates'] ?? [] ), $ctx );
-		if ( ! empty( $pkg['rates'] ) ) {
-			foreach ( $pkg['rates'] as $rate_id => $rate ) {
-				$log->debug( "  Rate: $rate_id = {$rate->cost}", $ctx );
-			}
-		}
-	}
-
-	// Check WC logs for CDEK plugin's own debug output
-	$log->debug( 'Check also WC logs source "cdekdelivery" for CDEK internal debug', $ctx );
-
-	return $packages;
 } );
 
 // Save custom order meta after WC creates the order
