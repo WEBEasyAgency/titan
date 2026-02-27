@@ -280,39 +280,45 @@ jQuery(function($) {
 	});
 
 	// ============ Checkout: Quantity Update ============
-	$(document).on('click', '.checkout-table .quantity-block .minus, .checkout-table .quantity-block .plus', function() {
-		var $row = $(this).closest('.checkout-table__row');
+	var qtyUpdateTimer;
+	$(document).on('click', '.checkout-table .quantity-block .sign', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+
+		var $sign = $(this).closest('.sign');
+		var $row = $sign.closest('.checkout-table__row');
 		var key = $row.data('cart-item-key');
 		var $input = $row.find('.number');
 		var qty = parseInt($input.val()) || 1;
 
-		if ($(this).hasClass('minus')) {
+		if ($sign.hasClass('minus')) {
 			qty = Math.max(1, qty - 1);
 		} else {
 			qty = qty + 1;
 		}
 		$input.val(qty);
 
-		$.post(titan_wc.ajax_url, {
-			action: 'titan_update_checkout_qty',
-			nonce: titan_wc.nonce,
-			cart_item_key: key,
-			quantity: qty
-		}, function(response) {
-			if (response.success) {
-				var d = response.data;
-				// Update item subtotal
-				$.each(d.items, function(i, item) {
-					if (item.key === key) {
-						$row.find('.total').html(item.subtotal + ' ₽');
-					}
-				});
-				$('.checkout-subtotal__val').html(d.subtotal);
-				updateCartBadge(d.cart_count);
-				// Trigger WC checkout refresh (recalculates shipping & totals)
-				$(document.body).trigger('update_checkout');
-			}
-		});
+		clearTimeout(qtyUpdateTimer);
+		qtyUpdateTimer = setTimeout(function() {
+			$.post(titan_wc.ajax_url, {
+				action: 'titan_update_checkout_qty',
+				nonce: titan_wc.nonce,
+				cart_item_key: key,
+				quantity: qty
+			}, function(response) {
+				if (response.success) {
+					var d = response.data;
+					$.each(d.items, function(i, item) {
+						if (item.key === key) {
+							$row.find('.total').html(item.subtotal + ' ₽');
+						}
+					});
+					$('.checkout-subtotal__val').html(d.subtotal);
+					updateCartBadge(d.cart_count);
+					$(document.body).trigger('update_checkout');
+				}
+			});
+		}, 300);
 	});
 
 	// ============ Checkout: Legal Entity Select ============

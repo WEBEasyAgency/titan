@@ -2420,9 +2420,15 @@ label.password {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0; // prevent grid blowout
 
   .woocommerce-notices-wrapper:empty {
     display: none;
+  }
+
+  // WC shortcode wrapper — transparent, no layout impact
+  > .woocommerce {
+    display: contents;
   }
 }
 

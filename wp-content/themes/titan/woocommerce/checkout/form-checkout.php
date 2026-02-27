@@ -10,14 +10,11 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-// Ensure checkout is initialized
+// Fire the hook but suppress default WC output (login reminder, coupon form)
+// that would break our layout. We only need this for plugin compatibility.
+remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_login_form', 10 );
+remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10 );
 do_action( 'woocommerce_before_checkout_form', $checkout );
-
-// If checkout registration is disabled and not logged in, the user cannot checkout.
-if ( ! $checkout->is_registration_enabled() && $checkout->is_registration_required() && ! is_user_logged_in() ) {
-	echo esc_html( apply_filters( 'woocommerce_checkout_must_be_logged_in_message', __( 'You must be logged in to checkout.', 'woocommerce' ) ) );
-	return;
-}
 
 $cart           = WC()->cart;
 $user           = wp_get_current_user();
@@ -119,14 +116,19 @@ $cart_subtotal  = $cart->get_cart_subtotal();
 				<input type="tel" name="billing_phone" id="billing_phone" value="<?php echo esc_attr( $phone ); ?>" placeholder="Телефон" class="input-text">
 			</div>
 
-			<!-- WC Shipping Methods (CDEK appears here automatically) -->
-			<div class="checkout-shipping-methods">
-				<?php if ( WC()->cart->needs_shipping() && WC()->cart->show_shipping() ) : ?>
-					<?php do_action( 'woocommerce_review_order_before_shipping' ); ?>
-					<?php wc_cart_totals_shipping_html(); ?>
-					<?php do_action( 'woocommerce_review_order_after_shipping' ); ?>
-				<?php endif; ?>
-			</div>
+			<?php
+			// Hidden fields required by WC to calculate shipping rates
+			$default_country = explode( ':', get_option( 'woocommerce_default_country', 'RU' ) )[0];
+			$billing_city    = get_user_meta( $user_id, 'billing_city', true );
+			?>
+			<input type="hidden" name="billing_country" id="billing_country" value="<?php echo esc_attr( $default_country ); ?>">
+			<input type="hidden" name="shipping_country" id="shipping_country" value="<?php echo esc_attr( $default_country ); ?>">
+			<input type="hidden" name="billing_city" id="billing_city" value="<?php echo esc_attr( $billing_city ); ?>">
+			<input type="hidden" name="shipping_city" id="shipping_city" value="<?php echo esc_attr( $billing_city ); ?>">
+			<input type="hidden" name="billing_address_1" id="billing_address_1" value="">
+			<input type="hidden" name="shipping_address_1" id="shipping_address_1" value="">
+
+			<!-- WC Shipping Methods (CDEK + Local Pickup appear here via update_order_review) -->
 
 			<div class="checkout-fields checkout-fields--extra">
 				<input type="text" name="titan_recipient" placeholder="ФИО получателя" class="input-text">
