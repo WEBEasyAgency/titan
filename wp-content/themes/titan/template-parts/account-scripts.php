@@ -261,21 +261,22 @@ jQuery(function($) {
 		$(this).addClass('active');
 		$('.checkout-buyer-panel').hide();
 		$('.checkout-buyer-panel[data-buyer-panel="' + buyer + '"]').show();
-	});
+		$('#titan_buyer_type').val(buyer);
 
-	// ============ Checkout: Delivery Tabs ============
-	$(document).on('click', '.checkout-delivery-tab', function() {
-		var delivery = $(this).data('delivery');
-		$('.checkout-delivery-tab').removeClass('active');
-		$(this).addClass('active');
-		$('.checkout-delivery-panel').hide();
-		$('.checkout-delivery-panel[data-delivery-panel="' + delivery + '"]').show();
-	});
-
-	// ============ Checkout: Total Toggle ============
-	$(document).on('click', '.checkout-total__toggle', function() {
-		$(this).toggleClass('open');
-		$(this).closest('.checkout-total').find('.checkout-total__details').slideToggle();
+		// Switch payment gateway visibility
+		if (buyer === 'legal') {
+			$('#payment_method_titan_invoice').prop('checked', true).trigger('change');
+			$('.wc_payment_methods li').hide();
+			$('#payment_method_titan_invoice').closest('li').show();
+			// Hide shipping section for legal entities
+			$('.checkout-shipping-methods').hide();
+		} else {
+			$('.wc_payment_methods li').show();
+			$('#payment_method_titan_invoice').closest('li').hide();
+			$('.wc_payment_methods li:visible input[type="radio"]').first().prop('checked', true).trigger('change');
+			// Show shipping section for physical persons
+			$('.checkout-shipping-methods').show();
+		}
 	});
 
 	// ============ Checkout: Quantity Update ============
@@ -307,120 +308,37 @@ jQuery(function($) {
 					}
 				});
 				$('.checkout-subtotal__val').html(d.subtotal);
-				$('.checkout-total__val').html(d.total);
 				updateCartBadge(d.cart_count);
+				// Trigger WC checkout refresh (recalculates shipping & totals)
+				$(document.body).trigger('update_checkout');
 			}
 		});
 	});
 
 	// ============ Checkout: Legal Entity Select ============
-	$(document).on('change', 'select[name="legal_entity"]', function() {
+	$(document).on('change', 'select[name="titan_legal_entity"]', function() {
 		var $selected = $(this).find(':selected');
 		var inn = $selected.data('inn') || '';
 		var kpp = $selected.data('kpp') || '';
 		var $panel = $(this).closest('.checkout-buyer-panel');
-		$panel.find('input[name="inn"]').val(inn);
-		$panel.find('input[name="kpp"]').val(kpp);
+		$panel.find('input[name="titan_inn"]').val(inn);
+		$panel.find('input[name="titan_kpp"]').val(kpp);
 	});
 
-	// ============ Checkout: File Attachment ============
+	// ============ Checkout: File Attachment (AJAX upload) ============
 	$(document).on('change', '.checkout-attach-btn input[type="file"]', function() {
 		var file = this.files[0];
-		if (file) {
-			var $attachments = $(this).closest('.checkout-attachments');
-			$attachments.find('.checkout-attachment__name').text(file.name);
-			$attachments.find('.checkout-attachment').show();
-			$attachments.find('.checkout-attach-btn').hide();
-		}
-	});
+		if (!file) return;
 
-	$(document).on('click', '.checkout-attachment__delete', function() {
 		var $attachments = $(this).closest('.checkout-attachments');
-		$attachments.find('.checkout-attachment').hide();
-		$attachments.find('.checkout-attach-btn').show();
-		$attachments.find('input[type="file"]').val('');
-	});
-
-	// ============ Checkout: Submit Order ============
-	$(document).on('click', '.checkout-submit', function() {
-		var $btn = $(this);
-		var buyerType = $btn.data('buyer-type');
-		var $panel = $btn.closest('.checkout-buyer-panel');
-
-		// Validate checkboxes
-		var allChecked = true;
-		$panel.find('.checkbox input[type="checkbox"]').each(function() {
-			if (!$(this).is(':checked')) {
-				allChecked = false;
-				$(this).closest('.checkbox').find('.check').addClass('error');
-			} else {
-				$(this).closest('.checkbox').find('.check').removeClass('error');
-			}
-		});
-		if (!allChecked) return;
-
-		$btn.prop('disabled', true).text('...');
+		$attachments.find('.checkout-attachment__name').text(file.name + ' (загрузка...)');
+		$attachments.find('.checkout-attachment').show();
+		$attachments.find('.checkout-attach-btn').hide();
 
 		var formData = new FormData();
-		formData.append('action', 'titan_place_order');
+		formData.append('action', 'titan_upload_requisites');
 		formData.append('nonce', titan_wc.nonce);
-		formData.append('buyer_type', buyerType);
-		formData.append('last_name', $panel.find('input[name="lastname"]').val());
-		formData.append('first_name', $panel.find('input[name="firstname"]').val());
-		formData.append('surname', $panel.find('input[name="patronymic"]').val());
-		formData.append('email', $panel.find('input[name="email"]').val());
-		formData.append('phone', $panel.find('input[name="phone"]').val());
-
-		if (buyerType === 'physical') {
-			var deliveryMethod = $('.checkout-delivery-tab.active').data('delivery') || 'delivery';
-			formData.append('delivery_method', deliveryMethod);
-			formData.append('recipient', $panel.find('input[name="recipient"]').val());
-			formData.append('comment', $panel.find('textarea[name="comment"]').val());
-
-			// CDEK data
-			if (deliveryMethod === 'delivery') {
-				var cdekDeliveryType = $('input[name="cdek_delivery_type"]:checked').val() || 'office';
-				var cdekCost = $('input[name="cdek_delivery_cost"]').val();
-
-				if (!cdekCost || parseFloat(cdekCost) <= 0) {
-					alert('Рассчитайте стоимость доставки перед оформлением заказа');
-					$btn.prop('disabled', false).text('Заказать');
-					return;
-				}
-
-				if (cdekDeliveryType === 'office' && !$('.cdek-office-code').val()) {
-					alert('Выберите пункт выдачи');
-					$btn.prop('disabled', false).text('Заказать');
-					return;
-				}
-
-				if (cdekDeliveryType === 'door' && !$('input[name="cdek_door_address"]').val().trim()) {
-					alert('Укажите адрес доставки');
-					$btn.prop('disabled', false).text('Заказать');
-					return;
-				}
-
-				formData.append('cdek_delivery_type', cdekDeliveryType);
-				formData.append('cdek_office_code', $('.cdek-office-code').val());
-				formData.append('cdek_city_code', $('input[name="cdek_city_code"]').val());
-				formData.append('cdek_city_name', $('.cdek-city-input').val());
-				formData.append('cdek_delivery_cost', cdekCost);
-				formData.append('cdek_tariff_code', $('input[name="cdek_tariff_code"]').val());
-				formData.append('cdek_office_address', $('.cdek-office-info').text() || '');
-				formData.append('cdek_door_address', $('input[name="cdek_door_address"]').val() || '');
-			}
-		} else {
-			formData.append('legal_entity_id', $panel.find('select[name="legal_entity"]').val() || '');
-			formData.append('inn', $panel.find('input[name="inn"]').val());
-			formData.append('kpp', $panel.find('input[name="kpp"]').val());
-			formData.append('comment', $panel.find('textarea[name="comment"]').val());
-
-			// File upload
-			var fileInput = $panel.find('input[name="requisites"]')[0];
-			if (fileInput && fileInput.files[0]) {
-				formData.append('requisites', fileInput.files[0]);
-			}
-		}
+		formData.append('file', file);
 
 		$.ajax({
 			url: titan_wc.ajax_url,
@@ -429,29 +347,35 @@ jQuery(function($) {
 			processData: false,
 			contentType: false,
 			success: function(response) {
-				$btn.prop('disabled', false).text(buyerType === 'legal' ? 'Выставить счёт' : 'Заказать');
 				if (response.success) {
-					updateCartBadge(0);
-					if (response.data.payment_url) {
-						window.location.href = response.data.payment_url;
-					} else {
-						$('#popup-checkout-success').addClass('active');
-					}
+					$attachments.find('input[name="titan_requisites_id"]').val(response.data.attachment_id);
+					$attachments.find('.checkout-attachment__name').text(file.name);
 				} else {
-					alert(response.data || 'Ошибка при оформлении заказа');
+					alert(response.data || 'Ошибка загрузки файла');
+					$attachments.find('.checkout-attachment').hide();
+					$attachments.find('.checkout-attach-btn').show();
 				}
 			},
 			error: function() {
-				$btn.prop('disabled', false).text(buyerType === 'legal' ? 'Выставить счёт' : 'Заказать');
-				alert('Ошибка сервера');
+				alert('Ошибка сервера при загрузке файла');
+				$attachments.find('.checkout-attachment').hide();
+				$attachments.find('.checkout-attach-btn').show();
 			}
 		});
 	});
 
-	// ============ Checkout Success: Back to Account ============
-	$('#btn-back-to-account').on('click', function() {
-		$('#popup-checkout-success').removeClass('active');
-		window.location.href = titan_wc.account_url;
+	$(document).on('click', '.checkout-attachment__delete', function() {
+		var $attachments = $(this).closest('.checkout-attachments');
+		$attachments.find('.checkout-attachment').hide();
+		$attachments.find('.checkout-attach-btn').show();
+		$attachments.find('input[type="file"]').val('');
+		$attachments.find('input[name="titan_requisites_id"]').val('');
+	});
+
+	// ============ Checkout: Initial gateway setup ============
+	// On page load, hide invoice gateway for physical persons (default)
+	$(document).ready(function() {
+		$('#payment_method_titan_invoice').closest('li').hide();
 	});
 
 	// ============ History: Toggle Details ============
@@ -478,198 +402,5 @@ jQuery(function($) {
 		}
 	});
 
-	// ============ CDEK Integration ============
-	var cdekCityCode = null;
-	var cdekSuggestTimer;
-	var cdekSuggestXhr = null;
-
-	// City suggest: autocomplete dropdown
-	$(document).on('input', '.cdek-city-input', function() {
-		var q = $(this).val().trim();
-		clearTimeout(cdekSuggestTimer);
-
-		if (q.length < 2) {
-			$('.cdek-city-suggestions').hide().empty();
-			resetCdekState();
-			return;
-		}
-
-		resetCdekState();
-
-		cdekSuggestTimer = setTimeout(function() {
-			if (cdekSuggestXhr) cdekSuggestXhr.abort();
-			cdekSuggestXhr = $.post(titan_wc.ajax_url, {
-				action: 'titan_cdek_city_suggest',
-				nonce: titan_wc.nonce,
-				q: q
-			}, function(response) {
-				cdekSuggestXhr = null;
-				var $suggestions = $('.cdek-city-suggestions');
-				$suggestions.empty();
-
-				if (response.success && response.data.length) {
-					$.each(response.data, function(i, city) {
-						$('<div class="cdek-city-suggestions__item"></div>')
-							.text(city.full_name)
-							.data('city', city)
-							.appendTo($suggestions);
-					});
-					$suggestions.show();
-				} else {
-					$suggestions.hide();
-				}
-			});
-		}, 400);
-	});
-
-	// Select city from suggestions
-	$(document).on('click', '.cdek-city-suggestions__item', function() {
-		var city = $(this).data('city');
-		var cityName = city.full_name.split(',')[0].trim();
-
-		$('.cdek-city-input').val(cityName);
-		$('.cdek-city-suggestions').hide().empty();
-
-		loadCdekOffices(cityName);
-	});
-
-	// Hide suggestions on outside click
-	$(document).on('click', function(e) {
-		if (!$(e.target).closest('.cdek-city-row').length) {
-			$('.cdek-city-suggestions').hide();
-		}
-	});
-
-	function loadCdekOffices(cityName) {
-		$.post(titan_wc.ajax_url, {
-			action: 'titan_cdek_offices',
-			nonce: titan_wc.nonce,
-			city: cityName
-		}, function(response) {
-			if (response.success) {
-				cdekCityCode = response.data.city_code;
-				$('input[name="cdek_city_code"]').val(cdekCityCode);
-
-				var $pvzBtn = $('.open-pvz-btn');
-				$pvzBtn.attr('data-city', cityName);
-				$pvzBtn.find('script').text(response.data.offices);
-				$pvzBtn.find('a').text('Выбрать пункт выдачи');
-
-				// Show delivery type selector
-				$('.cdek-delivery-type').show();
-
-				var deliveryType = $('input[name="cdek_delivery_type"]:checked').val();
-				if (deliveryType === 'office') {
-					$('.cdek-office-section').show();
-					$('.cdek-door-section').hide();
-					$pvzBtn.show();
-				} else {
-					$('.cdek-office-section').hide();
-					$('.cdek-door-section').show();
-					calculateCdekCost('door');
-				}
-
-				$('.cdek-office-info').remove();
-				$('.cdek-office-code').val('');
-				resetCdekCost();
-			}
-		});
-	}
-
-	// Delivery type toggle: office vs door
-	$(document).on('change', 'input[name="cdek_delivery_type"]', function() {
-		var type = $(this).val();
-		resetCdekCost();
-
-		if (type === 'office') {
-			$('.cdek-office-section').show();
-			$('.cdek-door-section').hide();
-			if (cdekCityCode) {
-				$('.open-pvz-btn').show();
-			}
-		} else {
-			$('.cdek-office-section').hide();
-			$('.cdek-door-section').show();
-			$('.cdek-office-info').remove();
-			$('.cdek-office-code').val('');
-			if (cdekCityCode) {
-				calculateCdekCost('door');
-			}
-		}
-	});
-
-	function resetCdekState() {
-		$('.open-pvz-btn').hide();
-		$('.cdek-office-info').remove();
-		$('.cdek-office-code').val('');
-		$('.cdek-delivery-type').hide();
-		$('.cdek-office-section').show();
-		$('.cdek-door-section').hide();
-		cdekCityCode = null;
-		resetCdekCost();
-	}
-
-	// Listen for office selection — both via update_checkout event and DOM observation
-	$(document.body).on('update_checkout', function() {
-		var officeCode = $('.cdek-office-code').val();
-		if (officeCode && cdekCityCode) {
-			calculateCdekCost('office');
-		}
-	});
-
-	// Backup: MutationObserver to detect when CDEKWidget creates/updates office info
-	(function() {
-		var section = document.querySelector('.cdek-office-section');
-		if (!section) return;
-		new MutationObserver(function() {
-			var officeCode = $('.cdek-office-code').val();
-			if (officeCode && cdekCityCode && !$('input[name="cdek_delivery_cost"]').val()) {
-				calculateCdekCost('office');
-			}
-		}).observe(section, { childList: true, subtree: true, characterData: true });
-	})();
-
-	function resetCdekCost() {
-		$('.cdek-delivery-cost').hide();
-		$('input[name="cdek_delivery_cost"]').val('');
-		$('input[name="cdek_tariff_code"]').val('');
-		$('.checkout-total__details .checkout-total__row').last().find('span').last().html('—');
-		updateTotalWithDelivery(0);
-	}
-
-	function calculateCdekCost(deliveryType) {
-		if (!cdekCityCode) return;
-
-		console.debug('[Titan] calculateCdekCost:', deliveryType, 'cityCode:', cdekCityCode);
-
-		$.post(titan_wc.ajax_url, {
-			action: 'titan_cdek_calculate',
-			nonce: titan_wc.nonce,
-			city_code: cdekCityCode,
-			delivery_type: deliveryType || 'office'
-		}, function(response) {
-			console.debug('[Titan] cdek_calculate response:', response);
-			if (response.success) {
-				var d = response.data;
-				$('input[name="cdek_delivery_cost"]').val(d.cost);
-				$('input[name="cdek_tariff_code"]').val(d.tariff_code);
-
-				$('.cdek-delivery-cost__val').html(d.cost_format);
-				$('.cdek-delivery-cost__days').text('(' + d.days + ' дн.)');
-				$('.cdek-delivery-cost').show();
-
-				$('.checkout-total__details .checkout-total__row').last().find('span').last().html(d.cost_format);
-				updateTotalWithDelivery(parseFloat(d.cost));
-			}
-		}).fail(function(xhr) {
-			console.error('[Titan] cdek_calculate failed:', xhr.status, xhr.responseText);
-		});
-	}
-
-	function updateTotalWithDelivery(deliveryCost) {
-		var cartTotal = parseFloat($('.checkout-subtotal__val').text().replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
-		var newTotal = cartTotal + deliveryCost;
-		$('.checkout-total__val').html(newTotal.toLocaleString('ru-RU') + ' ₽');
-	}
 });
 </script>

@@ -601,8 +601,25 @@ function titan_force_classic_cart_checkout() {
 }
 add_action( 'init', 'titan_force_classic_cart_checkout', 25 );
 
+// Make is_checkout() return true on /my-account/titan-checkout/
+// This activates WC checkout JS, CDEK plugin scripts and all shipping/payment hooks
+add_filter( 'woocommerce_is_checkout', function( $is ) {
+	if ( is_account_page() ) {
+		global $wp;
+		if ( isset( $wp->query_vars['titan-checkout'] ) ) {
+			return true;
+		}
+	}
+	return $is;
+} );
+
 // Redirect logged-in users from /checkout/ to account checkout
 function titan_redirect_checkout_to_account() {
+	// Skip if already on account page (is_checkout() is true there too now)
+	if ( is_account_page() ) {
+		return;
+	}
+
 	if ( ! is_checkout() || is_wc_endpoint_url( 'order-pay' ) || is_wc_endpoint_url( 'order-received' ) ) {
 		return;
 	}
@@ -766,7 +783,11 @@ add_filter( 'woocommerce_account_menu_items', 'titan_account_menu_items' );
 
 // Endpoint content callbacks
 function titan_account_checkout_content() {
-	wc_get_template( 'myaccount/titan-checkout.php' );
+	// Ensure WC session exists for shipping calculation
+	if ( ! WC()->session->has_session() ) {
+		WC()->session->set_customer_session_cookie( true );
+	}
+	echo do_shortcode( '[woocommerce_checkout]' );
 }
 add_action( 'woocommerce_account_titan-checkout_endpoint', 'titan_account_checkout_content' );
 
@@ -1025,188 +1046,130 @@ function titan_ajax_legal_entity_delete() {
 add_action( 'wp_ajax_titan_legal_entity_delete', 'titan_ajax_legal_entity_delete' );
 
 // =========================================
-// 25. AJAX: Place Order
+// 25. WC Payment Gateway: Invoice for Legal Entities
 // =========================================
-function titan_ajax_place_order() {
-	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
-
-	if ( ! is_user_logged_in() ) {
-		wp_send_json_error( 'Not authorized' );
+class Titan_Invoice_Gateway extends WC_Payment_Gateway {
+	public function __construct() {
+		$this->id                 = 'titan_invoice';
+		$this->method_title       = 'Выставление счёта';
+		$this->method_description = 'Для юридических лиц и ИП. Заказ переводится в статус «На удержании».';
+		$this->title              = 'Выставление счёта';
+		$this->description        = 'Для юридических лиц и ИП';
+		$this->has_fields         = false;
+		$this->enabled            = 'yes';
+		$this->init_settings();
 	}
 
-	$cart = WC()->cart;
-	if ( $cart->is_empty() ) {
-		wp_send_json_error( 'Корзина пуста' );
+	public function process_payment( $order_id ) {
+		$order = wc_get_order( $order_id );
+		$order->update_status( 'on-hold', 'Выставлен счёт для юридического лица' );
+		WC()->cart->empty_cart();
+		return array(
+			'result'   => 'success',
+			'redirect' => $this->get_return_url( $order ),
+		);
 	}
+}
 
-	$user_id    = get_current_user_id();
-	$user       = get_userdata( $user_id );
-	$buyer_type = sanitize_text_field( $_POST['buyer_type'] ?? 'physical' );
+add_filter( 'woocommerce_payment_gateways', function( $gateways ) {
+	$gateways[] = 'Titan_Invoice_Gateway';
+	return $gateways;
+} );
 
-	$order = wc_create_order( array(
-		'customer_id' => $user_id,
-		'status'      => 'pending',
-	) );
+// =========================================
+// 26. WC Checkout: Custom Fields & Order Meta
+// =========================================
 
-	if ( is_wp_error( $order ) ) {
-		wp_send_json_error( 'Не удалось создать заказ' );
-	}
-
-	// Add cart items to order
-	foreach ( $cart->get_cart() as $cart_item ) {
-		$product  = $cart_item['data'];
-		$quantity = $cart_item['quantity'];
-		$order->add_product( $product, $quantity );
-	}
-
-	// Set billing info
-	$last_name  = sanitize_text_field( $_POST['last_name'] ?? $user->last_name );
-	$first_name = sanitize_text_field( $_POST['first_name'] ?? $user->first_name );
-	$email      = sanitize_email( $_POST['email'] ?? $user->user_email );
-	$phone      = sanitize_text_field( $_POST['phone'] ?? get_user_meta( $user_id, 'billing_phone', true ) );
-
-	$order->set_billing_first_name( $first_name );
-	$order->set_billing_last_name( $last_name );
-	$order->set_billing_email( $email );
-	$order->set_billing_phone( $phone );
-
-	// Save custom meta
-	$order->update_meta_data( '_buyer_type', $buyer_type );
-	$order->update_meta_data( '_surname', sanitize_text_field( $_POST['surname'] ?? '' ) );
-
-	if ( $buyer_type === 'physical' ) {
-		$delivery_method = sanitize_text_field( $_POST['delivery_method'] ?? 'delivery' );
-		$order->update_meta_data( '_delivery_method', $delivery_method );
-		$order->update_meta_data( '_recipient_name', sanitize_text_field( $_POST['recipient'] ?? '' ) );
-		$order->update_meta_data( '_order_comment', sanitize_textarea_field( $_POST['comment'] ?? '' ) );
-
-		// CDEK delivery data
-		if ( $delivery_method === 'delivery' ) {
-			$cdek_delivery_type = sanitize_text_field( $_POST['cdek_delivery_type'] ?? 'office' );
-			$cdek_office        = sanitize_text_field( $_POST['cdek_office_code'] ?? '' );
-			$cdek_city_code     = sanitize_text_field( $_POST['cdek_city_code'] ?? '' );
-			$cdek_cost          = floatval( $_POST['cdek_delivery_cost'] ?? 0 );
-			$cdek_tariff        = sanitize_text_field( $_POST['cdek_tariff_code'] ?? '' );
-			$cdek_office_addr   = sanitize_text_field( $_POST['cdek_office_address'] ?? '' );
-			$cdek_door_addr     = sanitize_text_field( $_POST['cdek_door_address'] ?? '' );
-			$cdek_city_name     = sanitize_text_field( $_POST['cdek_city_name'] ?? '' );
-			$country            = explode( ':', get_option( 'woocommerce_default_country', 'RU' ) )[0];
-
-			// Determine shipping address based on delivery type
-			$shipping_address = ( $cdek_delivery_type === 'door' ) ? $cdek_door_addr : $cdek_office_addr;
-
-			// Set shipping address on order (CDEKDelivery reads it via Order model)
-			$order->set_shipping_first_name( $first_name );
-			$order->set_shipping_last_name( $last_name );
-			$order->set_shipping_city( $cdek_city_name );
-			$order->set_shipping_country( $country );
-			$order->set_shipping_address_1( $shipping_address );
-
-			// Also set billing address (required by some payment gateways)
-			$order->set_billing_city( $cdek_city_name );
-			$order->set_billing_country( $country );
-			$order->set_billing_address_1( $shipping_address );
-
-			$order->update_meta_data( '_cdek_delivery_type', $cdek_delivery_type );
-
-			if ( $cdek_cost > 0 ) {
-				// Find CDEK shipping method instance_id
-				global $wpdb;
-				$instance_id = (int) $wpdb->get_var(
-					"SELECT instance_id FROM {$wpdb->prefix}woocommerce_shipping_zone_methods WHERE method_id = 'official_cdek' AND is_enabled = 1 LIMIT 1"
-				);
-
-				// Get package dimensions from CDEK plugin settings
-				$cdek_length = 10;
-				$cdek_width  = 10;
-				$cdek_height = 10;
-				$cdek_weight = 1000;
-				if ( class_exists( '\Cdek\ShippingMethod' ) ) {
-					try {
-						$method      = \Cdek\ShippingMethod::factory( $instance_id ?: null );
-						$cdek_length = max( (int) $method->get_option( 'product_length_default', 10 ), 1 );
-						$cdek_width  = max( (int) $method->get_option( 'product_width_default', 10 ), 1 );
-						$cdek_height = max( (int) $method->get_option( 'product_height_default', 10 ), 1 );
-						$cdek_weight = max( (int) $method->get_option( 'product_weight_default', 1000 ), 100 );
-					} catch ( \Throwable $e ) {
-						// Use defaults
-					}
-				}
-
-				$shipping_item = new \WC_Order_Item_Shipping();
-				$shipping_item->set_method_title( 'СДЭК' );
-				$shipping_item->set_method_id( 'official_cdek' );
-				$shipping_item->set_instance_id( $instance_id );
-				$shipping_item->set_total( $cdek_cost );
-
-				// Meta keys expected by CDEKDelivery plugin (Cdek\MetaKeys)
-				$shipping_item->add_meta_data( '_official_cdek_tariff_code', $cdek_tariff, true );
-				$shipping_item->add_meta_data( '_official_cdek_city', $cdek_city_code, true );
-				$shipping_item->add_meta_data( '_official_cdek_length', $cdek_length, true );
-				$shipping_item->add_meta_data( '_official_cdek_width', $cdek_width, true );
-				$shipping_item->add_meta_data( '_official_cdek_height', $cdek_height, true );
-				$shipping_item->add_meta_data( '_official_cdek_weight', $cdek_weight, true );
-
-				// Office code only for PVZ delivery
-				if ( $cdek_delivery_type === 'office' && $cdek_office ) {
-					$shipping_item->add_meta_data( '_official_cdek_office_code', $cdek_office, true );
-				}
-
-				$order->add_item( $shipping_item );
-			}
-		}
-	} else {
-		$legal_entity_id = intval( $_POST['legal_entity_id'] ?? 0 );
-		$order->update_meta_data( '_legal_entity_id', $legal_entity_id );
-		$order->update_meta_data( '_legal_inn', sanitize_text_field( $_POST['inn'] ?? '' ) );
-		$order->update_meta_data( '_legal_kpp', sanitize_text_field( $_POST['kpp'] ?? '' ) );
-		$order->update_meta_data( '_order_comment', sanitize_textarea_field( $_POST['comment'] ?? '' ) );
-	}
-
-	$order->calculate_totals();
-	$order->save();
-
-	// Handle file upload for legal entity
-	if ( $buyer_type === 'legal' && ! empty( $_FILES['requisites'] ) && $_FILES['requisites']['error'] === UPLOAD_ERR_OK ) {
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		require_once ABSPATH . 'wp-admin/includes/media.php';
-		require_once ABSPATH . 'wp-admin/includes/image.php';
-
-		$attach_id = media_handle_upload( 'requisites', 0 );
-		if ( ! is_wp_error( $attach_id ) ) {
-			$order->update_meta_data( '_requisites_file_id', $attach_id );
-			$order->save();
+// Override default WC billing fields — remove address fields (shipping handles them),
+// add patronymic. Our form-checkout.php renders fields manually, but WC still
+// validates against this list.
+add_filter( 'woocommerce_checkout_fields', function( $fields ) {
+	// Keep only essential billing fields
+	$keep = array( 'billing_first_name', 'billing_last_name', 'billing_email', 'billing_phone' );
+	foreach ( array_keys( $fields['billing'] ) as $key ) {
+		if ( ! in_array( $key, $keep, true ) ) {
+			unset( $fields['billing'][ $key ] );
 		}
 	}
 
-	// Clear the cart
-	$cart->empty_cart();
-
-	$response = array(
-		'order_id' => $order->get_id(),
+	// Add patronymic
+	$fields['billing']['billing_patronymic'] = array(
+		'type'     => 'text',
+		'label'    => 'Отчество',
+		'required' => false,
+		'priority' => 25,
 	);
 
-	// Physical person → redirect to payment gateway
-	if ( $buyer_type === 'physical' ) {
-		// Set default payment gateway
-		$available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
-		if ( ! empty( $available_gateways ) ) {
-			$gateway = reset( $available_gateways );
-			$order->set_payment_method( $gateway );
-			$order->save();
+	// Remove shipping fields — CDEK plugin manages shipping address
+	$fields['shipping'] = array();
+
+	return $fields;
+} );
+
+// Make billing_country and billing_city not required (CDEK handles shipping address)
+add_filter( 'woocommerce_default_address_fields', function( $fields ) {
+	$optional = array( 'country', 'state', 'city', 'postcode', 'address_1', 'address_2' );
+	foreach ( $optional as $key ) {
+		if ( isset( $fields[ $key ] ) ) {
+			$fields[ $key ]['required'] = false;
 		}
-		$response['payment_url'] = $order->get_checkout_payment_url();
-	} else {
-		// Legal entity → "on-hold" status (invoice issued, no online payment)
-		$order->update_status( 'on-hold', 'Выставлен счёт для юридического лица' );
+	}
+	return $fields;
+} );
+
+// Save custom order meta after WC creates the order
+add_action( 'woocommerce_checkout_update_order_meta', function( $order_id ) {
+	$order      = wc_get_order( $order_id );
+	$buyer_type = sanitize_text_field( $_POST['titan_buyer_type'] ?? 'physical' );
+
+	$order->update_meta_data( '_buyer_type', $buyer_type );
+	$order->update_meta_data( '_surname', sanitize_text_field( $_POST['billing_patronymic'] ?? '' ) );
+	$order->update_meta_data( '_recipient_name', sanitize_text_field( $_POST['titan_recipient'] ?? '' ) );
+
+	if ( $buyer_type === 'legal' ) {
+		$order->update_meta_data( '_legal_entity_id', intval( $_POST['titan_legal_entity'] ?? 0 ) );
+		$order->update_meta_data( '_legal_inn', sanitize_text_field( $_POST['titan_inn'] ?? '' ) );
+		$order->update_meta_data( '_legal_kpp', sanitize_text_field( $_POST['titan_kpp'] ?? '' ) );
+
+		// Override billing with legal entity data
+		$order->set_billing_last_name( sanitize_text_field( $_POST['billing_last_name_legal'] ?? '' ) );
+		$order->set_billing_first_name( sanitize_text_field( $_POST['billing_first_name_legal'] ?? '' ) );
+		$order->set_billing_email( sanitize_email( $_POST['billing_email_legal'] ?? '' ) );
+		$order->set_billing_phone( sanitize_text_field( $_POST['billing_phone_legal'] ?? '' ) );
+
+		// Use legal comment
+		$order->set_customer_note( sanitize_textarea_field( $_POST['order_comments_legal'] ?? '' ) );
+
+		// Save pre-uploaded requisites file ID
+		$requisites_id = intval( $_POST['titan_requisites_id'] ?? 0 );
+		if ( $requisites_id > 0 ) {
+			$order->update_meta_data( '_requisites_file_id', $requisites_id );
+		}
 	}
 
-	wp_send_json_success( $response );
-}
-add_action( 'wp_ajax_titan_place_order', 'titan_ajax_place_order' );
+	$order->save();
+} );
+
+// Validate custom checkout fields
+add_action( 'woocommerce_after_checkout_validation', function( $data, $errors ) {
+	$buyer_type = sanitize_text_field( $_POST['titan_buyer_type'] ?? 'physical' );
+
+	if ( $buyer_type === 'physical' ) {
+		if ( empty( $_POST['titan_personal_data'] ) ) {
+			$errors->add( 'titan_personal_data', 'Необходимо дать согласие на обработку персональных данных.' );
+		}
+	} else {
+		if ( empty( $_POST['titan_personal_data_legal'] ) ) {
+			$errors->add( 'titan_personal_data_legal', 'Необходимо дать согласие на обработку персональных данных.' );
+		}
+		if ( empty( $_POST['titan_authorized'] ) ) {
+			$errors->add( 'titan_authorized', 'Необходимо подтвердить полномочия представлять юридическое лицо.' );
+		}
+	}
+}, 10, 2 );
 
 // =========================================
-// 26. AJAX: Update Checkout Quantity
+// 27. AJAX: Update Checkout Quantity
 // =========================================
 function titan_ajax_update_checkout_qty() {
 	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
@@ -1249,200 +1212,39 @@ function titan_ajax_update_checkout_qty() {
 add_action( 'wp_ajax_titan_update_checkout_qty', 'titan_ajax_update_checkout_qty' );
 
 // =========================================
-// 27. WooCommerce: Hide default navigation wrapper
+// 28. AJAX: Upload Requisites File
+// =========================================
+function titan_ajax_upload_requisites() {
+	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
+
+	if ( ! is_user_logged_in() ) {
+		wp_send_json_error( 'Not authorized' );
+	}
+
+	if ( empty( $_FILES['file'] ) || $_FILES['file']['error'] !== UPLOAD_ERR_OK ) {
+		wp_send_json_error( 'Ошибка загрузки файла' );
+	}
+
+	require_once ABSPATH . 'wp-admin/includes/file.php';
+	require_once ABSPATH . 'wp-admin/includes/media.php';
+	require_once ABSPATH . 'wp-admin/includes/image.php';
+
+	$attach_id = media_handle_upload( 'file', 0 );
+	if ( is_wp_error( $attach_id ) ) {
+		wp_send_json_error( 'Ошибка сохранения файла' );
+	}
+
+	wp_send_json_success( array( 'attachment_id' => $attach_id ) );
+}
+add_action( 'wp_ajax_titan_upload_requisites', 'titan_ajax_upload_requisites' );
+
+// =========================================
+// 29. WooCommerce: Hide default navigation wrapper
 // =========================================
 function titan_remove_wc_account_navigation() {
 	remove_action( 'woocommerce_account_navigation', 'woocommerce_account_navigation' );
 }
 add_action( 'init', 'titan_remove_wc_account_navigation' );
-
-// =========================================
-// 28. CDEK Integration: Enqueue widget + AJAX offices
-// =========================================
-function titan_enqueue_cdek_scripts() {
-	if ( ! is_account_page() ) return;
-	global $wp;
-	if ( ! isset( $wp->query_vars['titan-checkout'] ) ) return;
-
-	// Register CDEKWidget (cdek-widget.umd.js) + window.cdek config (API key, saver, lang, close)
-	// Without this, cdek-checkout-map.js can't open the office selection popup
-	if ( class_exists( '\Cdek\UI\CdekWidget' ) ) {
-		\Cdek\UI\CdekWidget::registerScripts();
-	}
-
-	// Enqueue checkout map script (handles .open-pvz-btn clicks, office selection, update_checkout)
-	// hasStyles = false — we use our own CSS instead of the plugin's default green/grey styles
-	if ( class_exists( '\Cdek\Helpers\UI' ) ) {
-		\Cdek\Helpers\UI::enqueueScript( 'cdek-map', 'cdek-checkout-map', false );
-	}
-}
-add_action( 'wp_enqueue_scripts', 'titan_enqueue_cdek_scripts', 30 );
-
-function titan_ajax_cdek_city_suggest() {
-	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
-
-	$q = sanitize_text_field( $_POST['q'] ?? '' );
-	if ( mb_strlen( $q ) < 2 ) {
-		wp_send_json_success( array() );
-	}
-
-	if ( ! class_exists( '\Cdek\CdekApi' ) ) {
-		wp_send_json_error( array( 'message' => 'Плагин СДЭК не активен' ) );
-	}
-
-	$country = explode( ':', get_option( 'woocommerce_default_country', 'RU' ) )[0];
-
-	try {
-		$results = ( new \Cdek\CdekApi() )->citySuggest( $q, $country );
-		wp_send_json_success( $results );
-	} catch ( \Throwable $e ) {
-		wp_send_json_success( array() );
-	}
-}
-add_action( 'wp_ajax_titan_cdek_city_suggest', 'titan_ajax_cdek_city_suggest' );
-
-function titan_ajax_cdek_offices() {
-	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
-
-	if ( ! class_exists( '\Cdek\CdekApi' ) ) {
-		wp_send_json_error( array( 'message' => 'Плагин СДЭК не активен' ) );
-	}
-
-	$city = sanitize_text_field( $_POST['city'] ?? '' );
-	if ( empty( $city ) ) {
-		wp_send_json_error( array( 'message' => 'Город не указан' ) );
-	}
-
-	try {
-		$api       = new \Cdek\CdekApi();
-		$city_code = $api->cityCodeGet( $city );
-
-		if ( ! $city_code ) {
-			wp_send_json_error( array( 'message' => 'Город не найден в системе СДЭК' ) );
-		}
-
-		$offices_raw = $api->officeListRaw( $city_code );
-
-		wp_send_json_success( array(
-			'city_code' => $city_code,
-			'offices'   => $offices_raw,
-		) );
-	} catch ( \Throwable $e ) {
-		wp_send_json_error( array( 'message' => 'Ошибка при получении данных СДЭК' ) );
-	}
-}
-add_action( 'wp_ajax_titan_cdek_offices', 'titan_ajax_cdek_offices' );
-
-function titan_ajax_cdek_calculate() {
-	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
-
-	if ( ! class_exists( '\Cdek\CdekApi' ) || ! class_exists( '\Cdek\ShippingMethod' ) ) {
-		wp_send_json_error( array( 'message' => 'Плагин СДЭК не активен' ) );
-	}
-
-	$city_code = sanitize_text_field( $_POST['city_code'] ?? '' );
-	if ( empty( $city_code ) ) {
-		wp_send_json_error( array( 'message' => 'Не указан город' ) );
-	}
-
-	try {
-		$shipping = \Cdek\ShippingMethod::factory();
-		$api      = new \Cdek\CdekApi();
-
-		$tariff_list = $shipping->tariff_list ?: array();
-		$from_code   = $shipping->city_code;
-
-		if ( empty( $from_code ) || empty( $tariff_list ) ) {
-			wp_send_json_error( array( 'message' => 'СДЭК не настроен' ) );
-		}
-
-		// Build packages from cart
-		$cart_contents = WC()->cart->get_cart();
-		$total_weight  = 0;
-		foreach ( $cart_contents as $item ) {
-			$product = $item['data'];
-			$w       = (float) $product->get_weight();
-			if ( $w <= 0 ) {
-				$w = (float) $shipping->get_option( 'product_weight_default', 1000 );
-			} else {
-				$weight_unit = get_option( 'woocommerce_weight_unit', 'kg' );
-				if ( $weight_unit === 'kg' ) {
-					$w *= 1000;
-				}
-			}
-			$total_weight += $w * $item['quantity'];
-		}
-
-		$length = max( (int) $shipping->get_option( 'product_length_default', 10 ), 1 );
-		$width  = max( (int) $shipping->get_option( 'product_width_default', 10 ), 1 );
-		$height = max( (int) $shipping->get_option( 'product_height_default', 10 ), 1 );
-
-		$params = array(
-			'type'     => 1,
-			'from'     => array( 'code' => (int) $from_code ),
-			'to'       => array( 'code' => (int) $city_code ),
-			'packages' => array(
-				'weight' => max( (int) $total_weight, 100 ),
-				'length' => $length,
-				'width'  => $width,
-				'height' => $height,
-			),
-		);
-
-		$result = $api->calculateList( $params );
-
-		if ( empty( $result['tariff_codes'] ) ) {
-			wp_send_json_error( array( 'message' => 'Нет доступных тарифов' ) );
-		}
-
-		// Filter tariffs based on delivery type
-		$delivery_type = sanitize_text_field( $_POST['delivery_type'] ?? 'office' );
-		$best = null;
-		foreach ( $result['tariff_codes'] as $t ) {
-			if ( ! in_array( (string) $t['tariff_code'], $tariff_list, true ) ) continue;
-			try {
-				$is_to_office = \Cdek\Model\Tariff::isToOffice( (int) $t['tariff_code'] );
-			} catch ( \Throwable $e ) {
-				continue;
-			}
-			// office/pickup → isToOffice tariffs, door → NOT isToOffice tariffs
-			if ( $delivery_type === 'door' && $is_to_office ) continue;
-			if ( $delivery_type === 'office' && ! $is_to_office ) continue;
-			if ( $best === null || (float) $t['delivery_sum'] < (float) $best['delivery_sum'] ) {
-				$best = $t;
-			}
-		}
-
-		if ( ! $best ) {
-			// Fallback: cheapest any tariff from allowed list
-			foreach ( $result['tariff_codes'] as $t ) {
-				if ( ! in_array( (string) $t['tariff_code'], $tariff_list, true ) ) continue;
-				if ( $best === null || (float) $t['delivery_sum'] < (float) $best['delivery_sum'] ) {
-					$best = $t;
-				}
-			}
-		}
-
-		if ( ! $best ) {
-			wp_send_json_error( array( 'message' => 'Нет подходящего тарифа' ) );
-		}
-
-		$min_day = (int) $best['period_min'];
-		$max_day = (int) $best['period_max'];
-		$cost    = ceil( (float) $best['delivery_sum'] );
-
-		wp_send_json_success( array(
-			'cost'        => $cost,
-			'cost_format' => wc_price( $cost ),
-			'tariff_code' => $best['tariff_code'],
-			'tariff_name' => $best['tariff_name'],
-			'days'        => $min_day === $max_day ? "$min_day" : "$min_day-$max_day",
-		) );
-	} catch ( \Throwable $e ) {
-		wp_send_json_error( array( 'message' => 'Ошибка расчёта доставки' ) );
-	}
-}
-add_action( 'wp_ajax_titan_cdek_calculate', 'titan_ajax_cdek_calculate' );
 
 // Helper: Get WC order status label in Russian
 function titan_order_status_label( $status ) {
