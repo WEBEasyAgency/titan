@@ -1264,10 +1264,16 @@ function titan_enqueue_cdek_scripts() {
 	global $wp;
 	if ( ! isset( $wp->query_vars['titan-checkout'] ) ) return;
 
-	// Enqueue the plugin's own checkout map script
-	// Same as Frontend::registerScripts() does on is_checkout() pages
+	// Register CDEKWidget (cdek-widget.umd.js) + window.cdek config (API key, saver, lang, close)
+	// Without this, cdek-checkout-map.js can't open the office selection popup
+	if ( class_exists( '\Cdek\UI\CdekWidget' ) ) {
+		\Cdek\UI\CdekWidget::registerScripts();
+	}
+
+	// Enqueue checkout map script (handles .open-pvz-btn clicks, office selection, update_checkout)
+	// hasStyles = false — we use our own CSS instead of the plugin's default green/grey styles
 	if ( class_exists( '\Cdek\Helpers\UI' ) ) {
-		\Cdek\Helpers\UI::enqueueScript( 'cdek-map', 'cdek-checkout-map', true );
+		\Cdek\Helpers\UI::enqueueScript( 'cdek-map', 'cdek-checkout-map', false );
 	}
 }
 add_action( 'wp_enqueue_scripts', 'titan_enqueue_cdek_scripts', 30 );

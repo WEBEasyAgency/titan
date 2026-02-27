@@ -3074,6 +3074,44 @@ label.password {
   .cdek-door-section {
     margin-bottom: 12px;
   }
+  .cdek-office-section {
+    margin-bottom: 12px;
+  }
+  .open-pvz-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 1px solid var(--black);
+    border-radius: 8px;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 24px;
+    font-weight: 500;
+    transition: background-color 0.2s, color 0.2s;
+    margin-bottom: 8px;
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    &:hover {
+      background-color: var(--black);
+      color: #fff;
+      a { color: #fff; }
+    }
+    script { display: none; }
+  }
+  .cdek-office-info {
+    font-size: 14px;
+    line-height: 24px;
+    padding: 10px 16px;
+    border: 1px solid var(--gray2);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: var(--gray);
+    &::before { display: none; }
+  }
   .cdek-delivery-cost {
     font-size: 14px;
     line-height: 24px;
