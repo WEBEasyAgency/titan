@@ -1110,20 +1110,36 @@ add_filter( 'woocommerce_shipping_packages', function( $packages ) {
 	$log = wc_get_logger();
 	$ctx = array( 'source' => 'titan-shipping' );
 
-	// Read CDEK method settings directly from DB (official_cdek instance 2)
-	$cdek_settings = get_option( 'woocommerce_official_cdek_2_settings', array() );
-	$log->debug( '=== CDEK METHOD SETTINGS ===', $ctx );
-	$log->debug( 'city_code: ' . ( $cdek_settings['city_code'] ?? 'EMPTY/MISSING' ), $ctx );
-	$log->debug( 'tariff_list: ' . wp_json_encode( $cdek_settings['tariff_list'] ?? 'EMPTY/MISSING' ), $ctx );
-	$log->debug( 'client_id set: ' . ( ! empty( $cdek_settings['client_id'] ) ? 'YES (' . substr( $cdek_settings['client_id'], 0, 8 ) . '...)' : 'NO' ), $ctx );
-	$log->debug( 'client_secret set: ' . ( ! empty( $cdek_settings['client_secret'] ) ? 'YES' : 'NO' ), $ctx );
-	$log->debug( 'test_mode: ' . ( $cdek_settings['test_mode'] ?? 'N/A' ), $ctx );
-	$log->debug( 'enabled: ' . ( $cdek_settings['enabled'] ?? 'N/A' ), $ctx );
-	$log->debug( 'product_weight_default: ' . ( $cdek_settings['product_weight_default'] ?? 'N/A' ), $ctx );
-	$log->debug( 'product_length_default: ' . ( $cdek_settings['product_length_default'] ?? 'N/A' ), $ctx );
-	$log->debug( 'product_width_default: ' . ( $cdek_settings['product_width_default'] ?? 'N/A' ), $ctx );
-	$log->debug( 'product_height_default: ' . ( $cdek_settings['product_height_default'] ?? 'N/A' ), $ctx );
-	$log->debug( 'All settings keys: ' . implode( ', ', array_keys( $cdek_settings ) ), $ctx );
+	// Find ALL cdek-related options in DB
+	global $wpdb;
+	$cdek_options = $wpdb->get_results(
+		"SELECT option_name, LENGTH(option_value) as val_len FROM {$wpdb->options} WHERE option_name LIKE '%cdek%' OR option_name LIKE '%official_cdek%' ORDER BY option_name",
+		ARRAY_A
+	);
+	$log->debug( '=== ALL CDEK OPTIONS IN DB ===', $ctx );
+	foreach ( $cdek_options as $opt ) {
+		$log->debug( "  {$opt['option_name']} (len={$opt['val_len']})", $ctx );
+	}
+
+	// Try multiple possible option names
+	foreach ( array(
+		'woocommerce_official_cdek_2_settings',
+		'woocommerce_official_cdek_settings',
+		'woocommerce_cdekdelivery_2_settings',
+		'woocommerce_cdekdelivery_settings',
+		'cdekdelivery_settings',
+	) as $opt_name ) {
+		$val = get_option( $opt_name, '__NOT_FOUND__' );
+		if ( $val !== '__NOT_FOUND__' ) {
+			$keys = is_array( $val ) ? implode( ', ', array_keys( $val ) ) : '(not array: ' . substr( (string) $val, 0, 200 ) . ')';
+			$log->debug( "Option $opt_name EXISTS, keys: $keys", $ctx );
+			if ( is_array( $val ) && isset( $val['city_code'] ) ) {
+				$log->debug( "  -> city_code: {$val['city_code']}", $ctx );
+				$log->debug( "  -> tariff_list: " . wp_json_encode( $val['tariff_list'] ?? 'N/A' ), $ctx );
+				$log->debug( "  -> client_id: " . ( ! empty( $val['client_id'] ) ? 'SET' : 'EMPTY' ), $ctx );
+			}
+		}
+	}
 
 	$log->debug( '=== SHIPPING PACKAGES ===', $ctx );
 	foreach ( $packages as $i => $pkg ) {
