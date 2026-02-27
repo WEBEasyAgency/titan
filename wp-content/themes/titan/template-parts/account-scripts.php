@@ -378,6 +378,21 @@ jQuery(function($) {
 		$('#payment_method_tbank').prop('checked', true).trigger('change');
 	});
 
+	// ============ Checkout: Show address field for courier delivery ============
+	// Listen to shipping method changes: if courier (door-to-door), show billing_address_1
+	$(document).on('change', 'input[name="shipping_method[0]"]', function() {
+		var selected = $('input[name="shipping_method[0]"]:checked').val() || '';
+		// CDEK courier methods contain "door" or "courier" in their ID; local_pickup hides address
+		var isCourier = selected.indexOf('door') !== -1 || selected.indexOf('courier') !== -1;
+		$('.woocommerce-billing-fields').toggleClass('show-address', isCourier);
+	});
+	// Also check after WC updates shipping methods via AJAX
+	$(document.body).on('updated_checkout', function() {
+		var selected = $('input[name="shipping_method[0]"]:checked').val() || '';
+		var isCourier = selected.indexOf('door') !== -1 || selected.indexOf('courier') !== -1;
+		$('.woocommerce-billing-fields').toggleClass('show-address', isCourier);
+	});
+
 	// ============ Checkout: Totals toggle ============
 	$(document).on('click', '.checkout-total__header', function() {
 		var $total = $(this).closest('.checkout-total');
