@@ -381,6 +381,7 @@ jQuery(function($) {
 			if (deliveryMethod === 'delivery') {
 				formData.append('cdek_office_code', $('.cdek-office-code').val());
 				formData.append('cdek_city_code', $('input[name="cdek_city_code"]').val());
+				formData.append('cdek_city_name', $('.cdek-city-input').val());
 				formData.append('cdek_delivery_cost', $('input[name="cdek_delivery_cost"]').val());
 				formData.append('cdek_tariff_code', $('input[name="cdek_tariff_code"]').val());
 				formData.append('cdek_office_address', $('.cdek-office-info').text() || '');

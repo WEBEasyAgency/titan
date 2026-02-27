@@ -1082,22 +1082,60 @@ function titan_ajax_place_order() {
 
 		// CDEK delivery data
 		if ( $delivery_method === 'delivery' ) {
-			$cdek_office   = sanitize_text_field( $_POST['cdek_office_code'] ?? '' );
-			$cdek_city     = sanitize_text_field( $_POST['cdek_city_code'] ?? '' );
-			$cdek_cost     = floatval( $_POST['cdek_delivery_cost'] ?? 0 );
-			$cdek_tariff   = sanitize_text_field( $_POST['cdek_tariff_code'] ?? '' );
-			$cdek_address  = sanitize_text_field( $_POST['cdek_office_address'] ?? '' );
+			$cdek_office    = sanitize_text_field( $_POST['cdek_office_code'] ?? '' );
+			$cdek_city_code = sanitize_text_field( $_POST['cdek_city_code'] ?? '' );
+			$cdek_cost      = floatval( $_POST['cdek_delivery_cost'] ?? 0 );
+			$cdek_tariff    = sanitize_text_field( $_POST['cdek_tariff_code'] ?? '' );
+			$cdek_address   = sanitize_text_field( $_POST['cdek_office_address'] ?? '' );
+			$cdek_city_name = sanitize_text_field( $_POST['cdek_city_name'] ?? '' );
+			$country        = explode( ':', get_option( 'woocommerce_default_country', 'RU' ) )[0];
 
-			$order->update_meta_data( '_cdek_office_code', $cdek_office );
-			$order->update_meta_data( '_cdek_city_code', $cdek_city );
-			$order->update_meta_data( '_cdek_tariff_code', $cdek_tariff );
-			$order->update_meta_data( '_cdek_office_address', $cdek_address );
+			// Set shipping address on order (CDEKDelivery reads it via Order model)
+			$order->set_shipping_first_name( $first_name );
+			$order->set_shipping_last_name( $last_name );
+			$order->set_shipping_city( $cdek_city_name );
+			$order->set_shipping_country( $country );
+			$order->set_shipping_address_1( $cdek_address );
 
 			if ( $cdek_cost > 0 ) {
+				// Find CDEK shipping method instance_id
+				global $wpdb;
+				$instance_id = (int) $wpdb->get_var(
+					"SELECT instance_id FROM {$wpdb->prefix}woocommerce_shipping_zone_methods WHERE method_id = 'official_cdek' AND is_enabled = 1 LIMIT 1"
+				);
+
+				// Get package dimensions from CDEK plugin settings
+				$cdek_length = 10;
+				$cdek_width  = 10;
+				$cdek_height = 10;
+				$cdek_weight = 1000;
+				if ( class_exists( '\Cdek\ShippingMethod' ) ) {
+					try {
+						$method      = \Cdek\ShippingMethod::factory( $instance_id ?: null );
+						$cdek_length = max( (int) $method->get_option( 'product_length_default', 10 ), 1 );
+						$cdek_width  = max( (int) $method->get_option( 'product_width_default', 10 ), 1 );
+						$cdek_height = max( (int) $method->get_option( 'product_height_default', 10 ), 1 );
+						$cdek_weight = max( (int) $method->get_option( 'product_weight_default', 1000 ), 100 );
+					} catch ( \Throwable $e ) {
+						// Use defaults
+					}
+				}
+
 				$shipping_item = new \WC_Order_Item_Shipping();
 				$shipping_item->set_method_title( 'СДЭК' );
 				$shipping_item->set_method_id( 'official_cdek' );
+				$shipping_item->set_instance_id( $instance_id );
 				$shipping_item->set_total( $cdek_cost );
+
+				// Meta keys expected by CDEKDelivery plugin (Cdek\MetaKeys)
+				$shipping_item->add_meta_data( '_official_cdek_tariff_code', $cdek_tariff, true );
+				$shipping_item->add_meta_data( '_official_cdek_office_code', $cdek_office, true );
+				$shipping_item->add_meta_data( '_official_cdek_city', $cdek_city_code, true );
+				$shipping_item->add_meta_data( '_official_cdek_length', $cdek_length, true );
+				$shipping_item->add_meta_data( '_official_cdek_width', $cdek_width, true );
+				$shipping_item->add_meta_data( '_official_cdek_height', $cdek_height, true );
+				$shipping_item->add_meta_data( '_official_cdek_weight', $cdek_weight, true );
+
 				$order->add_item( $shipping_item );
 			}
 		}
