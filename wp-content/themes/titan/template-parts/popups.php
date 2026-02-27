@@ -41,7 +41,7 @@
 						</div>
 						<div class="check-field">
 							<label class="checkbox">
-								<input type="checkbox" name="policy">
+								<input type="checkbox" name="policy" required>
 								<span class="check"></span>
 								<span class="label">Согласен на обработку персональных данных согласно ФЗ от 27 июля 2006 г. № 152-ФЗ «О персональных данных»</span>
 							</label>

@@ -1,8 +1,8 @@
 $(document).ready(function(){
-	$('a.popup').on('click', function(){
+	$('a.popup').on('click', function(e){
+		e.preventDefault();
 		var href = $(this).attr('href');
 		$('.popupblock'+href).fadeIn('300');
-		return false;
 	});
 
 	$('.burger').on('click', function(){
