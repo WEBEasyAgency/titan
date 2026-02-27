@@ -159,7 +159,7 @@ $legal_entities = titan_get_legal_entities( $user_id );
 			<span class="label">Я подтверждаю, что уполномочен представлять интересы данного юридического лица или ИП</span>
 		</label>
 		<label class="checkbox">
-			<input type="checkbox" name="personal_data" checked>
+			<input type="checkbox" name="personal_data">
 			<span class="check"></span>
 			<span class="label">Согласен на обработку персональных данных согласно ФЗ от 27 июля 2006 г. № 152-ФЗ «О персональных данных»</span>
 		</label>

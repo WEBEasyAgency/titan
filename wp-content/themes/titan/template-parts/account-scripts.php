@@ -72,6 +72,11 @@ jQuery(function($) {
 		var $form = $('#edit-profile-form');
 		var $btn = $(this);
 
+		if (!$form.find('input[name="personal_data"]').is(':checked')) {
+			alert('Необходимо дать согласие на обработку персональных данных');
+			return;
+		}
+
 		$btn.prop('disabled', true).text('...');
 
 		$.post(titan_wc.ajax_url, {
@@ -134,6 +139,15 @@ jQuery(function($) {
 		var $form = $entity.find('.legal-entity__edit-form');
 		var entityId = $entity.data('id');
 		var $btn = $(this);
+
+		if (!$form.find('input[name="authorized"]').is(':checked')) {
+			alert('Необходимо подтвердить полномочия представлять юридическое лицо');
+			return;
+		}
+		if (!$form.find('input[name="personal_data"]').is(':checked')) {
+			alert('Необходимо дать согласие на обработку персональных данных');
+			return;
+		}
 
 		$btn.prop('disabled', true).text('...');
 
@@ -225,6 +239,15 @@ jQuery(function($) {
 	$(document).on('click', '.legal-entity__btn-add', function() {
 		var $form = $('#add-legal-entity-form');
 		var $btn = $(this);
+
+		if (!$form.find('input[name="authorized"]').is(':checked')) {
+			alert('Необходимо подтвердить полномочия представлять юридическое лицо');
+			return;
+		}
+		if (!$form.find('input[name="personal_data"]').is(':checked')) {
+			alert('Необходимо дать согласие на обработку персональных данных');
+			return;
+		}
 
 		$btn.prop('disabled', true).text('...');
 
