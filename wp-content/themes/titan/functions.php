@@ -1114,6 +1114,11 @@ add_filter( 'woocommerce_checkout_fields', function( $fields ) {
 		$fields['billing']['billing_city']['priority']    = 90;
 		$fields['billing']['billing_city']['class']       = array( 'form-row-wide' );
 	}
+	if ( isset( $fields['billing']['billing_address_1'] ) ) {
+		$fields['billing']['billing_address_1']['placeholder'] = 'Адрес доставки (улица, дом, квартира)';
+		$fields['billing']['billing_address_1']['priority']    = 91;
+		$fields['billing']['billing_address_1']['class']       = array( 'form-row-wide' );
+	}
 
 	return $fields;
 } );
