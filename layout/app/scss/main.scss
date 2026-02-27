@@ -2870,6 +2870,7 @@ label.password {
         &.price {
           font-weight: 600 !important;
           justify-content: flex-end;
+          span, bdi { font-weight: 600 !important; }
           @media only screen and (max-width: 767px) {
             border-left: 1px solid var(--black);
           }
@@ -2910,6 +2911,7 @@ label.password {
         &.total {
           font-weight: 600 !important;
           justify-content: flex-end;
+          span, bdi { font-weight: 600 !important; }
         }
         @media only screen and (max-width: 767px) {
           border-bottom: 1px solid var(--black);
