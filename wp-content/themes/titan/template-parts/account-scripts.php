@@ -609,13 +609,25 @@ jQuery(function($) {
 		resetCdekCost();
 	}
 
-	// Listen for update_checkout — the plugin triggers it after office selection
+	// Listen for office selection — both via update_checkout event and DOM observation
 	$(document.body).on('update_checkout', function() {
 		var officeCode = $('.cdek-office-code').val();
 		if (officeCode && cdekCityCode) {
 			calculateCdekCost('office');
 		}
 	});
+
+	// Backup: MutationObserver to detect when CDEKWidget creates/updates office info
+	(function() {
+		var section = document.querySelector('.cdek-office-section');
+		if (!section) return;
+		new MutationObserver(function() {
+			var officeCode = $('.cdek-office-code').val();
+			if (officeCode && cdekCityCode && !$('input[name="cdek_delivery_cost"]').val()) {
+				calculateCdekCost('office');
+			}
+		}).observe(section, { childList: true, subtree: true, characterData: true });
+	})();
 
 	function resetCdekCost() {
 		$('.cdek-delivery-cost').hide();
@@ -628,12 +640,15 @@ jQuery(function($) {
 	function calculateCdekCost(deliveryType) {
 		if (!cdekCityCode) return;
 
+		console.debug('[Titan] calculateCdekCost:', deliveryType, 'cityCode:', cdekCityCode);
+
 		$.post(titan_wc.ajax_url, {
 			action: 'titan_cdek_calculate',
 			nonce: titan_wc.nonce,
 			city_code: cdekCityCode,
 			delivery_type: deliveryType || 'office'
 		}, function(response) {
+			console.debug('[Titan] cdek_calculate response:', response);
 			if (response.success) {
 				var d = response.data;
 				$('input[name="cdek_delivery_cost"]').val(d.cost);
@@ -646,6 +661,8 @@ jQuery(function($) {
 				$('.checkout-total__details .checkout-total__row').last().find('span').last().html(d.cost_format);
 				updateTotalWithDelivery(parseFloat(d.cost));
 			}
+		}).fail(function(xhr) {
+			console.error('[Titan] cdek_calculate failed:', xhr.status, xhr.responseText);
 		});
 	}
 
