@@ -111,6 +111,7 @@ $cart_total     = $cart->get_cart_total();
 			<div class="checkout-cdek-module">
 				<div class="cdek-city-row">
 					<input type="text" name="cdek_city" class="cdek-city-input" placeholder="Введите город доставки" autocomplete="off">
+					<div class="cdek-city-suggestions"></div>
 				</div>
 				<div class="open-pvz-btn" data-city="" style="display: none;">
 					<script type="application/cdek-offices">[]</script>

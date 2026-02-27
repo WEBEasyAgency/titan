@@ -456,51 +456,102 @@ jQuery(function($) {
 
 	// ============ CDEK Integration ============
 	var cdekCityCode = null;
-	var cdekTimer;
+	var cdekSuggestTimer;
+	var cdekSuggestXhr = null;
 
-	// City input: fetch offices, update the plugin's .open-pvz-btn
+	// City suggest: autocomplete dropdown
 	$(document).on('input', '.cdek-city-input', function() {
-		var city = $(this).val().trim();
-		clearTimeout(cdekTimer);
+		var q = $(this).val().trim();
+		clearTimeout(cdekSuggestTimer);
 
-		if (city.length < 2) {
-			$('.open-pvz-btn').hide();
-			$('.cdek-office-info').remove();
-			$('.cdek-office-code').val('');
-			cdekCityCode = null;
-			resetCdekCost();
+		if (q.length < 2) {
+			$('.cdek-city-suggestions').hide().empty();
+			resetCdekState();
 			return;
 		}
 
-		cdekTimer = setTimeout(function() {
-			$.post(titan_wc.ajax_url, {
-				action: 'titan_cdek_offices',
+		// Reset state when user types (city not confirmed yet)
+		$('.open-pvz-btn').hide();
+		$('.cdek-office-info').remove();
+		$('.cdek-office-code').val('');
+		cdekCityCode = null;
+		resetCdekCost();
+
+		cdekSuggestTimer = setTimeout(function() {
+			if (cdekSuggestXhr) cdekSuggestXhr.abort();
+			cdekSuggestXhr = $.post(titan_wc.ajax_url, {
+				action: 'titan_cdek_city_suggest',
 				nonce: titan_wc.nonce,
-				city: city
+				q: q
 			}, function(response) {
-				if (response.success) {
-					cdekCityCode = response.data.city_code;
-					$('input[name="cdek_city_code"]').val(cdekCityCode);
+				cdekSuggestXhr = null;
+				var $suggestions = $('.cdek-city-suggestions');
+				$suggestions.empty();
 
-					// Fill the plugin's expected HTML structure
-					var $pvzBtn = $('.open-pvz-btn');
-					$pvzBtn.attr('data-city', city);
-					$pvzBtn.find('script').text(response.data.offices);
-					$pvzBtn.find('a').text('Выбрать пункт выдачи');
-					$pvzBtn.show();
-
-					// Clear previous selection
-					$('.cdek-office-info').remove();
-					$('.cdek-office-code').val('');
-					resetCdekCost();
+				if (response.success && response.data.length) {
+					$.each(response.data, function(i, city) {
+						$('<div class="cdek-city-suggestions__item"></div>')
+							.text(city.full_name)
+							.data('city', city)
+							.appendTo($suggestions);
+					});
+					$suggestions.show();
 				} else {
-					$('.open-pvz-btn').hide();
-					cdekCityCode = null;
-					resetCdekCost();
+					$suggestions.hide();
 				}
 			});
-		}, 600);
+		}, 400);
 	});
+
+	// Select city from suggestions
+	$(document).on('click', '.cdek-city-suggestions__item', function() {
+		var city = $(this).data('city');
+		var cityName = city.full_name.split(',')[0].trim();
+
+		$('.cdek-city-input').val(cityName);
+		$('.cdek-city-suggestions').hide().empty();
+
+		// Load offices for selected city
+		loadCdekOffices(cityName);
+	});
+
+	// Hide suggestions on outside click
+	$(document).on('click', function(e) {
+		if (!$(e.target).closest('.cdek-city-row').length) {
+			$('.cdek-city-suggestions').hide();
+		}
+	});
+
+	function loadCdekOffices(cityName) {
+		$.post(titan_wc.ajax_url, {
+			action: 'titan_cdek_offices',
+			nonce: titan_wc.nonce,
+			city: cityName
+		}, function(response) {
+			if (response.success) {
+				cdekCityCode = response.data.city_code;
+				$('input[name="cdek_city_code"]').val(cdekCityCode);
+
+				var $pvzBtn = $('.open-pvz-btn');
+				$pvzBtn.attr('data-city', cityName);
+				$pvzBtn.find('script').text(response.data.offices);
+				$pvzBtn.find('a').text('Выбрать пункт выдачи');
+				$pvzBtn.show();
+
+				$('.cdek-office-info').remove();
+				$('.cdek-office-code').val('');
+				resetCdekCost();
+			}
+		});
+	}
+
+	function resetCdekState() {
+		$('.open-pvz-btn').hide();
+		$('.cdek-office-info').remove();
+		$('.cdek-office-code').val('');
+		cdekCityCode = null;
+		resetCdekCost();
+	}
 
 	// Listen for update_checkout — the plugin triggers it after office selection
 	$(document.body).on('update_checkout', function() {

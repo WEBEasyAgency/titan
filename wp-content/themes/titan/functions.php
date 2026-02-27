@@ -1218,6 +1218,29 @@ function titan_enqueue_cdek_scripts() {
 }
 add_action( 'wp_enqueue_scripts', 'titan_enqueue_cdek_scripts', 30 );
 
+function titan_ajax_cdek_city_suggest() {
+	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
+
+	$q = sanitize_text_field( $_POST['q'] ?? '' );
+	if ( mb_strlen( $q ) < 2 ) {
+		wp_send_json_success( array() );
+	}
+
+	if ( ! class_exists( '\Cdek\CdekApi' ) ) {
+		wp_send_json_error( array( 'message' => 'Плагин СДЭК не активен' ) );
+	}
+
+	$country = explode( ':', get_option( 'woocommerce_default_country', 'RU' ) )[0];
+
+	try {
+		$results = ( new \Cdek\CdekApi() )->citySuggest( $q, $country );
+		wp_send_json_success( $results );
+	} catch ( \Throwable $e ) {
+		wp_send_json_success( array() );
+	}
+}
+add_action( 'wp_ajax_titan_cdek_city_suggest', 'titan_ajax_cdek_city_suggest' );
+
 function titan_ajax_cdek_offices() {
 	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
 
