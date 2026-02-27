@@ -1114,11 +1114,8 @@ add_filter( 'woocommerce_checkout_fields', function( $fields ) {
 		$fields['billing']['billing_city']['priority']    = 90;
 		$fields['billing']['billing_city']['class']       = array( 'form-row-wide' );
 	}
-	if ( isset( $fields['billing']['billing_address_1'] ) ) {
-		$fields['billing']['billing_address_1']['placeholder'] = 'Адрес доставки (улица, дом, квартира)';
-		$fields['billing']['billing_address_1']['priority']    = 91;
-		$fields['billing']['billing_address_1']['class']       = array( 'form-row-wide' );
-	}
+	// Remove address_1 from billing — rendered manually after shipping methods.
+	unset( $fields['billing']['billing_address_1'] );
 
 	return $fields;
 } );
@@ -1177,6 +1174,19 @@ function titan_checkout_totals_html() {
 	<?php
 	return ob_get_clean();
 }
+
+// Render address field between shipping and extra fields.
+// Priority 12: after review-order.php (10), before extra fields (15).
+// Visible only when courier delivery is selected (JS toggles display).
+add_action( 'woocommerce_checkout_order_review', function() {
+	?>
+	<div class="checkout-address-field" style="display: none;">
+		<div class="checkout-fields">
+			<input type="text" name="billing_address_1" id="billing_address_1" placeholder="Адрес" class="input-text">
+		</div>
+	</div>
+	<?php
+}, 12 );
 
 // Render extra fields (recipient, comment, checkbox) between shipping and totals.
 // Priority 15: after review-order.php (10), before totals (16) and payment.php (20).

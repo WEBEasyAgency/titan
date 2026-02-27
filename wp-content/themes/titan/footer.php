@@ -26,8 +26,7 @@
 				<div class="copyright-text">
 					<div class="flex">
 						<div class="text">Все права защищены <?php echo esc_html( date( 'Y' ) ); ?></div>
-						<div class="text"><a href="#" target="_blank">Политика персональных данных</a></div>
-						<div class="text"><a href="#" target="_blank">Политика конфиденциальности</a></div>
+						<div class="text"><a href="https://docs.google.com/document/d/1jpQdOeP_Fh4LwUrf2g55WpN_QuJsMKIW/edit?usp=sharing&ouid=100779751692423724630&rtpof=true&sd=true" target="_blank">Политика конфиденциальности</a></div>
 					</div>
 				</div>
 			</div>

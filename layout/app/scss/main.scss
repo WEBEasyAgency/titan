@@ -3057,8 +3057,7 @@ label.password {
   // Hide address fields not needed in UI (kept in DOM for CDEK shipping calculation)
   #billing_country_field,
   #billing_state_field,
-  #billing_postcode_field,
-  #billing_address_1_field {
+  #billing_postcode_field {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -3068,18 +3067,6 @@ label.password {
     border: 0;
     padding: 0;
     margin: -1px;
-  }
-  // When courier delivery is selected, show the address field
-  &.show-address #billing_address_1_field {
-    position: static;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-    clip: auto;
-    white-space: normal;
-    border: 0;
-    padding: 0;
-    margin: 0;
   }
 }
 

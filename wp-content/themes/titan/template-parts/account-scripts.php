@@ -382,12 +382,16 @@ jQuery(function($) {
 	function checkCourierDelivery() {
 		var $checked = $('input[name="shipping_method[0]"]:checked');
 		if (!$checked.length) {
-			$('.woocommerce-billing-fields').removeClass('show-address');
+			$('.checkout-address-field').hide();
 			return;
 		}
 		var label = $('label[for="' + $checked.attr('id') + '"]').text().toLowerCase();
 		var isCourier = label.indexOf('курьер') !== -1;
-		$('.woocommerce-billing-fields').toggleClass('show-address', isCourier);
+		if (isCourier) {
+			$('.checkout-address-field').show();
+		} else {
+			$('.checkout-address-field').hide();
+		}
 	}
 	$(document).on('change', 'input[name="shipping_method[0]"]', checkCourierDelivery);
 	$(document.body).on('updated_checkout', checkCourierDelivery);
