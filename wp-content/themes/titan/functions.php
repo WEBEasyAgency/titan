@@ -1105,6 +1105,17 @@ add_filter( 'woocommerce_default_address_fields', function( $fields ) {
 	return $fields;
 } );
 
+// Skip shipping calculation on initial page render (non-AJAX).
+// CDEK's calculate_shipping() makes slow external API calls (5-12s).
+// wc-checkout JS triggers update_checkout immediately after page load,
+// so shipping rates will be fetched asynchronously via AJAX instead.
+add_filter( 'woocommerce_cart_shipping_packages', function( $packages ) {
+	if ( ! wp_doing_ajax() && is_account_page() ) {
+		return array();
+	}
+	return $packages;
+} );
+
 // Save custom order meta after WC creates the order
 add_action( 'woocommerce_checkout_update_order_meta', function( $order_id ) {
 	$order      = wc_get_order( $order_id );
