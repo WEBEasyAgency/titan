@@ -2798,26 +2798,24 @@ label.password {
       font-size: 20px;
     }
   }
-  .checkout-section__subtitle {
-    font-size: 18px;
-    line-height: 130%;
-    font-weight: 400;
-    margin: 16px 0 12px;
-  }
+}
+
+// 580px content container (matches Figma buyer section)
+.checkout-buyer-content {
+  max-width: 580px;
 }
 
 .checkout-table {
   .grid {
-    grid-template-columns: 88px auto 120px 140px 100px;
+    grid-template-columns: 88px auto 96px 162px 104px;
     @media only screen and (max-width: 1100px) {
-      grid-template-columns: 88px auto 100px 140px 80px;
+      grid-template-columns: 88px auto 96px 140px 80px;
     }
     @media only screen and (max-width: 767px) {
       grid-template-columns: repeat(2, 1fr);
     }
   }
   .checkout-table__head {
-    border-top: 1px solid var(--black);
     @media only screen and (max-width: 767px) {
       display: none;
     }
@@ -2826,13 +2824,11 @@ label.password {
       font-size: 10px;
       line-height: 150%;
       color: #ffffff;
-      padding: 11.5px 15px;
-      border-right: 1px solid rgba(255,255,255,0.2);
-      &:first-child {
-        border-left: 1px solid var(--black);
-      }
+      padding: 8px 16px;
+      border: 1px solid var(--black);
+      border-right-color: rgba(255,255,255,0.2);
       &:last-child {
-        border-right: 1px solid var(--black);
+        border-right-color: var(--black);
       }
     }
   }
@@ -2844,6 +2840,7 @@ label.password {
       }
       .checkout-table__cell {
         padding: 8px 16px;
+        font-size: 16px;
         line-height: 150%;
         border-right: 1px solid var(--black);
         display: flex;
@@ -2877,26 +2874,25 @@ label.password {
           }
         }
         &.quantity {
-          justify-content: center;
+          justify-content: flex-end;
           .quantity-block {
             display: flex;
             align-items: center;
             border: 1px solid var(--black);
             .sign {
-              padding: 4px 8px;
-              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 40px;
               height: 32px;
-              svg {
-                path {
-                  transition: all 0.3s;
-                }
+              cursor: pointer;
+              svg path {
+                transition: all 0.3s;
               }
               &:hover {
                 background-color: var(--black);
-                svg {
-                  path {
-                    fill: #ffffff;
-                  }
+                svg path {
+                  fill: #ffffff;
                 }
               }
             }
@@ -2932,32 +2928,33 @@ label.password {
   border: 1px solid var(--black);
   font-size: 14px;
   line-height: 150%;
+  max-width: 256px;
+  margin-left: auto;
   .checkout-subtotal__val {
+    font-size: 16px;
     font-weight: 600;
   }
 }
 
-.checkout-buyer-tabs,
-.checkout-delivery-tabs {
+.checkout-buyer-tabs {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   @media only screen and (max-width: 500px) {
     gap: 8px;
   }
 }
 
-.checkout-buyer-tab,
-.checkout-delivery-tab {
+.checkout-buyer-tab {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 48px;
+  padding: 12px 16px;
   font-size: 16px;
-  line-height: 1;
+  line-height: 150%;
   color: var(--black);
-  background-color: #ffffff;
+  background-color: transparent;
   border: 1px solid var(--black);
   cursor: pointer;
   transition: all 0.3s;
@@ -2965,7 +2962,7 @@ label.password {
     font-size: 14px;
   }
   &:hover {
-    background-color: var(--gray);
+    background-color: var(--gray2);
   }
   &.active {
     background-color: var(--black);
@@ -2997,7 +2994,7 @@ label.password {
   }
   textarea {
     resize: vertical;
-    min-height: 100px;
+    min-height: 120px;
   }
 }
 
@@ -3018,9 +3015,85 @@ label.password {
   }
 }
 
-// WC Shipping Methods (rendered by WooCommerce inside checkout)
-.checkout-shipping-methods {
+// WC Billing Fields (rendered by do_action('woocommerce_checkout_billing'))
+.woocommerce-billing-fields {
+  > h3 {
+    display: none;
+  }
+  .woocommerce-billing-fields__field-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .form-row {
+    margin: 0;
+    padding: 0;
+    label {
+      display: none;
+    }
+    .woocommerce-input-wrapper {
+      width: 100%;
+    }
+    input.input-text,
+    select {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 16px;
+      line-height: 150%;
+      border: 1px solid var(--black);
+      font-family: "NotoSans";
+      background-color: #ffffff;
+      border-radius: 0;
+      -webkit-appearance: none;
+      &::placeholder {
+        opacity: 0.3;
+      }
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+  // Hide address fields not needed in UI (kept in DOM for CDEK shipping calculation)
+  #billing_country_field,
+  #billing_state_field,
+  #billing_postcode_field,
+  #billing_address_1_field {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+    padding: 0;
+    margin: -1px;
+  }
+}
+
+// WC Shipping section (inside review-order.php)
+.checkout-shipping {
   margin-bottom: 16px;
+  .checkout-shipping__table {
+    width: 100%;
+    border-collapse: collapse;
+    tr, th, td {
+      display: block;
+      padding: 0;
+      text-align: left;
+      border: none;
+    }
+    th {
+      display: none;
+    }
+    // Shipping "no methods" message
+    .woocommerce-shipping-destination {
+      font-size: 14px;
+      line-height: 150%;
+      color: var(--gray3);
+      margin-top: 8px;
+    }
+  }
   #shipping_method {
     list-style: none;
     padding: 0;
@@ -3031,16 +3104,14 @@ label.password {
     li {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 8px;
       padding: 12px 16px;
-      border: 1px solid var(--gray2);
+      border: 1px solid var(--black);
       cursor: pointer;
       font-size: 14px;
       line-height: 24px;
       transition: border-color 0.2s;
-      &:hover {
-        border-color: var(--black);
-      }
       input[type="radio"] {
         width: 18px;
         height: 18px;
@@ -3053,14 +3124,13 @@ label.password {
       }
     }
   }
-  // CDEK PVZ button (rendered by CDEKDelivery plugin via woocommerce_after_shipping_rate)
+  // CDEK PVZ button
   .open-pvz-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
     border: 1px solid var(--black);
-    border-radius: 8px;
     background: none;
     cursor: pointer;
     font-size: 14px;
@@ -3068,6 +3138,7 @@ label.password {
     font-weight: 500;
     transition: background-color 0.2s, color 0.2s;
     margin-top: 8px;
+    width: 100%;
     a {
       color: inherit;
       text-decoration: none;
@@ -3084,44 +3155,66 @@ label.password {
     line-height: 24px;
     padding: 10px 16px;
     border: 1px solid var(--gray2);
-    border-radius: 8px;
     margin-top: 8px;
-    background: var(--gray);
+    background: #fff;
     &::before { display: none; }
   }
 }
 
-// WC Order Review (totals, payment, submit)
-.woocommerce-checkout-review-order {
-  .shop_table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 16px;
-    th, td {
-      padding: 8px 0;
-      font-size: 14px;
-      line-height: 150%;
-      border-bottom: 1px solid var(--gray2);
-    }
-    th {
-      text-align: left;
-      font-weight: 400;
-    }
-    td {
-      text-align: right;
-      font-weight: 600;
-    }
-    .order-total th,
-    .order-total td {
+// Totals block: "Итоговая сумма" with collapsible details
+.checkout-total {
+  border: 1px solid var(--black);
+  margin-bottom: 16px;
+  .checkout-total__header {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px 8px 16px;
+    font-size: 14px;
+    line-height: 150%;
+    cursor: pointer;
+    .checkout-total__val {
       font-size: 16px;
       font-weight: 600;
-      border-bottom: none;
+      margin-left: auto;
+      margin-right: 8px;
+    }
+    .checkout-total__toggle {
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      transition: transform 0.3s;
+      svg {
+        display: block;
+      }
+      &.open {
+        transform: rotate(180deg);
+      }
+    }
+  }
+  .checkout-total__details {
+    padding: 0 16px 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+    margin: 0 16px;
+    padding-top: 8px;
+    .checkout-total__row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      line-height: 150%;
+      color: var(--black);
+      margin-bottom: 2px;
     }
   }
 }
 
 // WC Payment Methods
 #payment {
+  margin-top: 16px;
   .wc_payment_methods {
     list-style: none;
     padding: 0;
@@ -3131,7 +3224,7 @@ label.password {
     gap: 8px;
     li {
       padding: 12px 16px;
-      border: 1px solid var(--gray2);
+      border: 1px solid var(--black);
       input[type="radio"] {
         width: 18px;
         height: 18px;
@@ -3160,17 +3253,18 @@ label.password {
 // WC Place Order button
 #place_order {
   width: 100%;
-  height: 48px;
+  height: 47px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   background-color: var(--black);
   color: #ffffff;
   border: 1px solid var(--black);
   transition: opacity 0.3s;
+  padding: 8px 24px;
   &:hover {
     opacity: 0.85;
   }
@@ -3216,6 +3310,7 @@ label.password {
       width: 24px;
       height: 24px;
       transition: opacity 0.3s;
+      border: none;
       &:hover {
         opacity: 0.5;
       }
@@ -3233,51 +3328,15 @@ label.password {
   }
 }
 
-.checkout-total {
-  border: 1px solid var(--black);
-  margin-bottom: 16px;
-  .checkout-total__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    font-size: 16px;
-    line-height: 150%;
-    cursor: pointer;
-    .checkout-total__val {
-      font-weight: 600;
-      margin-left: auto;
-      margin-right: 8px;
-    }
-    .checkout-total__toggle {
-      background: none;
-      cursor: pointer;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.3s;
-      &.open {
-        transform: rotate(180deg);
-      }
-    }
-  }
-  .checkout-total__details {
-    padding: 0 16px 12px;
-    .checkout-total__row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 14px;
-      line-height: 150%;
-      color: var(--gray3);
-    }
-  }
-}
-
 .checkout-buyer-panel {
   label.checkbox {
     margin-bottom: 16px;
   }
+}
+
+// Hide WC terms checkbox (we have our own personal data consent)
+.woocommerce-terms-and-conditions-wrapper {
+  display: none;
 }
 
 // =========================================

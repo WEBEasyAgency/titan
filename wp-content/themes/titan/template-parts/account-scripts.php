@@ -375,6 +375,15 @@ jQuery(function($) {
 		$('#payment_method_titan_invoice').closest('li').hide();
 	});
 
+	// ============ Checkout: Totals toggle ============
+	$(document).on('click', '.checkout-total__header', function() {
+		var $total = $(this).closest('.checkout-total');
+		var $details = $total.find('.checkout-total__details');
+		var $toggle = $(this).find('.checkout-total__toggle');
+		$details.slideToggle(200);
+		$toggle.toggleClass('open');
+	});
+
 	// ============ History: Toggle Details ============
 	$(document).on('click', '.history-details-toggle', function(e) {
 		e.preventDefault();

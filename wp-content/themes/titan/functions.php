@@ -1084,14 +1084,43 @@ add_filter( 'woocommerce_payment_gateways', function( $gateways ) {
 // Keep country, city, state, postcode, address_1 — CDEK needs them for calculate_shipping().
 add_filter( 'woocommerce_checkout_fields', function( $fields ) {
 	$fields['billing']['billing_patronymic'] = array(
-		'type'     => 'text',
-		'label'    => 'Отчество',
-		'required' => false,
-		'priority' => 25,
+		'type'        => 'text',
+		'label'       => 'Отчество',
+		'placeholder' => 'Отчество',
+		'required'    => false,
+		'priority'    => 25,
+		'class'       => array( 'form-row-wide' ),
 	);
 	unset( $fields['billing']['billing_company'] );
 	unset( $fields['billing']['billing_address_2'] );
+
+	// Add placeholders to visible fields.
+	if ( isset( $fields['billing']['billing_first_name'] ) ) {
+		$fields['billing']['billing_first_name']['placeholder'] = 'Имя';
+		$fields['billing']['billing_first_name']['class']       = array( 'form-row-wide' );
+	}
+	if ( isset( $fields['billing']['billing_last_name'] ) ) {
+		$fields['billing']['billing_last_name']['placeholder'] = 'Фамилия';
+		$fields['billing']['billing_last_name']['class']       = array( 'form-row-wide' );
+	}
+	if ( isset( $fields['billing']['billing_email'] ) ) {
+		$fields['billing']['billing_email']['placeholder'] = 'Email';
+	}
+	if ( isset( $fields['billing']['billing_phone'] ) ) {
+		$fields['billing']['billing_phone']['placeholder'] = 'Телефон';
+	}
+	if ( isset( $fields['billing']['billing_city'] ) ) {
+		$fields['billing']['billing_city']['placeholder'] = 'Город доставки';
+		$fields['billing']['billing_city']['priority']    = 90;
+		$fields['billing']['billing_city']['class']       = array( 'form-row-wide' );
+	}
+
 	return $fields;
+} );
+
+// WC order button text
+add_filter( 'woocommerce_order_button_text', function() {
+	return 'Заказать';
 } );
 
 // Make address fields not required (legal entities don't fill billing address).
