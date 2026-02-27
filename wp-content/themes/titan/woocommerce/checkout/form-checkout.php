@@ -170,6 +170,14 @@ $cart_subtotal  = $cart->get_cart_subtotal();
 				</label>
 			</div>
 
+			<!-- Delivery Type Tabs (visible for physical persons only) -->
+			<div class="checkout-delivery-tabs-wrapper">
+				<div class="checkout-delivery-tabs">
+					<button type="button" class="checkout-delivery-tab active" data-delivery="delivery">Доставка</button>
+					<button type="button" class="checkout-delivery-tab" data-delivery="pickup">Самовывоз</button>
+				</div>
+			</div>
+
 			<!-- Order Review: shipping + totals + payment + submit -->
 			<div id="order_review" class="woocommerce-checkout-review-order">
 				<?php do_action( 'woocommerce_checkout_order_review' ); ?>

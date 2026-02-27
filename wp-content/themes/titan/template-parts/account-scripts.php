@@ -266,20 +266,55 @@ jQuery(function($) {
 		if (buyer === 'legal') {
 			// Auto-select invoice gateway
 			$('#payment_method_titan_invoice').prop('checked', true).trigger('change');
-			// Hide shipping + extra fields for legal entities
+			// Hide delivery tabs, shipping, extra fields for legal entities
+			$('.checkout-delivery-tabs-wrapper').hide();
 			$('.checkout-shipping').hide();
 			$('.checkout-extra-fields').hide();
+			$('.checkout-address-field').hide();
 			// Change submit button text
 			$('#place_order').text('Выставить счёт');
 		} else {
 			// Auto-select T-Bank gateway
 			$('#payment_method_tbank').prop('checked', true).trigger('change');
-			// Show shipping + extra fields for physical persons
+			// Show delivery tabs, shipping, extra fields for physical persons
+			$('.checkout-delivery-tabs-wrapper').show();
 			$('.checkout-shipping').show();
 			$('.checkout-extra-fields').show();
 			// Change submit button text
 			$('#place_order').text('Заказать');
+			filterShippingMethods();
 		}
+	});
+
+	// ============ Checkout: Delivery Type Tabs ============
+	function filterShippingMethods() {
+		var activeTab = $('.checkout-delivery-tab.active').data('delivery');
+		$('#shipping_method li').each(function() {
+			var val = $(this).find('input.shipping_method').val() || '';
+			var isPickup = val.indexOf('local_pickup') !== -1;
+			if (activeTab === 'pickup') {
+				$(this).toggle(isPickup);
+			} else {
+				$(this).toggle(!isPickup);
+			}
+		});
+		// Auto-select first visible method
+		var $firstVisible = $('#shipping_method li:visible input.shipping_method').first();
+		if ($firstVisible.length && !$firstVisible.prop('checked')) {
+			$firstVisible.prop('checked', true).trigger('change');
+		}
+		checkCourierDelivery();
+	}
+
+	$(document).on('click', '.checkout-delivery-tab', function() {
+		$('.checkout-delivery-tab').removeClass('active');
+		$(this).addClass('active');
+		filterShippingMethods();
+	});
+
+	// Re-filter after WC AJAX updates shipping methods
+	$(document.body).on('updated_checkout', function() {
+		filterShippingMethods();
 	});
 
 	// ============ Checkout: Quantity Update ============
