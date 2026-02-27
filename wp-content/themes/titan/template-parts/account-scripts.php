@@ -318,17 +318,14 @@ jQuery(function($) {
 	});
 
 	// ============ Checkout: Quantity Update ============
-	// Note: app.js already handles +/- value change on .quantity-block .minus/.plus
-	// We only need to sync with server and trigger WC checkout refresh
 	var qtyUpdateTimer;
-	$(document).on('click', '.checkout-table .quantity-block .sign', function() {
-		var $row = $(this).closest('.checkout-table__row');
+	function syncCheckoutQty($row) {
 		var key = $row.data('cart-item-key');
 		var $input = $row.find('.number');
-
 		clearTimeout(qtyUpdateTimer);
 		qtyUpdateTimer = setTimeout(function() {
 			var qty = parseInt($input.val()) || 1;
+			if (qty < 1) { qty = 1; $input.val(1); }
 			$.post(titan_wc.ajax_url, {
 				action: 'titan_update_checkout_qty',
 				nonce: titan_wc.nonce,
@@ -348,6 +345,12 @@ jQuery(function($) {
 				}
 			});
 		}, 300);
+	}
+	$(document).on('click', '.checkout-table .quantity-block .sign', function() {
+		syncCheckoutQty($(this).closest('.checkout-table__row'));
+	});
+	$(document).on('input', '.checkout-table .quantity-block .number', function() {
+		syncCheckoutQty($(this).closest('.checkout-table__row'));
 	});
 
 	// ============ Checkout: Legal Entity Select ============
