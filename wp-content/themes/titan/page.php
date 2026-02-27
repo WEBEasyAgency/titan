@@ -9,13 +9,15 @@ $main_class = 'inner-page';
 $main_style = '';
 
 // Detect WooCommerce pages by function
+// account_page checked before is_checkout because is_checkout() is true
+// on /my-account/titan-checkout/ too (for WC/CDEK plugin compatibility)
 if ( function_exists( 'is_cart' ) && is_cart() ) {
 	$main_class .= ' cart-page';
-} elseif ( function_exists( 'is_checkout' ) && is_checkout() ) {
-	$main_class .= ' checkout-page';
 } elseif ( function_exists( 'is_account_page' ) && is_account_page() ) {
 	$main_class .= ' account-page';
 	$main_style = ' style="padding-top: 60px; padding-bottom: 60px;"';
+} elseif ( function_exists( 'is_checkout' ) && is_checkout() ) {
+	$main_class .= ' checkout-page';
 }
 ?>
 
