@@ -1108,28 +1108,37 @@ add_filter( 'woocommerce_default_address_fields', function( $fields ) {
 // =========================================
 add_filter( 'woocommerce_shipping_packages', function( $packages ) {
 	$log = wc_get_logger();
-	$log->debug( '=== TITAN SHIPPING DEBUG ===', array( 'source' => 'titan-shipping' ) );
-	$log->debug( 'Packages count: ' . count( $packages ), array( 'source' => 'titan-shipping' ) );
+	$ctx = array( 'source' => 'titan-shipping' );
+
+	// Read CDEK method settings directly from DB (official_cdek instance 2)
+	$cdek_settings = get_option( 'woocommerce_official_cdek_2_settings', array() );
+	$log->debug( '=== CDEK METHOD SETTINGS ===', $ctx );
+	$log->debug( 'city_code: ' . ( $cdek_settings['city_code'] ?? 'EMPTY/MISSING' ), $ctx );
+	$log->debug( 'tariff_list: ' . wp_json_encode( $cdek_settings['tariff_list'] ?? 'EMPTY/MISSING' ), $ctx );
+	$log->debug( 'client_id set: ' . ( ! empty( $cdek_settings['client_id'] ) ? 'YES (' . substr( $cdek_settings['client_id'], 0, 8 ) . '...)' : 'NO' ), $ctx );
+	$log->debug( 'client_secret set: ' . ( ! empty( $cdek_settings['client_secret'] ) ? 'YES' : 'NO' ), $ctx );
+	$log->debug( 'test_mode: ' . ( $cdek_settings['test_mode'] ?? 'N/A' ), $ctx );
+	$log->debug( 'enabled: ' . ( $cdek_settings['enabled'] ?? 'N/A' ), $ctx );
+	$log->debug( 'product_weight_default: ' . ( $cdek_settings['product_weight_default'] ?? 'N/A' ), $ctx );
+	$log->debug( 'product_length_default: ' . ( $cdek_settings['product_length_default'] ?? 'N/A' ), $ctx );
+	$log->debug( 'product_width_default: ' . ( $cdek_settings['product_width_default'] ?? 'N/A' ), $ctx );
+	$log->debug( 'product_height_default: ' . ( $cdek_settings['product_height_default'] ?? 'N/A' ), $ctx );
+	$log->debug( 'All settings keys: ' . implode( ', ', array_keys( $cdek_settings ) ), $ctx );
+
+	$log->debug( '=== SHIPPING PACKAGES ===', $ctx );
 	foreach ( $packages as $i => $pkg ) {
-		$log->debug( "Package $i destination: " . wp_json_encode( $pkg['destination'] ), array( 'source' => 'titan-shipping' ) );
-		$log->debug( "Package $i contents_cost: " . ( $pkg['contents_cost'] ?? 'N/A' ), array( 'source' => 'titan-shipping' ) );
-		$log->debug( "Package $i rates count: " . count( $pkg['rates'] ?? [] ), array( 'source' => 'titan-shipping' ) );
+		$log->debug( "Package $i destination: " . wp_json_encode( $pkg['destination'] ), $ctx );
+		$log->debug( "Package $i rates count: " . count( $pkg['rates'] ?? [] ), $ctx );
 		if ( ! empty( $pkg['rates'] ) ) {
 			foreach ( $pkg['rates'] as $rate_id => $rate ) {
-				$log->debug( "  Rate: $rate_id = {$rate->cost}", array( 'source' => 'titan-shipping' ) );
+				$log->debug( "  Rate: $rate_id = {$rate->cost}", $ctx );
 			}
 		}
 	}
-	// Also log available shipping methods in zones
-	$zones = WC_Shipping_Zones::get_zones();
-	$log->debug( 'Shipping zones count: ' . count( $zones ), array( 'source' => 'titan-shipping' ) );
-	foreach ( $zones as $zone ) {
-		$methods = [];
-		foreach ( $zone['shipping_methods'] as $m ) {
-			$methods[] = $m->id . ':' . $m->instance_id . ' (enabled=' . $m->enabled . ')';
-		}
-		$log->debug( "Zone '{$zone['zone_name']}': " . implode( ', ', $methods ), array( 'source' => 'titan-shipping' ) );
-	}
+
+	// Check WC logs for CDEK plugin's own debug output
+	$log->debug( 'Check also WC logs source "cdekdelivery" for CDEK internal debug', $ctx );
+
 	return $packages;
 } );
 
