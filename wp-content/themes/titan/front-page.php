@@ -5,7 +5,7 @@
 		<div class="container">
 			<div class="top-block-inner grid">
 				<div class="text-block">
-					<div class="title"><h1>Наши услуги</h1></div>
+					<div class="title"><h1>Наши услуги:</h1></div>
 					<div class="list">
 						<ul>
 							<li>разработка электронных устройств и встраиваемых систем;</li>
@@ -14,7 +14,7 @@
 					</div>
 					<div class="btn-block">
 						<a href="#" class="btn">Разработка электроники</a>
-						<a href="#" class="btn">Производство электроники</a>
+						<a href="https://titan.realeasystudio.site/%d0%bf%d1%80%d0%be%d0%b8%d0%b7%d0%b2%d0%be%d0%b4%d1%81%d1%82%d0%b2%d0%be/" class="btn">Производство электроники</a>
 					</div>
 				</div>
 				<div class="img">
