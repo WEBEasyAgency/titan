@@ -355,6 +355,16 @@ function titan_ajax_update_cart() {
 add_action( 'wp_ajax_titan_update_cart', 'titan_ajax_update_cart' );
 add_action( 'wp_ajax_nopriv_titan_update_cart', 'titan_ajax_update_cart' );
 
+function titan_ajax_clear_cart() {
+	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
+	WC()->cart->empty_cart();
+	wp_send_json_success( array(
+		'cart_count' => 0,
+	) );
+}
+add_action( 'wp_ajax_titan_clear_cart', 'titan_ajax_clear_cart' );
+add_action( 'wp_ajax_nopriv_titan_clear_cart', 'titan_ajax_clear_cart' );
+
 // =========================================
 // 14. AJAX Add to Cart
 // =========================================

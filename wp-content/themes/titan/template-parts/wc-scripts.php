@@ -135,24 +135,11 @@ jQuery(function($) {
 	// ============ Cart Page: Clear All ============
 	$(document).on('click', '#titan-clear-cart', function(e) {
 		e.preventDefault();
-		var keys = [];
-		$('.cart-table .t-row').each(function() {
-			keys.push($(this).data('cart-item-key'));
-		});
-
-		var completed = 0;
-		$.each(keys, function(i, key) {
-			$.post(titan_wc.ajax_url, {
-				action: 'titan_update_cart',
-				nonce: titan_wc.nonce,
-				cart_item_key: key,
-				quantity: 0
-			}, function() {
-				completed++;
-				if (completed >= keys.length) {
-					location.reload();
-				}
-			});
+		$.post(titan_wc.ajax_url, {
+			action: 'titan_clear_cart',
+			nonce: titan_wc.nonce
+		}, function() {
+			location.reload();
 		});
 	});
 

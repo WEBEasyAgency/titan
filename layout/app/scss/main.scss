@@ -3130,11 +3130,11 @@ label.password {
     gap: 8px;
     padding: 10px 20px;
     border: 1px solid var(--black);
-    background: none;
     cursor: pointer;
     font-size: 14px;
     line-height: 24px;
     font-weight: 500;
+    background-color: var(--black);
     transition: background-color 0.2s, color 0.2s;
     margin-top: 8px;
     width: 100%;
