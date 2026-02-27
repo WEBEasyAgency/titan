@@ -1103,6 +1103,36 @@ add_filter( 'woocommerce_default_address_fields', function( $fields ) {
 	return $fields;
 } );
 
+// =========================================
+// DEBUG: Shipping calculation (TEMPORARY — remove after fixing CDEK)
+// =========================================
+add_filter( 'woocommerce_shipping_packages', function( $packages ) {
+	$log = wc_get_logger();
+	$log->debug( '=== TITAN SHIPPING DEBUG ===', array( 'source' => 'titan-shipping' ) );
+	$log->debug( 'Packages count: ' . count( $packages ), array( 'source' => 'titan-shipping' ) );
+	foreach ( $packages as $i => $pkg ) {
+		$log->debug( "Package $i destination: " . wp_json_encode( $pkg['destination'] ), array( 'source' => 'titan-shipping' ) );
+		$log->debug( "Package $i contents_cost: " . ( $pkg['contents_cost'] ?? 'N/A' ), array( 'source' => 'titan-shipping' ) );
+		$log->debug( "Package $i rates count: " . count( $pkg['rates'] ?? [] ), array( 'source' => 'titan-shipping' ) );
+		if ( ! empty( $pkg['rates'] ) ) {
+			foreach ( $pkg['rates'] as $rate_id => $rate ) {
+				$log->debug( "  Rate: $rate_id = {$rate->cost}", array( 'source' => 'titan-shipping' ) );
+			}
+		}
+	}
+	// Also log available shipping methods in zones
+	$zones = WC_Shipping_Zones::get_zones();
+	$log->debug( 'Shipping zones count: ' . count( $zones ), array( 'source' => 'titan-shipping' ) );
+	foreach ( $zones as $zone ) {
+		$methods = [];
+		foreach ( $zone['shipping_methods'] as $m ) {
+			$methods[] = $m->id . ':' . $m->instance_id . ' (enabled=' . $m->enabled . ')';
+		}
+		$log->debug( "Zone '{$zone['zone_name']}': " . implode( ', ', $methods ), array( 'source' => 'titan-shipping' ) );
+	}
+	return $packages;
+} );
+
 // Save custom order meta after WC creates the order
 add_action( 'woocommerce_checkout_update_order_meta', function( $order_id ) {
 	$order      = wc_get_order( $order_id );
