@@ -263,19 +263,22 @@ jQuery(function($) {
 		$('.checkout-buyer-panel[data-buyer-panel="' + buyer + '"]').show();
 		$('#titan_buyer_type').val(buyer);
 
-		// Switch payment gateway visibility
 		if (buyer === 'legal') {
+			// Auto-select invoice gateway
 			$('#payment_method_titan_invoice').prop('checked', true).trigger('change');
-			$('.wc_payment_methods li').hide();
-			$('#payment_method_titan_invoice').closest('li').show();
-			// Hide shipping section for legal entities
-			$('.woocommerce-shipping-totals').hide();
+			// Hide shipping + extra fields for legal entities
+			$('.checkout-shipping').hide();
+			$('.checkout-extra-fields').hide();
+			// Change submit button text
+			$('#place_order').text('Выставить счёт');
 		} else {
-			$('.wc_payment_methods li').show();
-			$('#payment_method_titan_invoice').closest('li').hide();
-			$('.wc_payment_methods li:visible input[type="radio"]').first().prop('checked', true).trigger('change');
-			// Show shipping section for physical persons
-			$('.woocommerce-shipping-totals').show();
+			// Auto-select T-Bank gateway
+			$('#payment_method_tbank').prop('checked', true).trigger('change');
+			// Show shipping + extra fields for physical persons
+			$('.checkout-shipping').show();
+			$('.checkout-extra-fields').show();
+			// Change submit button text
+			$('#place_order').text('Заказать');
 		}
 	});
 
@@ -370,9 +373,9 @@ jQuery(function($) {
 	});
 
 	// ============ Checkout: Initial gateway setup ============
-	// On page load, hide invoice gateway for physical persons (default)
+	// On page load, auto-select T-Bank for physical persons (default)
 	$(document).ready(function() {
-		$('#payment_method_titan_invoice').closest('li').hide();
+		$('#payment_method_tbank').prop('checked', true).trigger('change');
 	});
 
 	// ============ Checkout: Totals toggle ============

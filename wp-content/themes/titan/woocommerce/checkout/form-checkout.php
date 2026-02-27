@@ -106,17 +106,6 @@ $cart_subtotal  = $cart->get_cart_subtotal();
 			<!-- Physical Person Panel -->
 			<div class="checkout-buyer-panel" data-buyer-panel="physical">
 				<?php do_action( 'woocommerce_checkout_billing' ); ?>
-
-				<div class="checkout-fields checkout-fields--extra">
-					<input type="text" name="titan_recipient" placeholder="ФИО получателя" class="input-text">
-					<textarea name="order_comments" id="order_comments" placeholder="Комментарий к заказу" rows="4" class="input-text"></textarea>
-				</div>
-
-				<label class="checkbox">
-					<input type="checkbox" name="titan_personal_data" value="1">
-					<span class="check"></span>
-					<span class="label">Согласен на обработку персональных данных согласно ФЗ от 27 июля 2006 г. № 152-ФЗ «О персональных данных»</span>
-				</label>
 			</div>
 
 			<!-- Legal Person Panel -->

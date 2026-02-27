@@ -1123,6 +1123,26 @@ add_filter( 'woocommerce_order_button_text', function() {
 	return 'Заказать';
 } );
 
+// Render recipient, comment and consent checkbox between shipping and payment.
+// Fires on initial page render only (priority 15, between review-order at 10 and payment at 20).
+// WC AJAX update_order_review calls template functions directly, NOT this hook,
+// so these fields survive AJAX fragment replacements as static DOM elements.
+add_action( 'woocommerce_checkout_order_review', function() {
+	?>
+	<div class="checkout-extra-fields">
+		<div class="checkout-fields">
+			<input type="text" name="titan_recipient" placeholder="ФИО получателя" class="input-text">
+			<textarea name="order_comments" id="order_comments" placeholder="Комментарий к заказу" rows="4" class="input-text"></textarea>
+		</div>
+		<label class="checkbox">
+			<input type="checkbox" name="titan_personal_data" value="1">
+			<span class="check"></span>
+			<span class="label">Согласен на обработку персональных данных согласно ФЗ от 27 июля 2006 г. № 152-ФЗ «О персональных данных»</span>
+		</label>
+	</div>
+	<?php
+}, 15 );
+
 // Make address fields not required (legal entities don't fill billing address).
 add_filter( 'woocommerce_default_address_fields', function( $fields ) {
 	$optional = array( 'country', 'state', 'city', 'postcode', 'address_1' );
