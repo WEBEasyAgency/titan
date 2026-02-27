@@ -269,19 +269,14 @@ jQuery(function($) {
 			$('.wc_payment_methods li').hide();
 			$('#payment_method_titan_invoice').closest('li').show();
 			// Hide shipping section for legal entities
-			$('.checkout-shipping-methods').hide();
+			$('.woocommerce-shipping-totals').hide();
 		} else {
 			$('.wc_payment_methods li').show();
 			$('#payment_method_titan_invoice').closest('li').hide();
 			$('.wc_payment_methods li:visible input[type="radio"]').first().prop('checked', true).trigger('change');
 			// Show shipping section for physical persons
-			$('.checkout-shipping-methods').show();
+			$('.woocommerce-shipping-totals').show();
 		}
-	});
-
-	// ============ Checkout: Sync billing_city → shipping_city ============
-	$(document).on('input change', '#billing_city', function() {
-		$('#shipping_city').val($(this).val());
 	});
 
 	// ============ Checkout: Quantity Update ============

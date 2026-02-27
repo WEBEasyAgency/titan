@@ -1080,29 +1080,15 @@ add_filter( 'woocommerce_payment_gateways', function( $gateways ) {
 // 26. WC Checkout: Custom Fields & Order Meta
 // =========================================
 
-// Override default WC billing fields — remove address fields (shipping handles them),
-// add patronymic. Our form-checkout.php renders fields manually, but WC still
-// validates against this list.
+// Add patronymic field to billing; keep all standard WC billing/shipping fields
+// intact — CDEK plugin needs country, city, state, postcode for calculate_shipping().
 add_filter( 'woocommerce_checkout_fields', function( $fields ) {
-	// Keep only essential billing fields
-	$keep = array( 'billing_first_name', 'billing_last_name', 'billing_email', 'billing_phone' );
-	foreach ( array_keys( $fields['billing'] ) as $key ) {
-		if ( ! in_array( $key, $keep, true ) ) {
-			unset( $fields['billing'][ $key ] );
-		}
-	}
-
-	// Add patronymic
 	$fields['billing']['billing_patronymic'] = array(
 		'type'     => 'text',
 		'label'    => 'Отчество',
 		'required' => false,
 		'priority' => 25,
 	);
-
-	// Remove shipping fields — CDEK plugin manages shipping address
-	$fields['shipping'] = array();
-
 	return $fields;
 } );
 
