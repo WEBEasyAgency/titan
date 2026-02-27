@@ -280,26 +280,17 @@ jQuery(function($) {
 	});
 
 	// ============ Checkout: Quantity Update ============
+	// Note: app.js already handles +/- value change on .quantity-block .minus/.plus
+	// We only need to sync with server and trigger WC checkout refresh
 	var qtyUpdateTimer;
-	$(document).on('click', '.checkout-table .quantity-block .sign', function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-
-		var $sign = $(this).closest('.sign');
-		var $row = $sign.closest('.checkout-table__row');
+	$(document).on('click', '.checkout-table .quantity-block .sign', function() {
+		var $row = $(this).closest('.checkout-table__row');
 		var key = $row.data('cart-item-key');
 		var $input = $row.find('.number');
-		var qty = parseInt($input.val()) || 1;
-
-		if ($sign.hasClass('minus')) {
-			qty = Math.max(1, qty - 1);
-		} else {
-			qty = qty + 1;
-		}
-		$input.val(qty);
 
 		clearTimeout(qtyUpdateTimer);
 		qtyUpdateTimer = setTimeout(function() {
+			var qty = parseInt($input.val()) || 1;
 			$.post(titan_wc.ajax_url, {
 				action: 'titan_update_checkout_qty',
 				nonce: titan_wc.nonce,
