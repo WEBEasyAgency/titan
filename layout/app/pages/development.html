@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link rel="stylesheet" href="css/libs.min.css">
+	<link rel="stylesheet" href="css/app.min.css">
+</head>
+<body>
+	@@include('../html/header.html')
+	<main class="inner-page development-page">
+		<section class="top-block">
+			<div class="container">
+				<div class="top-block-inner grid">
+					<div class="text-block">
+						<div class="title"><h1>Разработка электроники</h1></div>
+						<div class="text">
+							<p>Наша компания предлагает услуги по разработке<br> электронных устройств и встраиваемых систем: <br>от идеи до готовой продукции.</p>
+							<p>Реализуем любой проект с нуля.</p>
+						</div>
+					</div>
+					<div class="img"><img src="img/dest/production-top-img.png" alt=""></div>
+				</div>
+			</div>
+		</section>
+		<section class="steps">
+			<div class="container">
+				<div class="steps-list grid">
+					<div class="item">
+						<div class="num">1</div>
+						<div class="text">Изучим концепцию</div>
+					</div>
+					<div class="item">
+						<div class="num">2</div>
+						<div class="text">Напишем Техническое задание</div>
+					</div>
+					<div class="item">
+						<div class="num">3</div>
+						<div class="text">Спроектируем и изготовим прототипы, напишем ПО</div>
+					</div>
+					<div class="item">
+						<div class="num">4</div>
+						<div class="text">Подготовим документацию согласно государственным стандартам</div>
+					</div>
+					<div class="item">
+						<div class="num">5</div>
+						<div class="text">Подготовим серийное<br> производство</div>
+					</div>
+					<div class="item last">
+						<div class="text">Готовы включиться <br>в работу с любого этапа</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section class="list-block">
+			<div class="container">
+				<div class="list-block-inner grid">
+					<div class="text-block">
+						<div class="title"><h1>Мы специализируемся в следующих областях:</h1></div>
+						<div class="list">
+							<ul>
+								<li>Аналоговая и цифровая электроника;</li>
+								<li>Радиоэлектронная аппаратура;</li>
+								<li>Аналоговая и цифровая электроника;</li>
+								<li>Радиоэлектронная аппаратура</li>
+							</ul>
+						</div>
+					</div>
+					<div class="img"><img src="img/dest/development-top-img.jpg" alt=""></div>
+				</div>
+			</div>
+		</section>
+		<section class="contacts-form">
+			<div class="container">
+				<div class="grid">
+					<div class="title">
+						<h3>Свяжитесь с нами</h3>
+					</div>
+					@@include('../html/contacts-form.html')
+				</div>
+			</div>
+			<div class="file-error">
+				<div class="name">Реквизиты_ИП_Иванов_Иван_Иванович.docx </div>
+				<div class="error-text">Файл слишком большой</div>
+			</div>
+		</section>
+	</main>
+	@@include('../html/footer.html')
+	@@include('../html/thanx-popup.html')
+	@@include('../html/burger-menu.html')
+	@@include('../html/request-popup.html')
+	<script src="js/libs.min.js"></script>
+	<script src="js/app.min.js"></script>
+</body>
+</html>
