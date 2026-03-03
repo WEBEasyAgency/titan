@@ -1277,13 +1277,17 @@ add_filter( 'woocommerce_default_address_fields', function( $fields ) {
 } );
 
 // Force customer country to RU if not set (ensures shipping is calculated for new users).
-add_action( 'woocommerce_before_checkout_form', function() {
+add_action( 'wp_loaded', function() {
+	if ( ! function_exists( 'WC' ) || ! WC()->customer ) {
+		return;
+	}
 	$customer = WC()->customer;
-	if ( $customer && ! $customer->get_billing_country() ) {
+	if ( ! $customer->get_billing_country() ) {
 		$customer->set_billing_country( 'RU' );
 		$customer->set_shipping_country( 'RU' );
+		$customer->save();
 	}
-}, 5 );
+} );
 
 // Skip shipping calculation on initial page render (non-AJAX).
 // CDEK's calculate_shipping() makes slow external API calls (5-12s).
