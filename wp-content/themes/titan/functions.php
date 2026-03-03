@@ -1124,6 +1124,10 @@ add_filter( 'woocommerce_checkout_fields', function( $fields ) {
 		$fields['billing']['billing_city']['priority']    = 90;
 		$fields['billing']['billing_city']['class']       = array( 'form-row-wide' );
 	}
+	// Force country to Russia so WC always calculates shipping for new users.
+	if ( isset( $fields['billing']['billing_country'] ) ) {
+		$fields['billing']['billing_country']['default'] = 'RU';
+	}
 	// Remove address_1 from billing — rendered manually after shipping methods.
 	unset( $fields['billing']['billing_address_1'] );
 
@@ -1239,6 +1243,15 @@ add_filter( 'woocommerce_default_address_fields', function( $fields ) {
 	}
 	return $fields;
 } );
+
+// Force customer country to RU if not set (ensures shipping is calculated for new users).
+add_action( 'woocommerce_before_checkout_form', function() {
+	$customer = WC()->customer;
+	if ( $customer && ! $customer->get_billing_country() ) {
+		$customer->set_billing_country( 'RU' );
+		$customer->set_shipping_country( 'RU' );
+	}
+}, 5 );
 
 // Skip shipping calculation on initial page render (non-AJAX).
 // CDEK's calculate_shipping() makes slow external API calls (5-12s).

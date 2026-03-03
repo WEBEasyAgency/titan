@@ -444,6 +444,15 @@ jQuery(function($) {
 		$('#payment_method_tbank').prop('checked', true).trigger('change');
 	});
 
+	// ============ Checkout: Trigger shipping recalc on city input ============
+	var cityTimer;
+	$(document).on('input', '#billing_city', function() {
+		clearTimeout(cityTimer);
+		cityTimer = setTimeout(function() {
+			$(document.body).trigger('update_checkout');
+		}, 600);
+	});
+
 	// ============ Checkout: Show address field for courier delivery ============
 	function isCourierSelected() {
 		var $checked = $('input[name="shipping_method[0]"]:checked');

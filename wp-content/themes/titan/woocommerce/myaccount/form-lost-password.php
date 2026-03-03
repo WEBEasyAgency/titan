@@ -10,7 +10,7 @@ do_action( 'woocommerce_before_lost_password_form' );
 
 <?php if ( isset( $_GET['reset-link-sent'] ) ) : ?>
 	<div class="recovery__completed">
-		<div class="title">Вам отправлено письмо с ссылкой для восстановления пароля.<br> Используйте его для сброса пароля</div>
+		<div class="title">Вам отправлено письмо с временным паролем.<br>Используйте его для авторизации</div>
 		<div class="sub__title">Если вы не получили письмо, пожалуйста, проверьте папку «Спам».</div>
 		<a href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>" class="btn">Войти</a>
 	</div>
