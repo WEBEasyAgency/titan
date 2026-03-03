@@ -26,7 +26,7 @@
 				<div class="copyright-text">
 					<div class="flex">
 						<div class="text">Все права защищены <?php echo esc_html( date( 'Y' ) ); ?></div>
-						<div class="text"><a href="http://titan.realeasystudio.site/wp-content/uploads/2026/03/dogovor-oferty-i-politika-konf.doc" target="_blank">Политика конфиденциальности</a></div>
+						<div class="text"><a href="http://titan.realeasystudio.site/wp-content/uploads/2026/03/dogovor-oferty-i-politika-konf.doc" target="_blank" download>Политика конфиденциальности</a></div>
 					</div>
 				</div>
 			</div>
