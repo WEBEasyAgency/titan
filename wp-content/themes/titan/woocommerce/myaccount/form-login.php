@@ -76,7 +76,7 @@ do_action( 'woocommerce_before_customer_login_form' ); ?>
 					<input type="text" name="surname" placeholder="Отчество">
 
 					<input type="email" name="email" placeholder="Почта" value="<?php echo ( ! empty( $_POST['email'] ) ) ? esc_attr( wp_unslash( $_POST['email'] ) ) : ''; ?>" autocomplete="email" required>
-					<input type="tel" name="billing_phone" placeholder="Телефон">
+					<input type="tel" name="billing_phone" placeholder="Телефон" required>
 
 					<?php if ( 'no' === get_option( 'woocommerce_registration_generate_password' ) ) : ?>
 						<label class="password">
