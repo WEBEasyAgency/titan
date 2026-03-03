@@ -16,7 +16,7 @@ $(document).ready(function(){
   });
 
 	$('.popupblock .close').on('click', function(){
-		$(this).closest('.popupblock').removeClass('active');
+		$(this).closest('.popupblock').removeClass('active').removeAttr('style');
 		return false;
   });
 
@@ -32,7 +32,7 @@ $(document).ready(function(){
 
 	$(document).on('keyup', function(e) {
     if ( e.key == "Escape" ) {
-      $('.popupblock').removeClass('active');
+      $('.popupblock').removeClass('active').removeAttr('style');
     }
   });
 
