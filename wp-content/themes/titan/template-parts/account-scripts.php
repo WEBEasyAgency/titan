@@ -45,7 +45,7 @@ jQuery(function($) {
 				});
 				$form.find('input').val('');
 				// Show success popup
-				$('#popup-password-success').addClass('active');
+				$('#popup-password-success').removeAttr('style').addClass('active');
 			} else {
 				alert(response.data || 'Ошибка');
 			}
@@ -187,7 +187,7 @@ jQuery(function($) {
 
 	$(document).on('click', '.legal-entity__btn-delete', function() {
 		deleteEntityId = $(this).closest('.legal-entity').data('id');
-		$('#popup-delete-confirm').addClass('active');
+		$('#popup-delete-confirm').removeAttr('style').addClass('active');
 	});
 
 	$('#btn-confirm-delete').on('click', function() {
@@ -208,7 +208,7 @@ jQuery(function($) {
 					$(this).remove();
 				});
 				deleteEntityId = null;
-				$('#popup-delete-success').addClass('active');
+				$('#popup-delete-success').removeAttr('style').addClass('active');
 			} else {
 				alert(response.data || 'Ошибка');
 			}
@@ -501,6 +501,18 @@ jQuery(function($) {
 	$(document).on('click', '.history-detail-close', function(e) {
 		e.preventDefault();
 		$(this).closest('.history-table__detail').slideUp();
+	});
+
+	// ============ Invoice Success: Show popup ============
+	if (window.location.search.indexOf('invoice_success=1') !== -1) {
+		$('#popup-checkout-success').removeAttr('style').addClass('active');
+		if (history.replaceState) {
+			history.replaceState({}, '', window.location.pathname);
+		}
+	}
+
+	$('#btn-back-to-account').on('click', function() {
+		$('#popup-checkout-success').removeClass('active');
 	});
 
 	// ============ Popup: Close ============

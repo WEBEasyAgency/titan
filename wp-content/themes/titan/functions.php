@@ -1092,7 +1092,7 @@ class Titan_Invoice_Gateway extends WC_Payment_Gateway {
 		WC()->cart->empty_cart();
 		return array(
 			'result'   => 'success',
-			'redirect' => $this->get_return_url( $order ),
+			'redirect' => add_query_arg( 'invoice_success', '1', wc_get_page_permalink( 'myaccount' ) ),
 		);
 	}
 }
@@ -1249,6 +1249,22 @@ add_filter( 'woocommerce_update_order_review_fragments', function( $fragments ) 
 	return $fragments;
 } );
 
+// Legal entities don't need shipping — they use pickup / invoice only.
+add_filter( 'woocommerce_cart_needs_shipping', function( $needs_shipping ) {
+	// During AJAX update_order_review
+	if ( wp_doing_ajax() && ! empty( $_POST['post_data'] ) ) {
+		parse_str( $_POST['post_data'], $post_data );
+		if ( ! empty( $post_data['titan_buyer_type'] ) && $post_data['titan_buyer_type'] === 'legal' ) {
+			return false;
+		}
+	}
+	// During checkout submission
+	if ( ! empty( $_POST['titan_buyer_type'] ) && $_POST['titan_buyer_type'] === 'legal' ) {
+		return false;
+	}
+	return $needs_shipping;
+} );
+
 // Make address fields not required (legal entities don't fill billing address).
 add_filter( 'woocommerce_default_address_fields', function( $fields ) {
 	$optional = array( 'country', 'state', 'city', 'postcode', 'address_1' );
@@ -1290,15 +1306,31 @@ add_action( 'woocommerce_checkout_update_order_meta', function( $order_id ) {
 	$order->update_meta_data( '_recipient_name', sanitize_text_field( $_POST['titan_recipient'] ?? '' ) );
 
 	if ( $buyer_type === 'legal' ) {
-		$order->update_meta_data( '_legal_entity_id', intval( $_POST['titan_legal_entity'] ?? 0 ) );
+		$entity_id = intval( $_POST['titan_legal_entity'] ?? 0 );
+		$order->update_meta_data( '_legal_entity_id', $entity_id );
 		$order->update_meta_data( '_legal_inn', sanitize_text_field( $_POST['titan_inn'] ?? '' ) );
 		$order->update_meta_data( '_legal_kpp', sanitize_text_field( $_POST['titan_kpp'] ?? '' ) );
+
+		// Save full legal entity data snapshot (persists even if entity is edited/deleted later)
+		if ( $entity_id > 0 ) {
+			$entity_post = get_post( $entity_id );
+			if ( $entity_post && $entity_post->post_type === 'legal_entity' ) {
+				$order->update_meta_data( '_legal_org_name', get_post_meta( $entity_id, '_legal_org_name', true ) );
+				$order->update_meta_data( '_legal_address', get_post_meta( $entity_id, '_legal_address', true ) );
+				$order->update_meta_data( '_legal_postal_code', get_post_meta( $entity_id, '_legal_postal_code', true ) );
+				$order->update_meta_data( '_legal_region', get_post_meta( $entity_id, '_legal_region', true ) );
+				$order->update_meta_data( '_legal_district', get_post_meta( $entity_id, '_legal_district', true ) );
+				$order->update_meta_data( '_legal_city', get_post_meta( $entity_id, '_legal_city', true ) );
+				$order->update_meta_data( '_legal_office', get_post_meta( $entity_id, '_legal_office', true ) );
+			}
+		}
 
 		// Override billing with legal entity data
 		$order->set_billing_last_name( sanitize_text_field( $_POST['billing_last_name_legal'] ?? '' ) );
 		$order->set_billing_first_name( sanitize_text_field( $_POST['billing_first_name_legal'] ?? '' ) );
 		$order->set_billing_email( sanitize_email( $_POST['billing_email_legal'] ?? '' ) );
 		$order->set_billing_phone( sanitize_text_field( $_POST['billing_phone_legal'] ?? '' ) );
+		$order->update_meta_data( '_legal_patronymic', sanitize_text_field( $_POST['billing_patronymic_legal'] ?? '' ) );
 
 		// Use legal comment
 		$order->set_customer_note( sanitize_textarea_field( $_POST['order_comments_legal'] ?? '' ) );
@@ -1419,7 +1451,73 @@ function titan_ajax_upload_requisites() {
 add_action( 'wp_ajax_titan_upload_requisites', 'titan_ajax_upload_requisites' );
 
 // =========================================
-// 29. WooCommerce: Hide default navigation wrapper
+// 29. Admin: Legal Entity Meta Box on Orders
+// =========================================
+function titan_add_legal_entity_meta_box() {
+	$screen = class_exists( 'Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController' )
+		&& wc_get_container()->get( Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController::class )->custom_orders_table_usage_is_enabled()
+		? wc_get_page_screen_id( 'shop-order' )
+		: 'shop_order';
+
+	add_meta_box(
+		'titan_legal_entity_data',
+		'Юридическое лицо',
+		'titan_legal_entity_meta_box_html',
+		$screen,
+		'side',
+		'high'
+	);
+}
+add_action( 'add_meta_boxes', 'titan_add_legal_entity_meta_box' );
+
+function titan_legal_entity_meta_box_html( $post_or_order ) {
+	$order = ( $post_or_order instanceof WP_Post ) ? wc_get_order( $post_or_order->ID ) : $post_or_order;
+	if ( ! $order ) {
+		return;
+	}
+
+	$buyer_type = $order->get_meta( '_buyer_type' );
+	if ( $buyer_type !== 'legal' ) {
+		echo '<p>Физическое лицо</p>';
+		return;
+	}
+
+	$fields = array(
+		'_legal_org_name'    => 'Организация',
+		'_legal_inn'         => 'ИНН',
+		'_legal_kpp'         => 'КПП',
+		'_legal_address'     => 'Юр. адрес',
+		'_legal_postal_code' => 'Индекс',
+		'_legal_region'      => 'Регион',
+		'_legal_district'    => 'Район',
+		'_legal_city'        => 'Город',
+		'_legal_office'      => 'Дом/офис',
+		'_legal_patronymic'  => 'Отчество',
+	);
+
+	echo '<table style="width:100%;border-collapse:collapse;">';
+	foreach ( $fields as $meta_key => $label ) {
+		$value = $order->get_meta( $meta_key );
+		if ( $value ) {
+			echo '<tr><td style="padding:4px 0;font-weight:600;vertical-align:top;">' . esc_html( $label ) . '</td>';
+			echo '<td style="padding:4px 0 4px 8px;">' . esc_html( $value ) . '</td></tr>';
+		}
+	}
+
+	$file_id = $order->get_meta( '_requisites_file_id' );
+	if ( $file_id ) {
+		$file_url  = wp_get_attachment_url( $file_id );
+		$file_name = basename( get_attached_file( $file_id ) );
+		if ( $file_url ) {
+			echo '<tr><td style="padding:4px 0;font-weight:600;vertical-align:top;">Реквизиты</td>';
+			echo '<td style="padding:4px 0 4px 8px;"><a href="' . esc_url( $file_url ) . '" target="_blank">' . esc_html( $file_name ) . '</a></td></tr>';
+		}
+	}
+	echo '</table>';
+}
+
+// =========================================
+// 30. WooCommerce: Hide default navigation wrapper
 // =========================================
 function titan_remove_wc_account_navigation() {
 	remove_action( 'woocommerce_account_navigation', 'woocommerce_account_navigation' );

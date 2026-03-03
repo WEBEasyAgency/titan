@@ -92,12 +92,12 @@ $legal_entities = titan_get_legal_entities( $user_id );
 			<div class="legal-entity__header">
 				<div class="legal-entity__name"><?php echo esc_html( $entity['org_name'] ); ?></div>
 				<div class="legal-entity__controls">
-					<button class="legal-entity__btn-edit" title="Редактировать">
+					<button type="button" class="legal-entity__btn-edit" title="Редактировать">
 						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path d="M15.7279 9.57629L14.3137 8.16207L5 17.4758V18.8901H6.41421L15.7279 9.57629ZM17.1421 8.16207L18.5563 6.74786L17.1421 5.33365L15.7279 6.74786L17.1421 8.16207ZM7.24264 20.8901H3V16.6474L16.435 3.21233C16.8256 2.8218 17.4587 2.8218 17.8492 3.21233L20.6777 6.04075C21.0682 6.43128 21.0682 7.06444 20.6777 7.45497L7.24264 20.8901Z" fill="black"/>
 						</svg>
 					</button>
-					<button class="legal-entity__btn-delete" title="Удалить">
+					<button type="button" class="legal-entity__btn-delete" title="Удалить">
 						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path d="M20 5C20 5.55228 19.5523 6 19 6H18.997L18.064 19.142C18.0281 19.6466 17.8023 20.1188 17.4321 20.4636C17.0619 20.8083 16.5749 20.9999 16.069 21H7.93C7.42414 20.9999 6.93707 20.8083 6.56688 20.4636C6.19669 20.1188 5.97093 19.6466 5.935 19.142L5.003 6H5C4.44772 6 4 5.55228 4 5C4 4.44772 4.44772 4 5 4H9C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4H19C19.5523 4 20 4.44772 20 5ZM7.003 6L7.931 19H16.069L16.997 6H7.003Z" fill="black"/>
 						</svg>
