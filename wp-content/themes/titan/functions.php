@@ -669,11 +669,27 @@ function titan_save_wc_registration_fields( $customer_id ) {
 	if ( isset( $_POST['user_type'] ) ) {
 		update_user_meta( $customer_id, 'user_type', sanitize_text_field( $_POST['user_type'] ) );
 	}
-	if ( isset( $_POST['inn'] ) ) {
-		update_user_meta( $customer_id, 'inn', sanitize_text_field( $_POST['inn'] ) );
+	if ( isset( $_POST['billing_last_name'] ) ) {
+		$ln = sanitize_text_field( $_POST['billing_last_name'] );
+		update_user_meta( $customer_id, 'last_name', $ln );
+		update_user_meta( $customer_id, 'billing_last_name', $ln );
+	}
+	if ( isset( $_POST['billing_first_name'] ) ) {
+		$fn = sanitize_text_field( $_POST['billing_first_name'] );
+		update_user_meta( $customer_id, 'first_name', $fn );
+		update_user_meta( $customer_id, 'billing_first_name', $fn );
 	}
 	if ( isset( $_POST['surname'] ) ) {
 		update_user_meta( $customer_id, 'surname', sanitize_text_field( $_POST['surname'] ) );
+	}
+	if ( isset( $_POST['billing_phone'] ) ) {
+		update_user_meta( $customer_id, 'billing_phone', sanitize_text_field( $_POST['billing_phone'] ) );
+	}
+	if ( isset( $_POST['inn'] ) ) {
+		update_user_meta( $customer_id, 'inn', sanitize_text_field( $_POST['inn'] ) );
+	}
+	if ( isset( $_POST['billing_company'] ) ) {
+		update_user_meta( $customer_id, 'billing_company', sanitize_text_field( $_POST['billing_company'] ) );
 	}
 }
 add_action( 'woocommerce_created_customer', 'titan_save_wc_registration_fields' );
