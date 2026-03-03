@@ -74,17 +74,17 @@ $orders = wc_get_orders( array(
 						<span class="order-id__date">от <?php echo esc_html( $date_str ); ?></span>
 					<?php endif; ?>
 				</div>
-				<div class="orders-table__cell"><?php echo esc_html( $item_count ); ?></div>
+				<div class="orders-table__cell align-center"><?php echo esc_html( $item_count ); ?></div>
 				<div class="orders-table__cell status"><?php echo esc_html( $status ); ?></div>
-				<div class="orders-table__cell">
+				<div class="orders-table__cell align-right">
 					<?php if ( $has_delivery && $cdek_tracking ) : ?>
 						<a href="#"><?php echo esc_html( $cdek_tracking ); ?></a>
 					<?php else : ?>
 						—
 					<?php endif; ?>
 				</div>
-				<div class="orders-table__cell"><?php echo wp_kses_post( wc_price( $subtotal ) ); ?></div>
-				<div class="orders-table__cell">
+				<div class="orders-table__cell align-right"><?php echo wp_kses_post( wc_price( $subtotal ) ); ?></div>
+				<div class="orders-table__cell align-right">
 					<?php if ( $has_delivery ) : ?>
 						<?php echo wp_kses_post( wc_price( $total ) ); ?>
 					<?php else : ?>

@@ -1664,6 +1664,11 @@ footer {
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   z-index: 100;
+  &.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   .close {
     width: 24px;
     height: 24px;
@@ -1682,10 +1687,7 @@ footer {
     width: 100%;
     border-radius: 0px;
     padding: 40px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: relative;
   }
   &.popupthanx {
     .inner {
@@ -2955,6 +2957,11 @@ label.password {
       &:last-child {
         border-right-color: var(--black);
       }
+      &:nth-child(3),
+      &:nth-child(4),
+      &:nth-child(5) {
+        text-align: right;
+      }
     }
   }
   .checkout-table__body {
@@ -3523,6 +3530,12 @@ label.password {
       &:last-child {
         border-right: 1px solid var(--black);
       }
+      &:nth-child(3),
+      &:nth-child(5),
+      &:nth-child(6),
+      &:nth-child(7) {
+        text-align: right;
+      }
     }
   }
   .orders-table__body {
@@ -3562,6 +3575,12 @@ label.password {
         }
         &.status {
           font-size: 14px;
+        }
+        &.align-center {
+          justify-content: center;
+        }
+        &.align-right {
+          justify-content: flex-end;
         }
         a {
           color: var(--black);
@@ -3641,6 +3660,12 @@ label.password {
       }
       &:last-child {
         border-right: 1px solid var(--black);
+      }
+      &:nth-child(3),
+      &:nth-child(4),
+      &:nth-child(5),
+      &:nth-child(6) {
+        text-align: right;
       }
     }
   }
@@ -3729,6 +3754,11 @@ label.password {
       }
       &:last-child {
         border-right: 1px solid var(--black);
+      }
+      &:nth-child(3),
+      &:nth-child(4),
+      &:nth-child(5) {
+        text-align: right;
       }
     }
   }
