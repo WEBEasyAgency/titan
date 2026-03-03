@@ -8,13 +8,6 @@ defined( 'ABSPATH' ) || exit;
 do_action( 'woocommerce_before_lost_password_form' );
 ?>
 
-<?php if ( isset( $_GET['reset-link-sent'] ) ) : ?>
-	<div class="recovery__completed">
-		<div class="title">Вам отправлено письмо с временным паролем.<br>Используйте его для авторизации</div>
-		<div class="sub__title">Если вы не получили письмо, пожалуйста, проверьте папку «Спам».</div>
-		<a href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>" class="btn">Войти</a>
-	</div>
-<?php else : ?>
 	<div class="recovery">
 		<div class="title">Восстановление пароля</div>
 		<div class="sub__title">Введите почту, которую вы использовали при регистрации.</div>
@@ -56,6 +49,5 @@ do_action( 'woocommerce_before_lost_password_form' );
 			<a href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>">Войти</a>
 		</div>
 	</div>
-<?php endif; ?>
 
 <?php do_action( 'woocommerce_after_lost_password_form' ); ?>
