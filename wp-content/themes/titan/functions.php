@@ -1425,3 +1425,44 @@ function titan_order_status_label( $status ) {
 	return $statuses[ $status ] ?? $status;
 }
 
+// =========================================
+// 30. AJAX: Product Request Form
+// =========================================
+function titan_ajax_request_product() {
+	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
+
+	$name     = sanitize_text_field( $_POST['name'] ?? '' );
+	$phone    = sanitize_text_field( $_POST['phone'] ?? '' );
+	$email    = sanitize_email( $_POST['email'] ?? '' );
+	$product  = sanitize_text_field( $_POST['product_name'] ?? '' );
+	$price    = sanitize_text_field( $_POST['product_price'] ?? '' );
+	$quantity = intval( $_POST['quantity'] ?? 1 );
+
+	if ( ! $name || ! $phone || ! $email ) {
+		wp_send_json_error( 'Заполните все обязательные поля' );
+	}
+
+	$to      = get_option( 'admin_email' );
+	$subject = 'Запрос на товар: ' . $product;
+	$body    = "Новый запрос на товар\n\n";
+	$body   .= "Товар: {$product}\n";
+	if ( $price ) {
+		$body .= "Цена: {$price} ₽\n";
+	}
+	$body .= "Количество: {$quantity}\n\n";
+	$body .= "Имя: {$name}\n";
+	$body .= "Телефон: {$phone}\n";
+	$body .= "Email: {$email}\n";
+
+	$headers = array( 'Content-Type: text/plain; charset=UTF-8' );
+	if ( $email ) {
+		$headers[] = 'Reply-To: ' . $name . ' <' . $email . '>';
+	}
+
+	wp_mail( $to, $subject, $body, $headers );
+
+	wp_send_json_success();
+}
+add_action( 'wp_ajax_titan_request_product', 'titan_ajax_request_product' );
+add_action( 'wp_ajax_nopriv_titan_request_product', 'titan_ajax_request_product' );
+

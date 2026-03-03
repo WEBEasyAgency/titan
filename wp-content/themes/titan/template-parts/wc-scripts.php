@@ -150,5 +150,39 @@ jQuery(function($) {
 		$('#request-product .product-info .name').text(name);
 		$('#request-product .product-info .price').text(price ? price + ' ₽' : '');
 	});
+
+	// ============ Request Popup: AJAX Submit ============
+	$(document).on('submit', '#request-product form', function(e) {
+		e.preventDefault();
+		var $form = $(this);
+		var $btn = $form.find('button[type="submit"]');
+
+		if ($btn.hasClass('loading')) return;
+		$btn.addClass('loading');
+		var origText = $btn.text();
+		$btn.text('...');
+
+		$.post(titan_wc.ajax_url, {
+			action: 'titan_request_product',
+			nonce: titan_wc.nonce,
+			name: $form.find('input[type="name"]').val(),
+			phone: $form.find('input[type="tel"]').val(),
+			email: $form.find('input[type="email"]').val(),
+			product_name: $('#request-product .product-info .name').text(),
+			product_price: $('#request-product .product-info .price').text().replace(' ₽', ''),
+			quantity: $form.find('.number').val() || 1
+		}, function(response) {
+			$btn.text(origText).removeClass('loading');
+			if (response.success) {
+				$form[0].reset();
+				$form.find('.number').val('1');
+				$('#request-product').fadeOut(300, function() {
+					$('#thanx').fadeIn(300);
+				});
+			}
+		}).fail(function() {
+			$btn.text(origText).removeClass('loading');
+		});
+	});
 });
 </script>
