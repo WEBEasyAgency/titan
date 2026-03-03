@@ -20,6 +20,7 @@ $orders = wc_get_orders( array(
 	<?php if ( empty( $orders ) ) : ?>
 		<p>История заказов пуста.</p>
 	<?php else : ?>
+	<div class="table-scroll-wrap">
 	<div class="history-table">
 		<div class="history-table__head grid">
 			<div class="history-table__cell">№</div>
@@ -55,13 +56,21 @@ $orders = wc_get_orders( array(
 				<div class="history-table__cell align-right"><?php echo esc_html( $status ); ?></div>
 				<div class="history-table__cell actions"><a href="#" class="history-details-toggle">Подробнее</a></div>
 				<div class="history-table__cell actions">
-					<?php if ( $is_legal ) : ?>
-						<a href="#" class="history-invoice-link">Посмотреть счёт</a>
+					<?php if ( $is_legal ) :
+						$invoice_file_id  = $order->get_meta( '_invoice_file_id' );
+						$invoice_file_url = $invoice_file_id ? wp_get_attachment_url( $invoice_file_id ) : '';
+					?>
+						<?php if ( $invoice_file_url ) : ?>
+							<a href="<?php echo esc_url( $invoice_file_url ); ?>" target="_blank" class="history-invoice-link">Посмотреть счёт</a>
+						<?php else : ?>
+							<span class="history-invoice-link history-invoice-link--disabled">Счёт не загружен</span>
+						<?php endif; ?>
 					<?php endif; ?>
 				</div>
 			</div>
 			<!-- Detail (hidden) -->
 			<div class="history-table__detail" style="display: none;">
+				<div class="table-scroll-wrap">
 				<div class="history-detail-table">
 					<div class="history-detail-table__head grid">
 						<div class="history-detail-table__cell">Фото</div>
@@ -92,6 +101,7 @@ $orders = wc_get_orders( array(
 						<?php endforeach; ?>
 					</div>
 				</div>
+				</div>
 				<div class="history-detail-total">
 					<span>Итого с доставкой</span>
 					<span class="history-detail-total__val"><?php echo wp_kses_post( wc_price( $total ) ); ?></span>
@@ -101,6 +111,7 @@ $orders = wc_get_orders( array(
 
 			<?php $i++; endforeach; ?>
 		</div>
+	</div>
 	</div>
 	<?php endif; ?>
 </div>

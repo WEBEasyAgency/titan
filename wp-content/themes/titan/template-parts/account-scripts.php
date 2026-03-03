@@ -292,8 +292,6 @@ jQuery(function($) {
 		$('#titan_buyer_type').val(buyer);
 
 		if (buyer === 'legal') {
-			// Auto-select invoice gateway
-			$('#payment_method_titan_invoice').prop('checked', true).trigger('change');
 			// Hide delivery tabs, shipping, extra fields for legal entities
 			$('.checkout-delivery-tabs-wrapper').hide();
 			$('.checkout-shipping').hide();
@@ -302,16 +300,16 @@ jQuery(function($) {
 			// Change submit button text
 			$('#place_order').text('Выставить счёт');
 		} else {
-			// Auto-select T-Bank gateway
-			$('#payment_method_tbank').prop('checked', true).trigger('change');
 			// Show delivery tabs, shipping, extra fields for physical persons
 			$('.checkout-delivery-tabs-wrapper').show();
 			$('.checkout-shipping').show();
 			$('.checkout-extra-fields').show();
 			// Change submit button text
 			$('#place_order').text('Заказать');
-			filterShippingMethods();
 		}
+
+		// Trigger WC AJAX to re-render payment gateways for the new buyer type
+		$(document.body).trigger('update_checkout');
 	});
 
 	// ============ Checkout: Delivery Type Tabs ============
@@ -344,9 +342,23 @@ jQuery(function($) {
 		filterShippingMethods();
 	});
 
-	// Re-filter after WC AJAX updates shipping methods
+	// Re-filter after WC AJAX updates shipping methods + select correct payment gateway
 	$(document.body).on('updated_checkout', function() {
 		filterShippingMethods();
+
+		// Auto-select the correct payment gateway for the current buyer type
+		var buyerType = $('#titan_buyer_type').val();
+		if (buyerType === 'legal') {
+			var $invoice = $('#payment_method_titan_invoice');
+			if ($invoice.length && !$invoice.is(':checked')) {
+				$invoice.prop('checked', true).trigger('change');
+			}
+		} else {
+			var $tbank = $('#payment_method_tbank');
+			if ($tbank.length && !$tbank.is(':checked')) {
+				$tbank.prop('checked', true).trigger('change');
+			}
+		}
 	});
 
 	// ============ Checkout: Quantity Update ============
@@ -442,19 +454,13 @@ jQuery(function($) {
 		$attachments.find('input[name="titan_requisites_id"]').val('');
 	});
 
-	// ============ Checkout: Initial gateway setup ============
-	// On page load, auto-select T-Bank for physical persons (default)
-	$(document).ready(function() {
-		$('#payment_method_tbank').prop('checked', true).trigger('change');
-	});
-
 	// ============ Checkout: Trigger shipping recalc on city input ============
 	var cityTimer;
 	$(document).on('input', '#billing_city', function() {
 		clearTimeout(cityTimer);
 		cityTimer = setTimeout(function() {
 			$(document.body).trigger('update_checkout');
-		}, 600);
+		}, 300);
 	});
 
 	// ============ Checkout: Show address field for courier delivery ============
