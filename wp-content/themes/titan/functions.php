@@ -1102,6 +1102,37 @@ add_filter( 'woocommerce_payment_gateways', function( $gateways ) {
 	return $gateways;
 } );
 
+// Filter available payment gateways by buyer type:
+// Physical persons → only standard gateways (T-Bank, etc.)
+// Legal entities   → only invoice gateway
+add_filter( 'woocommerce_available_payment_gateways', function( $gateways ) {
+	$buyer_type = '';
+
+	// During update_order_review AJAX (form data is serialized in post_data)
+	if ( ! empty( $_POST['post_data'] ) ) {
+		parse_str( wp_unslash( $_POST['post_data'] ), $post_data );
+		$buyer_type = sanitize_text_field( $post_data['titan_buyer_type'] ?? '' );
+	}
+	// During checkout submission AJAX (form fields posted directly)
+	if ( ! empty( $_POST['titan_buyer_type'] ) ) {
+		$buyer_type = sanitize_text_field( $_POST['titan_buyer_type'] );
+	}
+
+	if ( $buyer_type === 'legal' ) {
+		// Legal entities: only invoice gateway
+		foreach ( array_keys( $gateways ) as $id ) {
+			if ( $id !== 'titan_invoice' ) {
+				unset( $gateways[ $id ] );
+			}
+		}
+	} else {
+		// Physical persons (default): hide invoice gateway
+		unset( $gateways['titan_invoice'] );
+	}
+
+	return $gateways;
+} );
+
 // =========================================
 // 26. WC Checkout: Custom Fields & Order Meta
 // =========================================
@@ -1583,4 +1614,137 @@ function titan_ajax_request_product() {
 }
 add_action( 'wp_ajax_titan_request_product', 'titan_ajax_request_product' );
 add_action( 'wp_ajax_nopriv_titan_request_product', 'titan_ajax_request_product' );
+
+// =========================================
+// 31. Invoice File Meta Box (Счёт)
+// =========================================
+
+/**
+ * Enqueue media uploader on order edit screen.
+ */
+function titan_invoice_enqueue_media( $hook ) {
+	$screen = get_current_screen();
+	if ( ! $screen ) {
+		return;
+	}
+	// Classic orders (post type) and HPOS orders.
+	$is_order_screen = (
+		( $screen->id === 'shop_order' ) ||
+		( $screen->id === 'woocommerce_page_wc-orders' )
+	);
+	if ( $is_order_screen ) {
+		wp_enqueue_media();
+	}
+}
+add_action( 'admin_enqueue_scripts', 'titan_invoice_enqueue_media' );
+
+/**
+ * Register invoice meta box for orders.
+ */
+function titan_invoice_file_meta_box() {
+	$screen = wc_get_container()->get( \Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController::class )->custom_orders_table_usage_is_enabled()
+		? wc_get_page_screen_id( 'shop-order' )
+		: 'shop_order';
+
+	add_meta_box(
+		'titan_invoice_file',
+		'Счёт',
+		'titan_invoice_file_meta_box_html',
+		$screen,
+		'side',
+		'default'
+	);
+}
+add_action( 'add_meta_boxes', 'titan_invoice_file_meta_box' );
+
+/**
+ * Render invoice meta box HTML.
+ */
+function titan_invoice_file_meta_box_html( $post_or_order ) {
+	$order = ( $post_or_order instanceof WC_Order ) ? $post_or_order : wc_get_order( $post_or_order->ID );
+	if ( ! $order ) {
+		return;
+	}
+
+	$buyer_type = $order->get_meta( '_buyer_type' );
+	if ( $buyer_type !== 'legal' ) {
+		echo '<p style="color:#999;">Мета-бокс доступен только для заказов юрлиц.</p>';
+		return;
+	}
+
+	$file_id  = $order->get_meta( '_invoice_file_id' );
+	$file_url = $file_id ? wp_get_attachment_url( $file_id ) : '';
+	$filename = $file_id ? basename( get_attached_file( $file_id ) ) : '';
+
+	wp_nonce_field( 'titan_invoice_file_nonce', 'titan_invoice_file_nonce_field' );
+	?>
+	<div id="titan-invoice-wrap">
+		<input type="hidden" name="_invoice_file_id" id="titan-invoice-file-id" value="<?php echo esc_attr( $file_id ); ?>">
+
+		<div id="titan-invoice-preview" style="<?php echo $file_id ? '' : 'display:none;'; ?>margin-bottom:10px;">
+			<a href="<?php echo esc_url( $file_url ); ?>" target="_blank" id="titan-invoice-filename"><?php echo esc_html( $filename ); ?></a>
+			<button type="button" class="button" id="titan-invoice-remove" style="margin-top:6px;display:block;color:#a00;">Удалить счёт</button>
+		</div>
+
+		<button type="button" class="button button-primary" id="titan-invoice-upload" style="<?php echo $file_id ? 'display:none;' : ''; ?>">Загрузить счёт</button>
+	</div>
+
+	<script>
+	jQuery(function($){
+		var frame;
+		$('#titan-invoice-upload').on('click', function(e){
+			e.preventDefault();
+			if (frame) { frame.open(); return; }
+			frame = wp.media({
+				title: 'Выберите файл счёта',
+				button: { text: 'Прикрепить' },
+				multiple: false
+			});
+			frame.on('select', function(){
+				var attachment = frame.state().get('selection').first().toJSON();
+				$('#titan-invoice-file-id').val(attachment.id);
+				$('#titan-invoice-filename').attr('href', attachment.url).text(attachment.filename);
+				$('#titan-invoice-preview').show();
+				$('#titan-invoice-upload').hide();
+			});
+			frame.open();
+		});
+		$('#titan-invoice-remove').on('click', function(e){
+			e.preventDefault();
+			$('#titan-invoice-file-id').val('');
+			$('#titan-invoice-preview').hide();
+			$('#titan-invoice-upload').show();
+		});
+	});
+	</script>
+	<?php
+}
+
+/**
+ * Save invoice file meta on order save.
+ */
+function titan_save_invoice_file_meta( $order_id, $order = null ) {
+	if ( ! isset( $_POST['titan_invoice_file_nonce_field'] ) ||
+		 ! wp_verify_nonce( $_POST['titan_invoice_file_nonce_field'], 'titan_invoice_file_nonce' ) ) {
+		return;
+	}
+
+	if ( ! $order ) {
+		$order = wc_get_order( $order_id );
+	}
+	if ( ! $order ) {
+		return;
+	}
+
+	if ( isset( $_POST['_invoice_file_id'] ) ) {
+		$file_id = absint( $_POST['_invoice_file_id'] );
+		if ( $file_id ) {
+			$order->update_meta_data( '_invoice_file_id', $file_id );
+		} else {
+			$order->delete_meta_data( '_invoice_file_id' );
+		}
+		$order->save();
+	}
+}
+add_action( 'woocommerce_process_shop_order_meta', 'titan_save_invoice_file_meta', 10, 2 );
 

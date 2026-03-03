@@ -20,6 +20,7 @@ $orders = wc_get_orders( array(
 	<?php if ( empty( $orders ) ) : ?>
 		<p>У вас пока нет активных заказов.</p>
 	<?php else : ?>
+	<div class="table-scroll-wrap">
 	<div class="orders-table">
 		<div class="orders-table__head grid">
 			<div class="orders-table__cell">№</div>
@@ -94,6 +95,7 @@ $orders = wc_get_orders( array(
 			</div>
 			<?php $i++; endforeach; ?>
 		</div>
+	</div>
 	</div>
 	<?php endif; ?>
 
