@@ -1552,6 +1552,109 @@ h4 {
 	}
 }
 
+.projects-page{
+	margin-top: 40px;
+	@media only screen and (max-width: 767px){
+		margin-top: 32px;
+	}
+	.projects-list{
+		margin-top: 24px;
+		.item{
+			margin-bottom: 16px;
+			&:last-child{
+				margin-bottom: 0;
+			}
+			.inner{
+				grid-template-columns: auto 580px;
+				column-gap: 28px;
+				background-color: var(--gray);
+				@media only screen and (max-width: 1100px){
+					grid-template-columns: auto 300px;
+					column-gap: 0;
+				}
+				@media only screen and (max-width: 767px){
+					grid-template-columns: 1fr;
+				}
+				.text-block{
+					padding: 32px 0 32px 32px;
+					display: flex;
+					flex-direction: column;
+					@media only screen and (max-width: 1100px){
+						padding: 16px;
+					}
+					@media only screen and (max-width: 767px){
+						order: 2;
+					}
+					.name{
+						font-size: 32px;
+						line-height: 130%;
+						@media only screen and (max-width: 1100px){
+							font-size: 24px;
+						}
+					}
+					.text{
+						margin-top: 16px;
+						font-size: 18px;
+						line-height: 130%;
+						font-weight: 500;
+						margin-bottom: 16px;
+						@media only screen and (max-width: 1100px){
+							font-size: 16px;
+						}
+						p{
+							font-weight: 500;
+							margin-bottom: 16px;
+							&:last-child{
+								margin-bottom: 0;
+							}
+						}
+					}
+					.more{
+						margin-top: auto;
+						font-size: 14px;
+						line-height: 130%;
+						a{
+							font-weight: 500;
+						}
+					}
+				}
+				.img{
+					height: 100%;
+					@media only screen and (max-width: 767px){
+						order: 1;
+					}
+					img{
+						width: 100%;
+						height: 100%;
+						object-fit: cover;
+						object-position: top center;
+					}
+				}
+			}
+		}
+	}
+	.btn-block{
+		margin-top: 40px;
+		text-align: center;
+		@media only screen and (max-width: 767px){
+			margin-top: 32px;
+		}
+		.more-btn{
+			display: inline-block;
+			border: 1px solid var(--black);
+			padding: 11px 23px;
+			font-size: 14px;
+			line-height: 24px;
+			font-weight: 600;
+			transition: all 0.3s;
+			&:hover{
+				background-color: var(--black);
+				color: #ffffff;
+			}
+		}
+	}
+}
+
 /*-----------------footer---------------*/
 
 footer {

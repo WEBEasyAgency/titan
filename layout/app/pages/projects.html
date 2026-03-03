@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link rel="stylesheet" href="css/libs.min.css">
+	<link rel="stylesheet" href="css/app.min.css">
+</head>
+<body>
+	@@include('../html/header.html')
+	<main class="inner-page projects-page">
+		<section class="projects">
+			<div class="container">
+				<div class="title">
+					<h1>Наши проекты</h1>
+				</div>
+				<div class="projects-list">
+					<div class="item">
+						<div class="inner grid">
+							<div class="text-block">
+								<div class="name"><a href="#">Разработка электроники</a></div>
+								<div class="text">
+									<p>Наша компания предлагает услуги по разработке<br> электронных устройств и встраиваемых систем:<br> от идеи до готовой продукции.</p>
+									<p>Реализуем любой проект с нуля.</p>
+								</div>
+								<div class="more"><a href="#">Подробнее</a></div>
+							</div>
+							<div class="img"><a href="#"><img src="img/dest/project1.jpg" alt=""></a></div>
+						</div>
+					</div>
+					<div class="item">
+						<div class="inner grid">
+							<div class="text-block">
+								<div class="name"><a href="#">Разработка плат для ПК</a></div>
+								<div class="text">
+									<p>Мы предлагаем оперативное создание прототипов для тестирования и проверки ваших концепций, чтобы вы могли оценить результат до старта серийного производства.</p>
+								</div>
+								<div class="more"><a href="#">Подробнее</a></div>
+							</div>
+							<div class="img"><a href="#"><img src="img/dest/project2.jpg" alt=""></a></div>
+						</div>
+					</div>
+					<div class="item">
+						<div class="inner grid">
+							<div class="text-block">
+								<div class="name"><a href="#">Восстановление плат и микросхем</a></div>
+								<div class="text">
+									<p>Мы предлагаем всестороннюю техническую поддержку и консультации на каждом этапе разработки, чтобы обеспечить успешное выполнение вашего проекта.</p>
+								</div>
+								<div class="more"><a href="#">Подробнее</a></div>
+							</div>
+							<div class="img"><a href="#"><img src="img/dest/project3.jpg" alt=""></a></div>
+						</div>
+					</div>
+				</div>
+				<div class="btn-block"><a href="#" class="more-btn">Показать ещё</a></div>
+			</div>
+		</section>
+		<section class="contacts-form">
+			<div class="container">
+				<div class="grid">
+					<div class="title">
+						<h3>Свяжитесь с нами</h3>
+					</div>
+					@@include('../html/contacts-form.html')
+				</div>
+			</div>
+			<div class="file-error">
+				<div class="name">Реквизиты_ИП_Иванов_Иван_Иванович.docx </div>
+				<div class="error-text">Файл слишком большой</div>
+			</div>
+		</section>
+	</main>
+	@@include('../html/footer.html')
+	@@include('../html/thanx-popup.html')
+	@@include('../html/burger-menu.html')
+	@@include('../html/request-popup.html')
+	<script src="js/libs.min.js"></script>
+	<script src="js/app.min.js"></script>
+</body>
+</html>
