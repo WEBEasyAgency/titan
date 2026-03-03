@@ -323,13 +323,17 @@ jQuery(function($) {
 			if (activeTab === 'pickup') {
 				$(this).toggle(isPickup);
 			} else {
+				// "Доставка" tab: show everything except local_pickup
 				$(this).toggle(!isPickup);
 			}
 		});
-		// Auto-select first visible method
-		var $firstVisible = $('#shipping_method li:visible input.shipping_method').first();
-		if ($firstVisible.length && !$firstVisible.prop('checked')) {
-			$firstVisible.prop('checked', true).trigger('change');
+		// Only auto-select first visible if NO visible method is currently checked
+		var $checkedVisible = $('#shipping_method li:visible input.shipping_method:checked');
+		if (!$checkedVisible.length) {
+			var $firstVisible = $('#shipping_method li:visible input.shipping_method').first();
+			if ($firstVisible.length) {
+				$firstVisible.prop('checked', true).trigger('change');
+			}
 		}
 		checkCourierDelivery();
 	}
