@@ -201,6 +201,14 @@ $(document).ready(function(){
 		$(this).fadeOut(300).parents('.search').find('input[type="search"]').val('');
 	}); 
 
+	var swiper = new Swiper(".img-slider", {
+		slidesPerView: 1,
+		navigation: {
+			nextEl: ".img-slider-block .next",
+			prevEl: ".img-slider-block .prev",
+		},
+	});
+
 	// =========================================
 	// Личный кабинет — обработчики перенесены в WP account-scripts.php
 	// =========================================

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link rel="stylesheet" href="css/libs.min.css">
+	<link rel="stylesheet" href="css/app.min.css">
+</head>
+<body>
+	@@include('../html/header.html')
+	<main class="inner-page project-detail-page">
+		<section class="project-detail">
+			<div class="container">
+				<div class="top-img">
+					<img src="img/dest/phoject-detail-top-img.jpg" alt="">
+					<div class="back">
+						<a href="#">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M9 14L5 10L9 6" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+								<path d="M5 10H16C17.0609 10 18.0783 10.4214 18.8284 11.1716C19.5786 11.9217 20 12.9391 20 14C20 15.0609 19.5786 16.0783 18.8284 16.8284C18.0783 17.5786 17.0609 18 16 18H15" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+							</svg>
+							Вернуться к проектам
+						</a>
+					</div>
+				</div>
+				<div class="project-container grid">
+					<div class="text-block">
+						<h3>Разработка электроники</h3>
+						<p>Микросхема — это небольшое электронное устройство, состоящее из различных радиоэлементов и помещённое в неразборный корпус. Зачем она нужна? По сути, это «кирпичик», благодаря которому происходит миниатюризация проблем для работоспособности электроники.</p>
+						<p>С помощью микросхемы можно выполнять типовые задачи. Это возможно благодаря множеству компонентов: резисторов, транзисторов, конденсаторов, диодов. При этом производится преобразование различных типов сигналов (аналоговых, цифровых) за счёт проведения электрических импульсов по цепи, их усиления и переключения. Выглядит это как своеобразная сеть дорог: сигнал идёт по одному пути, потом сворачивает или размножается, преобразовывается и в конце приходит в заданную точку либо исчезает. При этом каждый контакт на микросхеме — это вывод, который может быть как соединением с другим устройством, так и служить заземлением, питанием, обеспечивать ввод данных.</p>
+						<p>Рассмотрим принцип работы микросхемы, разберемся в различиях основных типов, узнаем, какие компоненты нужны для работы.</p>
+						<h3>Компоненты микросхем</h3>
+						<p>Простыми словами микросхема — это набор компонентов, которые выполняют различные функции, при этом они объединены в общую схему. В микросхему входят резисторы, транзисторы, конденсаторы, контакты для подключения, диоды и многое другое.</p>
+						<p class="bold line">Транзисторы</p>
+						<p>Это основные полупроводниковые элементы, которые помогают в создании логических цепочек. У транзистора есть 3 вывода, которые и обеспечивают работу:</p>
+						<ul>
+							<li>база, куда подается сигнал;</li>
+							<li>коллектор, который усиливает сигнал;</li>
+							<li>эмиттер — проводник схемы.</li>
+						</ul>
+					</div>
+					<div class="img-block">
+						<div class="img"><img src="img/dest/project-img1.png" alt=""></div>
+						<div class="img-slider-block">
+							<div class="img-slider">
+								<div class="swiper-wrapper">
+									<div class="swiper-slide"><img src="img/dest/project-img2.png" alt=""></div>
+									<div class="swiper-slide"><img src="img/dest/project-img2.png" alt=""></div>
+								</div>
+							</div>
+							<div class="arrows-block">
+								<div class="arrow prev">
+									<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M17.5098 3.86998L15.7298 2.09998L5.83984 12L15.7398 21.9L17.5098 20.13L9.37984 12L17.5098 3.86998Z" fill="black"/>
+									</svg>
+								</div>
+								<div class="arrow next">
+									<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M6.49016 3.86998L8.27016 2.09998L18.1602 12L8.26016 21.9L6.49016 20.13L14.6202 12L6.49016 3.86998Z" fill="black"/>
+									</svg>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section class="contacts-form">
+			<div class="container">
+				<div class="grid">
+					<div class="title">
+						<h3>Свяжитесь с нами</h3>
+					</div>
+					@@include('../html/contacts-form.html')
+				</div>
+			</div>
+			<div class="file-error">
+				<div class="name">Реквизиты_ИП_Иванов_Иван_Иванович.docx </div>
+				<div class="error-text">Файл слишком большой</div>
+			</div>
+		</section>
+	</main>
+	@@include('../html/footer.html')
+	@@include('../html/thanx-popup.html')
+	@@include('../html/burger-menu.html')
+	@@include('../html/request-popup.html')
+	<script src="js/libs.min.js"></script>
+	<script src="js/app.min.js"></script>
+</body>
+</html>
