@@ -209,6 +209,18 @@ $(document).ready(function(){
 		},
 	});
 
+	$('.item.parent input[type="radio"]').on('click', function(){
+		if($(this).prop('checked')){
+			$('.item .subcategories.active').removeClass('active').slideUp(300);
+			$(this).parents('.item').find('.subcategories').addClass('active').slideDown(300);
+		}
+	})
+
+	$('.show-all').on('click', function(){
+		$(this).hide().parents('.subcategories').find('.list').css('max-height', '100%');
+		return false;
+	})
+
 	// =========================================
 	// Личный кабинет — обработчики перенесены в WP account-scripts.php
 	// =========================================

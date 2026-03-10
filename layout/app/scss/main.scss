@@ -193,32 +193,44 @@ label.checkbox {
 
 .radio {
   position: relative;
+	display: grid;
+	grid-template-columns: 16px auto;
+	column-gap: 8px;
+	align-items: center;
+	cursor: pointer;
+	.check{
+		position: relative;
+		width: 16px;
+		height: 16px;
+		border: 1px solid var(--black);
+		border-radius: 50%;
+		&::before{
+			content: '';
+			width: 10px;
+			height: 10px;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			border-radius: 50%;
+			background-color: var(--black);
+			transition: all 0.3s;
+			opacity: 0;
+		}
+	}
   .label {
-    display: flex;
-    align-items: center;
-    height: 32px;
-    border: 1px solid #cccccc;
-    padding: 0 12px;
-    border-radius: 10px;
-    column-gap: 8px;
-    font-size: 12px;
-    line-height: 8px;
+		font-size: 16px;
+		line-height: 150%;
+		font-weight: 600;
     color: var(--black);
-    cursor: pointer;
-    transition: all 0.3s;
-    .dot {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-    }
   }
   input[type="radio"] {
     opacity: 0;
     width: 0;
     height: 0;
     position: absolute;
-    &:checked ~ .label {
-      border-color: var(--black);
+    &:checked ~ .check::before {
+      opacity: 1;
     }
   }
 }
@@ -936,13 +948,90 @@ h4 {
   .tabs-body {
     margin-top: 24px;
   }
+	.catalog-grid{
+		display: grid;
+		grid-template-columns: 270px auto;
+		column-gap: 40px;
+		.left-menu{
+			.menu-block{
+				border: 1px solid var(--black);
+				.caption{
+					background-color: var(--black);
+					padding: 7px 15px;
+					color: #ffffff;
+					font-weight: 600;
+				}
+				.category-list{
+					.item{
+						border-top: 1px solid var(--black);
+						&:first-child{
+							border-top: none;
+						}
+						.radio{
+							padding: 7px 15px;
+						}
+						.checkbox{
+							padding: 7px 15px;
+							grid-template-columns: 16px auto;
+							column-gap: 8px;
+							align-items: center;
+							.check{
+								width: 16px;
+								height: 16px;
+								display: flex;
+								align-items: center;
+								justify-content: center;
+								svg{
+									opacity: 0;
+									transition: all 0.3s;
+								}
+								&::after{
+									display: none;
+								}
+							}
+							.label{
+								font-size: 14px;
+								font-weight: 600;
+							}
+							input[type="checkbox"]{
+								&:checked ~ .check{
+									background-color: transparent;
+									svg{
+										opacity: 1;
+									}
+								}
+							}
+						}
+						&.parent{
+							.subcategories{
+								display: none;
+							}
+							.list{
+								max-height: 175px;
+    						overflow: hidden;
+							}
+							.show-all{
+								padding: 7px 15px;
+								display: block;
+								font-size: 14px;
+								border: none;
+								&:hover{
+									text-decoration: underline;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 .catalog-table {
   .grid {
-    grid-template-columns: auto 193px 193px 193px;
+    grid-template-columns: auto 148px 148px 148px;
     @media only screen and (max-width: 1100px) {
-      grid-template-columns: auto 150px 150px 150px;
+      grid-template-columns: auto 120px 120px 120px;
     }
     @media only screen and (max-width: 767px) {
       grid-template-columns: repeat(2, 1fr);
