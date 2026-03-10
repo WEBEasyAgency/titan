@@ -2,21 +2,18 @@
 /**
  * ACF Demo Data Import
  *
- * Populates ACF fields with default content from the layout on first run.
- * Runs once, controlled by the option `titan_acf_demo_v1`.
- *
- * Группа "Главная страница" — уже в БД, её данные заполняются вручную.
- * Здесь заполняются только Производство и Разработка.
+ * Заполняет ACF-поля контентом из вёрстки при первом запуске.
+ * Выполняется однократно, контролируется опцией titan_acf_demo_v2.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'init', 'titan_acf_import_demo_data', 20 );
+add_action( 'acf/init', 'titan_acf_import_demo_data', 20 );
 
 function titan_acf_import_demo_data() {
-	if ( get_option( 'titan_acf_demo_v1' ) ) {
+	if ( get_option( 'titan_acf_demo_v2' ) ) {
 		return;
 	}
 
@@ -25,12 +22,26 @@ function titan_acf_import_demo_data() {
 	}
 
 	// =========================================
-	// Production Page
+	// Главная страница
+	// (группа group_698079284b737 уже в БД)
+	// =========================================
+	$front_page_id = get_option( 'page_on_front' );
+	if ( $front_page_id ) {
+		update_field( 'top_title', 'Наши услуги:', $front_page_id );
+		update_field( 'top_description', '<ul>
+<li>разработка электронных устройств и встраиваемых систем;</li>
+<li>контрактное производство электроники.</li>
+</ul>', $front_page_id );
+		update_field( 'medium_title', 'Наш принцип:', $front_page_id );
+		update_field( 'medium_description', 'Ваша идея - наша реализация', $front_page_id );
+	}
+
+	// =========================================
+	// Производство
 	// =========================================
 	$prod_page_id = titan_get_page_by_template( 'page-production.php' );
 	if ( $prod_page_id ) {
 		update_field( 'top_title', 'Производство электроники', $prod_page_id );
-
 		update_field( 'top_description', '<ul>
 <li>Изготовление печатных плат от 3 до 5 класса точности;</li>
 <li>Возможность срочного изготовления;</li>
@@ -70,7 +81,7 @@ function titan_acf_import_demo_data() {
 	}
 
 	// =========================================
-	// Development Page
+	// Разработка
 	// =========================================
 	$dev_page_id = titan_get_page_by_template( 'page-development.php' );
 	if ( $dev_page_id ) {
@@ -98,19 +109,21 @@ function titan_acf_import_demo_data() {
 		update_field( 'form_title', 'Свяжитесь с нами', $dev_page_id );
 	}
 
-	update_option( 'titan_acf_demo_v1', true );
+	update_option( 'titan_acf_demo_v2', true );
 }
 
 /**
  * Helper: find page ID by template.
  */
-function titan_get_page_by_template( $template ) {
-	$pages = get_posts( array(
-		'post_type'      => 'page',
-		'posts_per_page' => 1,
-		'meta_key'       => '_wp_page_template',
-		'meta_value'     => $template,
-		'fields'         => 'ids',
-	) );
-	return ! empty( $pages ) ? $pages[0] : 0;
+if ( ! function_exists( 'titan_get_page_by_template' ) ) {
+	function titan_get_page_by_template( $template ) {
+		$pages = get_posts( array(
+			'post_type'      => 'page',
+			'posts_per_page' => 1,
+			'meta_key'       => '_wp_page_template',
+			'meta_value'     => $template,
+			'fields'         => 'ids',
+		) );
+		return ! empty( $pages ) ? $pages[0] : 0;
+	}
 }
