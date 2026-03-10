@@ -1,29 +1,35 @@
 <?php
 /**
- * ACF Field Groups Registration
+ * ACF Field Groups — импорт в БД
  *
- * Группа "Главная страница" (group_698079284b737) уже существует в БД —
- * здесь регистрируются только группы для Производства и Разработки.
+ * Группа "Главная страница" (group_698079284b737) уже существует в БД.
+ * Здесь импортируются группы "Производство" и "Разработка" в БД через
+ * acf_import_field_group() — они появляются в ACF → Группы полей
+ * и редактируются через интерфейс.
  *
- * Стиль оформления повторяет существующую группу: табы, wrapper widths.
+ * Импорт выполняется однократно (по опции titan_acf_groups_v1).
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-add_action( 'acf/init', 'titan_register_acf_fields' );
+add_action( 'acf/init', 'titan_import_acf_field_groups' );
 
-function titan_register_acf_fields() {
+function titan_import_acf_field_groups() {
 
-	if ( ! function_exists( 'acf_add_local_field_group' ) ) {
+	if ( get_option( 'titan_acf_groups_v1' ) ) {
+		return;
+	}
+
+	if ( ! function_exists( 'acf_import_field_group' ) ) {
 		return;
 	}
 
 	// =========================================
 	// Производство
 	// =========================================
-	acf_add_local_field_group( array(
+	acf_import_field_group( array(
 		'key'                   => 'group_titan_production',
 		'title'                 => 'Производство',
 		'fields'                => array(
@@ -35,13 +41,14 @@ function titan_register_acf_fields() {
 				'name'      => '',
 				'type'      => 'tab',
 				'placement' => 'top',
+				'endpoint'  => 0,
 			),
 			array(
 				'key'     => 'field_prod_h1',
 				'label'   => 'Заголовок',
 				'name'    => 'top_title',
 				'type'    => 'text',
-				'wrapper' => array( 'width' => '75' ),
+				'wrapper' => array( 'width' => '75', 'class' => '', 'id' => '' ),
 			),
 			array(
 				'key'           => 'field_prod_top_image',
@@ -50,15 +57,18 @@ function titan_register_acf_fields() {
 				'type'          => 'image',
 				'return_format' => 'url',
 				'preview_size'  => 'full',
-				'wrapper'       => array( 'width' => '25' ),
+				'library'       => 'all',
+				'wrapper'       => array( 'width' => '25', 'class' => '', 'id' => '' ),
 			),
 			array(
 				'key'          => 'field_prod_description',
 				'label'        => 'Описание',
 				'name'         => 'top_description',
 				'type'         => 'wysiwyg',
+				'tabs'         => 'all',
 				'toolbar'      => 'full',
 				'media_upload' => 1,
+				'delay'        => 0,
 			),
 
 			// --- Tab: Калькулятор ---
@@ -68,6 +78,7 @@ function titan_register_acf_fields() {
 				'name'      => '',
 				'type'      => 'tab',
 				'placement' => 'top',
+				'endpoint'  => 0,
 			),
 			array(
 				'key'   => 'field_prod_calc_title',
@@ -80,21 +91,21 @@ function titan_register_acf_fields() {
 				'label'   => 'Подпись: SMD',
 				'name'    => 'calc_smd_label',
 				'type'    => 'text',
-				'wrapper' => array( 'width' => '50' ),
+				'wrapper' => array( 'width' => '50', 'class' => '', 'id' => '' ),
 			),
 			array(
 				'key'     => 'field_prod_calc_tht_label',
 				'label'   => 'Подпись: THT',
 				'name'    => 'calc_tht_label',
 				'type'    => 'text',
-				'wrapper' => array( 'width' => '50' ),
+				'wrapper' => array( 'width' => '50', 'class' => '', 'id' => '' ),
 			),
 			array(
 				'key'     => 'field_prod_calc_stencil_label',
 				'label'   => 'Подпись: Трафарет',
 				'name'    => 'calc_stencil_label',
 				'type'    => 'text',
-				'wrapper' => array( 'width' => '50' ),
+				'wrapper' => array( 'width' => '50', 'class' => '', 'id' => '' ),
 			),
 			array(
 				'key'        => 'field_prod_calc_stencil_options',
@@ -102,7 +113,7 @@ function titan_register_acf_fields() {
 				'name'       => 'calc_stencil_options',
 				'type'       => 'repeater',
 				'layout'     => 'table',
-				'wrapper'    => array( 'width' => '50' ),
+				'wrapper'    => array( 'width' => '50', 'class' => '', 'id' => '' ),
 				'sub_fields' => array(
 					array(
 						'key'   => 'field_stencil_name',
@@ -111,18 +122,18 @@ function titan_register_acf_fields() {
 						'type'  => 'text',
 					),
 					array(
-						'key'  => 'field_stencil_val_in',
+						'key'   => 'field_stencil_val_in',
 						'label' => 'Коэфф. IN',
-						'name' => 'val_in',
-						'type' => 'number',
-						'step' => '0.01',
+						'name'  => 'val_in',
+						'type'  => 'number',
+						'step'  => '0.01',
 					),
 					array(
-						'key'  => 'field_stencil_val_out',
+						'key'   => 'field_stencil_val_out',
 						'label' => 'Коэфф. OUT',
-						'name' => 'val_out',
-						'type' => 'number',
-						'step' => '0.01',
+						'name'  => 'val_out',
+						'type'  => 'number',
+						'step'  => '0.01',
 					),
 				),
 			),
@@ -131,7 +142,7 @@ function titan_register_acf_fields() {
 				'label'   => 'Подпись: Компоненты',
 				'name'    => 'calc_components_label',
 				'type'    => 'text',
-				'wrapper' => array( 'width' => '50' ),
+				'wrapper' => array( 'width' => '50', 'class' => '', 'id' => '' ),
 			),
 			array(
 				'key'        => 'field_prod_calc_comp_options',
@@ -139,7 +150,7 @@ function titan_register_acf_fields() {
 				'name'       => 'calc_components_options',
 				'type'       => 'repeater',
 				'layout'     => 'table',
-				'wrapper'    => array( 'width' => '50' ),
+				'wrapper'    => array( 'width' => '50', 'class' => '', 'id' => '' ),
 				'sub_fields' => array(
 					array(
 						'key'   => 'field_comp_name',
@@ -154,23 +165,23 @@ function titan_register_acf_fields() {
 						'type'  => 'text',
 					),
 					array(
-						'key'  => 'field_comp_overprice',
+						'key'   => 'field_comp_overprice',
 						'label' => 'Overprice',
-						'name' => 'overprice',
-						'type' => 'number',
-						'step' => '0.01',
+						'name'  => 'overprice',
+						'type'  => 'number',
+						'step'  => '0.01',
 					),
 					array(
-						'key'  => 'field_comp_wash',
+						'key'   => 'field_comp_wash',
 						'label' => 'Wash',
-						'name' => 'wash',
-						'type' => 'number',
+						'name'  => 'wash',
+						'type'  => 'number',
 					),
 					array(
-						'key'  => 'field_comp_percent',
+						'key'   => 'field_comp_percent',
 						'label' => 'Percent',
-						'name' => 'percent',
-						'type' => 'number',
+						'name'  => 'percent',
+						'type'  => 'number',
 					),
 				),
 			),
@@ -179,7 +190,7 @@ function titan_register_acf_fields() {
 				'label'   => 'Подпись: Количество плат',
 				'name'    => 'calc_quantity_label',
 				'type'    => 'text',
-				'wrapper' => array( 'width' => '50' ),
+				'wrapper' => array( 'width' => '50', 'class' => '', 'id' => '' ),
 			),
 			array(
 				'key'        => 'field_prod_calc_qty_options',
@@ -187,7 +198,7 @@ function titan_register_acf_fields() {
 				'name'       => 'calc_quantity_options',
 				'type'       => 'repeater',
 				'layout'     => 'table',
-				'wrapper'    => array( 'width' => '50' ),
+				'wrapper'    => array( 'width' => '50', 'class' => '', 'id' => '' ),
 				'sub_fields' => array(
 					array(
 						'key'   => 'field_qty_name',
@@ -196,11 +207,11 @@ function titan_register_acf_fields() {
 						'type'  => 'text',
 					),
 					array(
-						'key'  => 'field_qty_val',
+						'key'   => 'field_qty_val',
 						'label' => 'Коэффициент',
-						'name' => 'val',
-						'type' => 'number',
-						'step' => '0.01',
+						'name'  => 'val',
+						'type'  => 'number',
+						'step'  => '0.01',
 					),
 				),
 			),
@@ -209,15 +220,15 @@ function titan_register_acf_fields() {
 				'label'   => 'Подпись результата',
 				'name'    => 'calc_result_label',
 				'type'    => 'text',
-				'wrapper' => array( 'width' => '50' ),
+				'wrapper' => array( 'width' => '50', 'class' => '', 'id' => '' ),
 			),
 			array(
-				'key'  => 'field_prod_calc_disclaimer',
-				'label' => 'Дисклеймер',
-				'name' => 'calc_disclaimer',
-				'type' => 'textarea',
-				'rows' => 3,
-				'wrapper' => array( 'width' => '50' ),
+				'key'     => 'field_prod_calc_disclaimer',
+				'label'   => 'Дисклеймер',
+				'name'    => 'calc_disclaimer',
+				'type'    => 'textarea',
+				'rows'    => 3,
+				'wrapper' => array( 'width' => '50', 'class' => '', 'id' => '' ),
 			),
 
 			// --- Tab: Нижний блок ---
@@ -227,6 +238,7 @@ function titan_register_acf_fields() {
 				'name'      => '',
 				'type'      => 'tab',
 				'placement' => 'top',
+				'endpoint'  => 0,
 			),
 			array(
 				'key'   => 'field_prod_form_title',
@@ -249,13 +261,15 @@ function titan_register_acf_fields() {
 		'style'                 => 'default',
 		'label_placement'       => 'top',
 		'instruction_placement' => 'label',
+		'hide_on_screen'        => '',
 		'active'                => true,
+		'description'           => '',
 	) );
 
 	// =========================================
 	// Разработка
 	// =========================================
-	acf_add_local_field_group( array(
+	acf_import_field_group( array(
 		'key'                   => 'group_titan_development',
 		'title'                 => 'Разработка',
 		'fields'                => array(
@@ -267,13 +281,14 @@ function titan_register_acf_fields() {
 				'name'      => '',
 				'type'      => 'tab',
 				'placement' => 'top',
+				'endpoint'  => 0,
 			),
 			array(
 				'key'     => 'field_dev_h1',
 				'label'   => 'Заголовок',
 				'name'    => 'top_title',
 				'type'    => 'text',
-				'wrapper' => array( 'width' => '75' ),
+				'wrapper' => array( 'width' => '75', 'class' => '', 'id' => '' ),
 			),
 			array(
 				'key'           => 'field_dev_top_image',
@@ -282,15 +297,18 @@ function titan_register_acf_fields() {
 				'type'          => 'image',
 				'return_format' => 'url',
 				'preview_size'  => 'full',
-				'wrapper'       => array( 'width' => '25' ),
+				'library'       => 'all',
+				'wrapper'       => array( 'width' => '25', 'class' => '', 'id' => '' ),
 			),
 			array(
 				'key'          => 'field_dev_intro_text',
 				'label'        => 'Описание',
 				'name'         => 'top_description',
 				'type'         => 'wysiwyg',
+				'tabs'         => 'all',
 				'toolbar'      => 'full',
 				'media_upload' => 1,
+				'delay'        => 0,
 			),
 
 			// --- Tab: Шаги ---
@@ -300,6 +318,7 @@ function titan_register_acf_fields() {
 				'name'      => '',
 				'type'      => 'tab',
 				'placement' => 'top',
+				'endpoint'  => 0,
 			),
 			array(
 				'key'        => 'field_dev_steps',
@@ -338,13 +357,14 @@ function titan_register_acf_fields() {
 				'name'      => '',
 				'type'      => 'tab',
 				'placement' => 'top',
+				'endpoint'  => 0,
 			),
 			array(
 				'key'     => 'field_dev_spec_title',
 				'label'   => 'Заголовок',
 				'name'    => 'spec_title',
 				'type'    => 'text',
-				'wrapper' => array( 'width' => '75' ),
+				'wrapper' => array( 'width' => '75', 'class' => '', 'id' => '' ),
 			),
 			array(
 				'key'           => 'field_dev_spec_image',
@@ -353,7 +373,8 @@ function titan_register_acf_fields() {
 				'type'          => 'image',
 				'return_format' => 'url',
 				'preview_size'  => 'full',
-				'wrapper'       => array( 'width' => '25' ),
+				'library'       => 'all',
+				'wrapper'       => array( 'width' => '25', 'class' => '', 'id' => '' ),
 			),
 			array(
 				'key'        => 'field_dev_specializations',
@@ -378,6 +399,7 @@ function titan_register_acf_fields() {
 				'name'      => '',
 				'type'      => 'tab',
 				'placement' => 'top',
+				'endpoint'  => 0,
 			),
 			array(
 				'key'   => 'field_dev_form_title',
@@ -400,8 +422,12 @@ function titan_register_acf_fields() {
 		'style'                 => 'default',
 		'label_placement'       => 'top',
 		'instruction_placement' => 'label',
+		'hide_on_screen'        => '',
 		'active'                => true,
+		'description'           => '',
 	) );
+
+	update_option( 'titan_acf_groups_v1', true );
 }
 
 /**
