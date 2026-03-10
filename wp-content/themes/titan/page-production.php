@@ -4,21 +4,26 @@
  */
 get_header();
 
-$h1              = get_field( 'prod_h1' ) ?: 'Производство электроники';
-$features        = get_field( 'prod_features' );
-$top_image       = get_field( 'prod_top_image' ) ?: get_template_directory_uri() . '/assets/img/production-top-img.png';
-$calc_title      = get_field( 'prod_calc_title' ) ?: 'Для предварительного расчета воспользуйтесь калькулятором';
-$smd_label       = get_field( 'prod_calc_smd_label' ) ?: 'Количество точек пайки поверхностного монтажа (SMD)';
-$tht_label       = get_field( 'prod_calc_tht_label' ) ?: 'Количество точек пайки выводного монтажа (ТНТ)';
-$stencil_label   = get_field( 'prod_calc_stencil_label' ) ?: 'Наличие трафарета';
-$stencil_options = get_field( 'prod_calc_stencil_options' );
-$comp_label      = get_field( 'prod_calc_components_label' ) ?: 'Электронные компоненты';
-$comp_options    = get_field( 'prod_calc_components_options' );
-$qty_label       = get_field( 'prod_calc_quantity_label' ) ?: 'Количество плат для монтажа';
-$qty_options     = get_field( 'prod_calc_quantity_options' );
-$result_label    = get_field( 'prod_calc_result_label' ) ?: 'Стоимость мотажа одной платы';
-$disclaimer      = get_field( 'prod_calc_disclaimer' ) ?: 'Расчет является предварительным и не является Договором публичной оферты. Окончательную цену мы можем сказать после получения документации на изделие и обработки нашими специалистами';
-$form_title      = get_field( 'prod_form_title' ) ?: 'Для получения окончательной цены свяжитесь с нами и приложите документацию';
+// Верхний блок (имена полей как в существующей группе "Главная")
+$h1        = get_field( 'top_title' ) ?: 'Производство электроники';
+$top_image = get_field( 'top_bg_img' ) ?: get_template_directory_uri() . '/assets/img/production-top-img.png';
+$top_desc  = get_field( 'top_description' );
+
+// Калькулятор
+$calc_title      = get_field( 'calc_title' ) ?: 'Для предварительного расчета воспользуйтесь калькулятором';
+$smd_label       = get_field( 'calc_smd_label' ) ?: 'Количество точек пайки поверхностного монтажа (SMD)';
+$tht_label       = get_field( 'calc_tht_label' ) ?: 'Количество точек пайки выводного монтажа (ТНТ)';
+$stencil_label   = get_field( 'calc_stencil_label' ) ?: 'Наличие трафарета';
+$stencil_options = get_field( 'calc_stencil_options' );
+$comp_label      = get_field( 'calc_components_label' ) ?: 'Электронные компоненты';
+$comp_options    = get_field( 'calc_components_options' );
+$qty_label       = get_field( 'calc_quantity_label' ) ?: 'Количество плат для монтажа';
+$qty_options     = get_field( 'calc_quantity_options' );
+$result_label    = get_field( 'calc_result_label' ) ?: 'Стоимость мотажа одной платы';
+$disclaimer      = get_field( 'calc_disclaimer' ) ?: 'Расчет является предварительным и не является Договором публичной оферты. Окончательную цену мы можем сказать после получения документации на изделие и обработки нашими специалистами';
+
+// Нижний блок
+$form_title = get_field( 'form_title' ) ?: 'Для получения окончательной цены свяжитесь с нами и приложите документацию';
 ?>
 
 <main class="inner-page production-page">
@@ -27,20 +32,20 @@ $form_title      = get_field( 'prod_form_title' ) ?: 'Для получения 
 			<div class="top-block-inner grid">
 				<div class="text-block">
 					<div class="title"><h1><?php echo esc_html( $h1 ); ?></h1></div>
-					<div class="list">
-						<ul>
-							<?php if ( $features ) : ?>
-								<?php foreach ( $features as $feature ) : ?>
-									<li><?php echo wp_kses_post( $feature['feature_text'] ); ?></li>
-								<?php endforeach; ?>
-							<?php else : ?>
+					<?php if ( $top_desc ) : ?>
+						<div class="list">
+							<?php echo wp_kses_post( $top_desc ); ?>
+						</div>
+					<?php else : ?>
+						<div class="list">
+							<ul>
 								<li>Изготовление печатных плат от 3 до 5 класса точности;</li>
 								<li>Возможность срочного изготовления;</li>
 								<li>Собственное производство;</li>
 								<li>Поверхностный (SMT/SMD) и выводной (THT) монтаж <br>электронных компонентов от одной платы<br> до крупной серии</li>
-							<?php endif; ?>
-						</ul>
-					</div>
+							</ul>
+						</div>
+					<?php endif; ?>
 				</div>
 				<div class="img"><img src="<?php echo esc_url( $top_image ); ?>" alt="<?php echo esc_attr( $h1 ); ?>"></div>
 			</div>

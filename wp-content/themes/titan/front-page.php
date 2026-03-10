@@ -1,16 +1,12 @@
 <?php
 get_header();
 
-$h1             = get_field( 'front_h1' ) ?: 'Наши услуги:';
-$services       = get_field( 'front_services' );
-$btn_dev_text   = get_field( 'front_btn_dev_text' ) ?: 'Разработка электроники';
-$btn_dev_url    = get_field( 'front_btn_dev_url' ) ?: '#';
-$btn_prod_text  = get_field( 'front_btn_prod_text' ) ?: 'Производство электроники';
-$btn_prod_url   = get_field( 'front_btn_prod_url' ) ?: '#';
-$top_image      = get_field( 'front_top_image' ) ?: get_template_directory_uri() . '/assets/img/top-img.png';
-$slogan_title   = get_field( 'front_slogan_title' ) ?: 'Наш принцип:';
-$slogan_text    = get_field( 'front_slogan_text' ) ?: 'Ваша идея - наша реализация';
-$form_title     = get_field( 'front_form_title' ) ?: 'Свяжитесь с нами';
+// Поля из существующей ACF-группы "Главная страница" (group_698079284b737)
+$h1           = get_field( 'top_title' ) ?: 'Наши услуги:';
+$top_image    = get_field( 'top_bg_img' ) ?: get_template_directory_uri() . '/assets/img/top-img.png';
+$description  = get_field( 'top_description' );
+$slogan_title = get_field( 'medium_title' ) ?: 'Наш принцип:';
+$slogan_text  = get_field( 'medium_description' ) ?: 'Ваша идея - наша реализация';
 ?>
 
 <main class="main-page">
@@ -19,21 +15,21 @@ $form_title     = get_field( 'front_form_title' ) ?: 'Свяжитесь с на
 			<div class="top-block-inner grid">
 				<div class="text-block">
 					<div class="title"><h1><?php echo esc_html( $h1 ); ?></h1></div>
-					<div class="list">
-						<ul>
-							<?php if ( $services ) : ?>
-								<?php foreach ( $services as $service ) : ?>
-									<li><?php echo esc_html( $service['service_text'] ); ?></li>
-								<?php endforeach; ?>
-							<?php else : ?>
+					<?php if ( $description ) : ?>
+						<div class="list">
+							<?php echo wp_kses_post( $description ); ?>
+						</div>
+					<?php else : ?>
+						<div class="list">
+							<ul>
 								<li>разработка электронных устройств и встраиваемых систем;</li>
 								<li>контрактное производство электроники.</li>
-							<?php endif; ?>
-						</ul>
-					</div>
+							</ul>
+						</div>
+					<?php endif; ?>
 					<div class="btn-block">
-						<a href="<?php echo esc_url( $btn_dev_url ); ?>" class="btn"><?php echo esc_html( $btn_dev_text ); ?></a>
-						<a href="<?php echo esc_url( $btn_prod_url ); ?>" class="btn"><?php echo esc_html( $btn_prod_text ); ?></a>
+						<a href="#" class="btn">Разработка электроники</a>
+						<a href="#" class="btn">Производство электроники</a>
 					</div>
 				</div>
 				<div class="img">
@@ -58,7 +54,7 @@ $form_title     = get_field( 'front_form_title' ) ?: 'Свяжитесь с на
 		<div class="container">
 			<div class="grid">
 				<div class="title">
-					<h3><?php echo esc_html( $form_title ); ?></h3>
+					<h3>Свяжитесь с нами</h3>
 				</div>
 				<div class="form-block">
 					<?php echo do_shortcode( '[contact-form-7 title="Свяжитесь с нами"]' ); ?>

@@ -4,14 +4,21 @@
  */
 get_header();
 
-$h1         = get_field( 'dev_h1' ) ?: 'Разработка электроники';
-$intro_text = get_field( 'dev_intro_text' ) ?: '<p>Наша компания предлагает услуги по разработке электронных устройств и встраиваемых систем: от идеи до готовой продукции.</p><p>Реализуем любой проект с нуля.</p>';
-$top_image  = get_field( 'dev_top_image' ) ?: get_template_directory_uri() . '/assets/img/production-top-img.png';
-$steps      = get_field( 'dev_steps' );
-$spec_title = get_field( 'dev_spec_title' ) ?: 'Мы специализируемся в следующих областях:';
+// Верхний блок
+$h1         = get_field( 'top_title' ) ?: 'Разработка электроники';
+$top_image  = get_field( 'top_bg_img' ) ?: get_template_directory_uri() . '/assets/img/production-top-img.png';
+$top_desc   = get_field( 'top_description' ) ?: '<p>Наша компания предлагает услуги по разработке электронных устройств и встраиваемых систем: от идеи до готовой продукции.</p><p>Реализуем любой проект с нуля.</p>';
+
+// Шаги
+$steps = get_field( 'dev_steps' );
+
+// Специализации
+$spec_title = get_field( 'spec_title' ) ?: 'Мы специализируемся в следующих областях:';
 $specs      = get_field( 'dev_specializations' );
-$spec_image = get_field( 'dev_spec_image' ) ?: get_template_directory_uri() . '/assets/img/development-top-img.jpg';
-$form_title = get_field( 'dev_form_title' ) ?: 'Свяжитесь с нами';
+$spec_image = get_field( 'spec_image' ) ?: get_template_directory_uri() . '/assets/img/development-top-img.jpg';
+
+// Нижний блок
+$form_title = get_field( 'form_title' ) ?: 'Свяжитесь с нами';
 ?>
 
 <main class="inner-page development-page">
@@ -21,7 +28,7 @@ $form_title = get_field( 'dev_form_title' ) ?: 'Свяжитесь с нами';
 				<div class="text-block">
 					<div class="title"><h1><?php echo esc_html( $h1 ); ?></h1></div>
 					<div class="text">
-						<?php echo wp_kses_post( $intro_text ); ?>
+						<?php echo wp_kses_post( $top_desc ); ?>
 					</div>
 				</div>
 				<div class="img"><img src="<?php echo esc_url( $top_image ); ?>" alt="<?php echo esc_attr( $h1 ); ?>"></div>
