@@ -4,6 +4,13 @@
  */
 
 // =========================================
+// Modular includes
+// =========================================
+require_once get_template_directory() . '/inc/acf-fields.php';
+require_once get_template_directory() . '/inc/acf-demo-data.php';
+require_once get_template_directory() . '/inc/cpt-requests.php';
+
+// =========================================
 // 1. Theme Setup
 // =========================================
 function titan_setup() {
@@ -107,7 +114,7 @@ add_filter( 'woocommerce_add_to_cart_fragments', 'titan_cart_count_fragment' );
 // =========================================
 function titan_create_menus() {
 	// Выполняем только один раз
-	if ( get_option( 'titan_setup_v4' ) ) {
+	if ( get_option( 'titan_setup_v5' ) ) {
 		return;
 	}
 
@@ -156,7 +163,8 @@ function titan_create_menus() {
 	// Создаём страницы с назначенными шаблонами
 	$pages = array(
 		'Производство'       => 'page-production.php',
-		'Контакты'          => 'page-contacts.php',
+		'Разработка'         => 'page-development.php',
+		'Контакты'           => 'page-contacts.php',
 	);
 
 	foreach ( $pages as $title => $template ) {
@@ -175,9 +183,10 @@ function titan_create_menus() {
 
 	// Обновляем ссылки в меню
 	$page_links = array(
-		'Производство'    => '',
-		'Контакты'        => '',
-		'Интернет-магазин' => '',
+		'Производство'     => '',
+		'Разработка'       => '',
+		'Контакты'         => '',
+		'Интернет-магазин'  => '',
 	);
 	foreach ( $page_links as $title => &$url ) {
 		$page = get_page_by_title( $title, OBJECT, 'page' );
@@ -205,7 +214,7 @@ function titan_create_menus() {
 		}
 	}
 
-	update_option( 'titan_setup_v4', true );
+	update_option( 'titan_setup_v5', true );
 }
 add_action( 'init', 'titan_create_menus' );
 
