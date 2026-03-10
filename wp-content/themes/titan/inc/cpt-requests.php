@@ -59,7 +59,7 @@ function titan_save_cf7_request( $contact_form ) {
 	$data = $submission->get_posted_data();
 
 	$name    = isset( $data['your-name'] ) ? sanitize_text_field( $data['your-name'] ) : '';
-	$phone   = isset( $data['your-phone'] ) ? sanitize_text_field( $data['your-phone'] ) : '';
+	$phone   = isset( $data['your-tel'] ) ? sanitize_text_field( $data['your-tel'] ) : '';
 	$email   = isset( $data['your-email'] ) ? sanitize_email( $data['your-email'] ) : '';
 	$message = isset( $data['your-message'] ) ? sanitize_textarea_field( $data['your-message'] ) : '';
 
@@ -89,21 +89,32 @@ function titan_save_cf7_request( $contact_form ) {
 	update_post_meta( $post_id, '_request_message', $message );
 	update_post_meta( $post_id, '_request_page', $referer );
 
-	// Save uploaded files
+	// Upload files to media library and attach to request
 	$files = $submission->uploaded_files();
 	if ( ! empty( $files ) ) {
-		$file_list = array();
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$attachment_ids = array();
 		foreach ( $files as $field_name => $paths ) {
-			if ( is_array( $paths ) ) {
-				foreach ( $paths as $path ) {
-					$file_list[] = basename( $path );
+			$paths = is_array( $paths ) ? $paths : array( $paths );
+			foreach ( $paths as $path ) {
+				if ( ! file_exists( $path ) ) {
+					continue;
 				}
-			} else {
-				$file_list[] = basename( $paths );
+				$file_array = array(
+					'name'     => basename( $path ),
+					'tmp_name' => $path,
+				);
+				$attach_id = media_handle_sideload( $file_array, $post_id );
+				if ( ! is_wp_error( $attach_id ) ) {
+					$attachment_ids[] = $attach_id;
+				}
 			}
 		}
-		if ( ! empty( $file_list ) ) {
-			update_post_meta( $post_id, '_request_files', implode( ', ', $file_list ) );
+		if ( ! empty( $attachment_ids ) ) {
+			update_post_meta( $post_id, '_request_files', $attachment_ids );
 		}
 	}
 
@@ -165,7 +176,6 @@ function titan_request_meta_box_callback( $post ) {
 		'_request_email'   => 'Email',
 		'_request_message' => 'Сообщение',
 		'_request_page'    => 'Страница',
-		'_request_files'   => 'Файлы',
 	);
 
 	echo '<table class="form-table">';
@@ -189,6 +199,27 @@ function titan_request_meta_box_callback( $post ) {
 		echo '</td>';
 		echo '</tr>';
 	}
+
+	// Files
+	$attachment_ids = get_post_meta( $post->ID, '_request_files', true );
+	if ( ! empty( $attachment_ids ) && is_array( $attachment_ids ) ) {
+		echo '<tr>';
+		echo '<th style="width:150px;">Файлы</th>';
+		echo '<td>';
+		foreach ( $attachment_ids as $att_id ) {
+			$url  = wp_get_attachment_url( $att_id );
+			$name = get_the_title( $att_id );
+			if ( ! $name ) {
+				$name = basename( get_attached_file( $att_id ) );
+			}
+			if ( $url ) {
+				echo '<a href="' . esc_url( $url ) . '" target="_blank">' . esc_html( $name ) . '</a><br>';
+			}
+		}
+		echo '</td>';
+		echo '</tr>';
+	}
+
 	echo '</table>';
 }
 
