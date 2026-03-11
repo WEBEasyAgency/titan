@@ -43,44 +43,47 @@ jQuery(function($) {
 
 	// ============ AJAX Product Search ============
 	var searchTimer;
-	$(document).on('input', '#titan-search-input', function() {
-		var term = $(this).val();
-		clearTimeout(searchTimer);
 
+	function titanProductSearch() {
+		var term = $('#titan-search-input').val();
 		if (term.length < 3) {
 			$('#titan-search-results').hide().empty();
 			return;
 		}
+		$.post(titan_wc.ajax_url, {
+			action: 'titan_product_search',
+			nonce: titan_wc.nonce,
+			term: term
+		}, function(response) {
+			var $results = $('#titan-search-results');
+			$results.empty();
 
-		searchTimer = setTimeout(function() {
-			$.post(titan_wc.ajax_url, {
-				action: 'titan_product_search',
-				nonce: titan_wc.nonce,
-				term: term
-			}, function(response) {
-				var $results = $('#titan-search-results');
-				$results.empty();
+			if (response.success && response.data.length) {
+				$.each(response.data, function(i, item) {
+					$results.append(
+						'<div class="item">' +
+							'<div class="img"><a href="' + item.url + '"><img src="' + item.img + '" alt=""></a></div>' +
+							'<div class="name"><a href="' + item.url + '">' + item.name + '</a></div>' +
+							'<div class="price">' + item.price + '</div>' +
+						'</div>'
+					);
+				});
+				$results.show();
+			} else {
+				$results.hide();
+			}
+		});
+	}
 
-				if (response.success && response.data.length) {
-					$.each(response.data, function(i, item) {
-						$results.append(
-							'<div class="item">' +
-								'<div class="img"><a href="' + item.url + '"><img src="' + item.img + '" alt=""></a></div>' +
-								'<div class="name"><a href="' + item.url + '">' + item.name + '</a></div>' +
-								'<div class="price">' + item.price + '</div>' +
-							'</div>'
-						);
-					});
-					$results.show();
-				} else {
-					$results.hide();
-				}
-			});
-		}, 300);
+	$(document).on('input', '#titan-search-input', function() {
+		clearTimeout(searchTimer);
+		searchTimer = setTimeout(titanProductSearch, 300);
 	});
 
 	$(document).on('submit', '#titan-product-search-form', function(e) {
 		e.preventDefault();
+		clearTimeout(searchTimer);
+		titanProductSearch();
 	});
 
 	// Close search results on click outside
