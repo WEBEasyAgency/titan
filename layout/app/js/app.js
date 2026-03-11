@@ -216,6 +216,10 @@ $(document).ready(function(){
 		}
 	})
 
+	$('.category-list > .item:not(.parent) input[type="radio"]').on('click', function(){
+		$('.item .subcategories.active').removeClass('active').slideUp(300);
+	})
+
 	$('.show-all').on('click', function(){
 		$(this).hide().parents('.subcategories').find('.list').css('max-height', '100%');
 		return false;

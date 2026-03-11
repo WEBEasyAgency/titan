@@ -16,7 +16,7 @@ $(document).ready(function(){
   });
 
 	$('.popupblock .close').on('click', function(){
-		$(this).closest('.popupblock').removeClass('active');
+		$(this).closest('.popupblock').removeClass('active').removeAttr('style');
 		return false;
   });
 
@@ -32,7 +32,7 @@ $(document).ready(function(){
 
 	$(document).on('keyup', function(e) {
     if ( e.key == "Escape" ) {
-      $('.popupblock').removeClass('active');
+      $('.popupblock').removeClass('active').removeAttr('style');
     }
   });
 
@@ -199,28 +199,31 @@ $(document).ready(function(){
 
 	$('.search .clean').on('click', function(){
 		$(this).fadeOut(300).parents('.search').find('input[type="search"]').val('');
+	}); 
+
+	var swiper = new Swiper(".img-slider", {
+		slidesPerView: 1,
+		navigation: {
+			nextEl: ".img-slider-block .next",
+			prevEl: ".img-slider-block .prev",
+		},
 	});
 
-	// =========================================
-	// Catalog sidebar: subcategories toggle
-	// =========================================
-	$(document).on('click', '.item.parent input[type="radio"]', function(){
+	$('.item.parent input[type="radio"]').on('click', function(){
 		if($(this).prop('checked')){
 			$('.item .subcategories.active').removeClass('active').slideUp(300);
 			$(this).parents('.item').find('.subcategories').addClass('active').slideDown(300);
 		}
-	});
+	})
 
-	// "Все" radio — close all subcategories
-	$(document).on('click', '.category-list > .item:not(.parent) input[type="radio"]', function(){
+	$('.category-list > .item:not(.parent) input[type="radio"]').on('click', function(){
 		$('.item .subcategories.active').removeClass('active').slideUp(300);
-	});
+	})
 
-	// "Показать все" — expand subcategory list
-	$(document).on('click', '.show-all', function(){
+	$('.show-all').on('click', function(){
 		$(this).hide().parents('.subcategories').find('.list').css('max-height', '100%');
 		return false;
-	});
+	})
 
 	// =========================================
 	// Личный кабинет — обработчики перенесены в WP account-scripts.php
