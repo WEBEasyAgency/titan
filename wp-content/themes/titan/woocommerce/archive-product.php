@@ -4,6 +4,17 @@
  * Replaces the default WC product archive with custom catalog layout.
  */
 defined( 'ABSPATH' ) || exit;
+
+$check_svg = '<svg width="9" height="7" viewBox="0 0 9 7" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.41667 0.75L2.75 6.08333L0.75 3.95" stroke="#1E1E1E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+$parent_categories = get_terms( array(
+	'taxonomy'   => 'product_cat',
+	'hide_empty' => false,
+	'parent'     => 0,
+	'exclude'    => array( get_option( 'default_product_cat' ) ),
+	'orderby'    => 'name',
+	'order'      => 'ASC',
+) );
 ?>
 
 <section class="top-search">
@@ -29,46 +40,67 @@ defined( 'ABSPATH' ) || exit;
 
 <section class="catalog-block">
 	<div class="container">
-		<div class="tabs">
-			<div class="tabs-title">
-				<a href="#tab1" class="tab-title active">Все</a>
-				<?php
-				$categories = get_terms( array(
-					'taxonomy'   => 'product_cat',
-					'hide_empty' => false,
-					'exclude'    => array( get_option( 'default_product_cat' ) ),
-				) );
-				$tab_index = 2;
-				if ( ! is_wp_error( $categories ) ) :
-					foreach ( $categories as $cat ) : ?>
-						<a href="#tab<?php echo esc_attr( $tab_index ); ?>" class="tab-title"><?php echo esc_html( $cat->name ); ?></a>
-					<?php
-					$tab_index++;
-					endforeach;
-				endif;
-				?>
-			</div>
-			<div class="tabs-body">
-				<div class="tab active" id="tab1">
-					<div class="tab-inner">
-						<?php echo titan_render_catalog_table(); ?>
+		<div class="catalog-grid">
+			<div class="left-menu">
+				<div class="menu-block">
+					<div class="caption">Категории</div>
+					<div class="category-list">
+						<div class="item">
+							<label class="radio">
+								<input type="radio" name="cat" data-cat-id="0" checked>
+								<span class="check"></span>
+								<span class="label">Все</span>
+							</label>
+						</div>
+						<?php if ( ! is_wp_error( $parent_categories ) ) :
+							foreach ( $parent_categories as $cat ) :
+								$children = get_terms( array(
+									'taxonomy'   => 'product_cat',
+									'hide_empty' => false,
+									'parent'     => $cat->term_id,
+									'orderby'    => 'name',
+									'order'      => 'ASC',
+								) );
+								$has_children = ! is_wp_error( $children ) && ! empty( $children );
+								?>
+								<div class="item<?php echo $has_children ? ' parent' : ''; ?>">
+									<label class="radio">
+										<input type="radio" name="cat" data-cat-id="<?php echo esc_attr( $cat->term_id ); ?>">
+										<span class="check"></span>
+										<span class="label"><?php echo esc_html( $cat->name ); ?></span>
+									</label>
+									<?php if ( $has_children ) : ?>
+										<div class="subcategories">
+											<div class="list">
+												<div class="list-item">
+													<label class="checkbox">
+														<input type="checkbox" name="sub" data-subcat-id="0" data-select-all="1">
+														<span class="check"><?php echo $check_svg; ?></span>
+														<span class="label">Все</span>
+													</label>
+												</div>
+												<?php foreach ( $children as $child ) : ?>
+													<div class="list-item">
+														<label class="checkbox">
+															<input type="checkbox" name="sub" data-subcat-id="<?php echo esc_attr( $child->term_id ); ?>">
+															<span class="check"><?php echo $check_svg; ?></span>
+															<span class="label"><?php echo esc_html( $child->name ); ?></span>
+														</label>
+													</div>
+												<?php endforeach; ?>
+											</div>
+											<?php if ( count( $children ) > 6 ) : ?>
+												<a href="#" class="show-all">Показать все</a>
+											<?php endif; ?>
+										</div>
+									<?php endif; ?>
+								</div>
+							<?php endforeach;
+						endif; ?>
 					</div>
 				</div>
-				<?php
-				$tab_index = 2;
-				if ( ! is_wp_error( $categories ) ) :
-					foreach ( $categories as $cat ) : ?>
-						<div class="tab" id="tab<?php echo esc_attr( $tab_index ); ?>">
-							<div class="tab-inner">
-								<?php echo titan_render_catalog_table( $cat->term_id ); ?>
-							</div>
-						</div>
-					<?php
-					$tab_index++;
-					endforeach;
-				endif;
-				?>
 			</div>
+			<?php echo titan_render_catalog_table(); ?>
 		</div>
 	</div>
 </section>

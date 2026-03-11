@@ -143,6 +143,58 @@ jQuery(function($) {
 		});
 	});
 
+	// ============ Catalog Sidebar: AJAX Filter ============
+	function titanFilterCatalog() {
+		var $checked = $('.category-list input[type="radio"]:checked');
+		var catId = parseInt($checked.data('cat-id')) || 0;
+		var subcatIds = [];
+
+		if (catId > 0) {
+			var $parent = $checked.closest('.item.parent');
+			if ($parent.length) {
+				$parent.find('.subcategories input[type="checkbox"]:checked').not('[data-select-all]').each(function() {
+					var id = parseInt($(this).data('subcat-id'));
+					if (id > 0) subcatIds.push(id);
+				});
+			}
+		}
+
+		$('.catalog-table').css('opacity', '0.5');
+
+		$.post(titan_wc.ajax_url, {
+			action: 'titan_filter_catalog',
+			nonce: titan_wc.nonce,
+			category_id: catId,
+			subcategory_ids: subcatIds
+		}, function(response) {
+			$('.catalog-grid .catalog-table').replaceWith(response);
+		}).fail(function() {
+			$('.catalog-table').css('opacity', '1');
+		});
+	}
+
+	// Radio: select category
+	$(document).on('change', '.category-list input[type="radio"]', function() {
+		titanFilterCatalog();
+	});
+
+	// Checkbox "Все": toggle all subcategories
+	$(document).on('change', '.subcategories input[data-select-all]', function() {
+		var checked = $(this).prop('checked');
+		$(this).closest('.subcategories').find('input[type="checkbox"]').not(this).prop('checked', checked);
+		titanFilterCatalog();
+	});
+
+	// Checkbox: individual subcategory
+	$(document).on('change', '.subcategories input[type="checkbox"]:not([data-select-all])', function() {
+		var $subs = $(this).closest('.subcategories');
+		var $all = $subs.find('input[data-select-all]');
+		var total = $subs.find('input[type="checkbox"]').not('[data-select-all]').length;
+		var checked = $subs.find('input[type="checkbox"]:checked').not('[data-select-all]').length;
+		$all.prop('checked', checked === total);
+		titanFilterCatalog();
+	});
+
 	// ============ Request Popup: Fill product info ============
 	$(document).on('click', '.popup[data-product-name]', function() {
 		var name = $(this).data('product-name');

@@ -431,6 +431,135 @@ function titan_import_acf_field_groups() {
 }
 
 /**
+ * ACF Field Group: Контакты (v2)
+ */
+add_action( 'acf/init', 'titan_import_acf_contacts_group' );
+
+function titan_import_acf_contacts_group() {
+
+	if ( get_option( 'titan_acf_groups_contacts_v1' ) ) {
+		return;
+	}
+
+	if ( ! function_exists( 'acf_import_field_group' ) ) {
+		return;
+	}
+
+	acf_import_field_group( array(
+		'key'                   => 'group_titan_contacts',
+		'title'                 => 'Контакты',
+		'fields'                => array(
+
+			// --- Tab: Контактная информация ---
+			array(
+				'key'       => 'field_contacts_tab_info',
+				'label'     => 'Контактная информация',
+				'name'      => '',
+				'type'      => 'tab',
+				'placement' => 'top',
+				'endpoint'  => 0,
+			),
+			array(
+				'key'   => 'field_contacts_h1',
+				'label' => 'Заголовок (H1)',
+				'name'  => 'contacts_title',
+				'type'  => 'text',
+			),
+			array(
+				'key'   => 'field_contacts_address',
+				'label' => 'Адрес',
+				'name'  => 'contacts_address',
+				'type'  => 'text',
+			),
+			array(
+				'key'     => 'field_contacts_phone',
+				'label'   => 'Телефон (отображаемый)',
+				'name'    => 'contacts_phone',
+				'type'    => 'text',
+				'wrapper' => array( 'width' => '50', 'class' => '', 'id' => '' ),
+			),
+			array(
+				'key'           => 'field_contacts_phone_raw',
+				'label'         => 'Телефон (для ссылки)',
+				'name'          => 'contacts_phone_raw',
+				'type'          => 'text',
+				'instructions'  => 'Например: +74959702698',
+				'wrapper'       => array( 'width' => '50', 'class' => '', 'id' => '' ),
+			),
+			array(
+				'key'   => 'field_contacts_email',
+				'label' => 'Email',
+				'name'  => 'contacts_email',
+				'type'  => 'email',
+			),
+
+			// --- Tab: Реквизиты ---
+			array(
+				'key'       => 'field_contacts_tab_requisites',
+				'label'     => 'Реквизиты',
+				'name'      => '',
+				'type'      => 'tab',
+				'placement' => 'top',
+				'endpoint'  => 0,
+			),
+			array(
+				'key'        => 'field_contacts_requisites',
+				'label'      => 'Блоки реквизитов',
+				'name'       => 'contacts_requisites',
+				'type'       => 'repeater',
+				'layout'     => 'block',
+				'sub_fields' => array(
+					array(
+						'key'          => 'field_requisite_text',
+						'label'        => 'Текст',
+						'name'         => 'text',
+						'type'         => 'wysiwyg',
+						'tabs'         => 'visual',
+						'toolbar'      => 'basic',
+						'media_upload' => 0,
+					),
+				),
+			),
+
+			// --- Tab: Форма ---
+			array(
+				'key'       => 'field_contacts_tab_form',
+				'label'     => 'Форма',
+				'name'      => '',
+				'type'      => 'tab',
+				'placement' => 'top',
+				'endpoint'  => 0,
+			),
+			array(
+				'key'   => 'field_contacts_form_title',
+				'label' => 'Заголовок формы',
+				'name'  => 'contacts_form_title',
+				'type'  => 'text',
+			),
+		),
+		'location' => array(
+			array(
+				array(
+					'param'    => 'page_template',
+					'operator' => '==',
+					'value'    => 'page-contacts.php',
+				),
+			),
+		),
+		'menu_order'            => 0,
+		'position'              => 'normal',
+		'style'                 => 'default',
+		'label_placement'       => 'top',
+		'instruction_placement' => 'label',
+		'hide_on_screen'        => '',
+		'active'                => true,
+		'description'           => '',
+	) );
+
+	update_option( 'titan_acf_groups_contacts_v1', true );
+}
+
+/**
  * ACF Local JSON: save path
  */
 add_filter( 'acf/settings/save_json', 'titan_acf_json_save_point' );

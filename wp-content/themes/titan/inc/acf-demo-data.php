@@ -113,6 +113,41 @@ function titan_acf_import_demo_data() {
 }
 
 /**
+ * ACF Demo Data: Контакты (v3)
+ */
+add_action( 'acf/init', 'titan_acf_import_contacts_demo', 20 );
+
+function titan_acf_import_contacts_demo() {
+	if ( get_option( 'titan_acf_demo_contacts_v1' ) ) {
+		return;
+	}
+
+	if ( ! function_exists( 'update_field' ) || ! function_exists( 'titan_get_page_by_template' ) ) {
+		return;
+	}
+
+	$contacts_page_id = titan_get_page_by_template( 'page-contacts.php' );
+	if ( ! $contacts_page_id ) {
+		return;
+	}
+
+	update_field( 'contacts_title', 'Контакты', $contacts_page_id );
+	update_field( 'contacts_address', 'ул. Дружбы 5–40, г. Альметьевск, респ. Татарстан, Россия, 423453', $contacts_page_id );
+	update_field( 'contacts_phone', '+7 (495) 970-26-98', $contacts_page_id );
+	update_field( 'contacts_phone_raw', '+74959702698', $contacts_page_id );
+	update_field( 'contacts_email', 'info@titan-project.ru', $contacts_page_id );
+
+	update_field( 'contacts_requisites', array(
+		array( 'text' => '<p>ООО «Титан-Проджект»<br>ИНН: 1644095518<br>КПП: 164401001</p>' ),
+		array( 'text' => '<p>ИП Ахмадиева Ольга Анатольевна<br>ИНН: 164406464347<br>Свидетельство о регистрации: 16 №006219266 от 11.10.2011</p>' ),
+	), $contacts_page_id );
+
+	update_field( 'contacts_form_title', 'Свяжитесь с нами', $contacts_page_id );
+
+	update_option( 'titan_acf_demo_contacts_v1', true );
+}
+
+/**
  * Helper: find page ID by template.
  */
 if ( ! function_exists( 'titan_get_page_by_template' ) ) {

@@ -199,7 +199,28 @@ $(document).ready(function(){
 
 	$('.search .clean').on('click', function(){
 		$(this).fadeOut(300).parents('.search').find('input[type="search"]').val('');
-	}); 
+	});
+
+	// =========================================
+	// Catalog sidebar: subcategories toggle
+	// =========================================
+	$(document).on('click', '.item.parent input[type="radio"]', function(){
+		if($(this).prop('checked')){
+			$('.item .subcategories.active').removeClass('active').slideUp(300);
+			$(this).parents('.item').find('.subcategories').addClass('active').slideDown(300);
+		}
+	});
+
+	// "Все" radio — close all subcategories
+	$(document).on('click', '.category-list > .item:not(.parent) input[type="radio"]', function(){
+		$('.item .subcategories.active').removeClass('active').slideUp(300);
+	});
+
+	// "Показать все" — expand subcategory list
+	$(document).on('click', '.show-all', function(){
+		$(this).hide().parents('.subcategories').find('.list').css('max-height', '100%');
+		return false;
+	});
 
 	// =========================================
 	// Личный кабинет — обработчики перенесены в WP account-scripts.php

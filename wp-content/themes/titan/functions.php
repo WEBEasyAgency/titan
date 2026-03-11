@@ -715,11 +715,12 @@ function titan_render_catalog_table( $category_id = null ) {
 		'order'          => 'ASC',
 	);
 	if ( $category_id ) {
+		$terms = is_array( $category_id ) ? array_map( 'intval', $category_id ) : intval( $category_id );
 		$query_args['tax_query'] = array(
 			array(
 				'taxonomy' => 'product_cat',
 				'field'    => 'term_id',
-				'terms'    => intval( $category_id ),
+				'terms'    => $terms,
 			),
 		);
 	}
@@ -785,6 +786,36 @@ function titan_render_catalog_table( $category_id = null ) {
 	<?php
 	return ob_get_clean();
 }
+
+// =========================================
+// 19b. Catalog Filter (AJAX)
+// =========================================
+function titan_ajax_filter_catalog() {
+	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
+
+	$category_id     = intval( $_POST['category_id'] ?? 0 );
+	$subcategory_ids = isset( $_POST['subcategory_ids'] ) ? array_map( 'intval', (array) $_POST['subcategory_ids'] ) : array();
+	$subcategory_ids = array_filter( $subcategory_ids );
+
+	if ( ! empty( $subcategory_ids ) ) {
+		echo titan_render_catalog_table( $subcategory_ids );
+	} elseif ( $category_id > 0 ) {
+		$child_ids = get_terms( array(
+			'taxonomy'   => 'product_cat',
+			'hide_empty' => false,
+			'parent'     => $category_id,
+			'fields'     => 'ids',
+		) );
+		$all_ids = array_merge( array( $category_id ), is_array( $child_ids ) ? $child_ids : array() );
+		echo titan_render_catalog_table( $all_ids );
+	} else {
+		echo titan_render_catalog_table();
+	}
+
+	wp_die();
+}
+add_action( 'wp_ajax_titan_filter_catalog', 'titan_ajax_filter_catalog' );
+add_action( 'wp_ajax_nopriv_titan_filter_catalog', 'titan_ajax_filter_catalog' );
 
 // =========================================
 // 20. My Account: Custom Endpoints
