@@ -897,6 +897,11 @@ h4 {
       padding: 16px;
       display: none;
       z-index: 10;
+      .no-results {
+        padding: 8px 0;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.5);
+      }
       .item {
         display: grid;
         grid-template-columns: 88px auto 120px;

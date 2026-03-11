@@ -308,7 +308,7 @@ add_action( 'wp_enqueue_scripts', 'titan_wc_localize', 20 );
 function titan_ajax_product_search() {
 	check_ajax_referer( 'titan_wc_nonce', 'nonce' );
 	$term = sanitize_text_field( $_POST['term'] ?? '' );
-	if ( strlen( $term ) < 3 ) {
+	if ( empty( $term ) ) {
 		wp_send_json_success( array() );
 	}
 

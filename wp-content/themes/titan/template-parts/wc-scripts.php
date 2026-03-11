@@ -70,7 +70,7 @@ jQuery(function($) {
 				});
 				$results.show();
 			} else {
-				$results.hide();
+				$results.html('<div class="no-results">Ничего не найдено</div>').show();
 			}
 		});
 	}
@@ -83,7 +83,31 @@ jQuery(function($) {
 	$(document).on('submit', '#titan-product-search-form', function(e) {
 		e.preventDefault();
 		clearTimeout(searchTimer);
-		titanProductSearch();
+		var term = $('#titan-search-input').val();
+		if (term.length > 0) {
+			$.post(titan_wc.ajax_url, {
+				action: 'titan_product_search',
+				nonce: titan_wc.nonce,
+				term: term
+			}, function(response) {
+				var $results = $('#titan-search-results');
+				$results.empty();
+				if (response.success && response.data.length) {
+					$.each(response.data, function(i, item) {
+						$results.append(
+							'<div class="item">' +
+								'<div class="img"><a href="' + item.url + '"><img src="' + item.img + '" alt=""></a></div>' +
+								'<div class="name"><a href="' + item.url + '">' + item.name + '</a></div>' +
+								'<div class="price">' + item.price + '</div>' +
+							'</div>'
+						);
+					});
+					$results.show();
+				} else {
+					$results.html('<div class="no-results">Ничего не найдено</div>').show();
+				}
+			});
+		}
 	});
 
 	// Close search results on click outside
