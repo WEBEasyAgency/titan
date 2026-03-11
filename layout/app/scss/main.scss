@@ -1743,6 +1743,38 @@ h4 {
 			}
 		}
 	}
+	.develop-block{
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin: 32px auto 0;
+		max-width: 548px;
+		@media only screen and (max-width: 767px){
+			margin-top: 24px;
+		}
+		&::before{
+			content: url(../img/dest/not-found-left.svg);
+		}
+		&::after{
+			content: url(../img/dest/not-found-right.svg);
+		}
+		.text{
+			font-size: 24px;
+			line-height: 130%;
+			font-weight: 600;
+			text-align: center;
+			@media only screen and (max-width: 767px){
+				font-size: 20px;
+			}
+		}
+	}
+	.contacts-form{
+		padding-top: 80px;
+		background-color: var(--gray);
+		@media only screen and (max-width: 767px){
+			padding-top: 64px;
+		}
+	}
 }
 
 .project-detail-page{
