@@ -83,6 +83,14 @@ jQuery(function($) {
 		e.preventDefault();
 	});
 
+	// Close search results on click outside
+	$(document).on('mouseup', function(e) {
+		var $block = $('.search-block');
+		if (!$block.is(e.target) && $block.has(e.target).length === 0) {
+			$('#titan-search-results').hide();
+		}
+	});
+
 	// ============ Cart Page: AJAX Quantity Updates ============
 	var cartTimer;
 	$(document).on('click', '.cart-page .quantity-block .minus, .cart-page .quantity-block .plus', function() {

@@ -9,6 +9,7 @@
 require_once get_template_directory() . '/inc/acf-fields.php';
 require_once get_template_directory() . '/inc/acf-demo-data.php';
 require_once get_template_directory() . '/inc/cpt-requests.php';
+require_once get_template_directory() . '/inc/cpt-projects.php';
 
 // =========================================
 // 1. Theme Setup
