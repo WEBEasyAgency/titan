@@ -152,10 +152,13 @@ jQuery(function($) {
 		if (catId > 0) {
 			var $parent = $checked.closest('.item.parent');
 			if ($parent.length) {
-				$parent.find('.subcategories input[type="checkbox"]:checked').not('[data-select-all]').each(function() {
-					var id = parseInt($(this).data('subcat-id'));
-					if (id > 0) subcatIds.push(id);
-				});
+				var $allCheckbox = $parent.find('input[data-select-all]');
+				if (!$allCheckbox.prop('checked')) {
+					$parent.find('.subcategories input[type="checkbox"]:checked').not('[data-select-all]').each(function() {
+						var id = parseInt($(this).data('subcat-id'));
+						if (id > 0) subcatIds.push(id);
+					});
+				}
 			}
 		}
 
@@ -175,13 +178,18 @@ jQuery(function($) {
 
 	// Radio: select category
 	$(document).on('change', '.category-list input[type="radio"]', function() {
+		var $parent = $(this).closest('.item.parent');
+		if ($parent.length) {
+			$parent.find('input[data-select-all]').prop('checked', true);
+			$parent.find('.subcategories input[type="checkbox"]').not('[data-select-all]').prop('checked', false);
+		}
 		titanFilterCatalog();
 	});
 
-	// Checkbox "Все": toggle all subcategories
+	// Checkbox "Все": reset subcategories, show all products of category
 	$(document).on('change', '.subcategories input[data-select-all]', function() {
-		var checked = $(this).prop('checked');
-		$(this).closest('.subcategories').find('input[type="checkbox"]').not(this).prop('checked', checked);
+		$(this).prop('checked', true);
+		$(this).closest('.subcategories').find('input[type="checkbox"]').not(this).prop('checked', false);
 		titanFilterCatalog();
 	});
 
@@ -189,9 +197,12 @@ jQuery(function($) {
 	$(document).on('change', '.subcategories input[type="checkbox"]:not([data-select-all])', function() {
 		var $subs = $(this).closest('.subcategories');
 		var $all = $subs.find('input[data-select-all]');
-		var total = $subs.find('input[type="checkbox"]').not('[data-select-all]').length;
-		var checked = $subs.find('input[type="checkbox"]:checked').not('[data-select-all]').length;
-		$all.prop('checked', checked === total);
+		var anyChecked = $subs.find('input[type="checkbox"]:checked').not('[data-select-all]').length > 0;
+		if (anyChecked) {
+			$all.prop('checked', false);
+		} else {
+			$all.prop('checked', true);
+		}
 		titanFilterCatalog();
 	});
 
