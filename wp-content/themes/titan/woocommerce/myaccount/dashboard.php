@@ -120,12 +120,12 @@ $legal_entities = titan_get_legal_entities( $user_id );
 					<input type="text" name="address" value="<?php echo esc_attr( $entity['office'] ); ?>" placeholder="Дом/офис/квартира">
 				</div>
 				<label class="checkbox">
-					<input type="checkbox" name="authorized" checked>
+					<input type="checkbox" name="authorized">
 					<span class="check"></span>
 					<span class="label">Я подтверждаю, что уполномочен представлять интересы данного юридического лица или ИП</span>
 				</label>
 				<label class="checkbox">
-					<input type="checkbox" name="personal_data" checked>
+					<input type="checkbox" name="personal_data">
 					<span class="check"></span>
 					<span class="label">Согласен на обработку персональных данных согласно ФЗ от 27 июля 2006 г. № 152-ФЗ «О персональных данных»</span>
 				</label>

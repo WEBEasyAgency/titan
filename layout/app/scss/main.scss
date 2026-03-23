@@ -4088,6 +4088,7 @@ label.password {
     }
     .history-detail-table__cell {
       background-color: var(--black);
+      white-space: nowrap;
       font-size: 10px;
       line-height: 150%;
       color: #ffffff;
