@@ -8,8 +8,8 @@
 		<div class="title">
 			<h4>Мы используем cookie</h4>
 		</div>
-		<div class="text">Используя сайт, вы соглашаетесь на обработку данных в Cookies для корректной работы сайта, вашей персонализации и других целей, предусмотренных <a target="_blank" href="https://docs.google.com/document/d/1jpQdOeP_Fh4LwUrf2g55WpN_QuJsMKIW/edit" class="btn ok-btn">Политикой</a>.</div>
-		<div class="btn-block"><a href="#" >Принимаю</a></div>
+		<div class="text">Используя сайт, вы соглашаетесь на обработку данных в Cookies для корректной работы сайта, вашей персонализации и других целей, предусмотренных <a target="_blank" href="https://docs.google.com/document/d/1jpQdOeP_Fh4LwUrf2g55WpN_QuJsMKIW/edit">Политикой</a>.</div>
+		<div class="btn ok-btn"><a href="#" class="btn ok-btn">Принимаю</a></div>
 	</div>
 </div>
 
