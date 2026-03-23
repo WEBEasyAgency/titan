@@ -1600,10 +1600,48 @@ function titan_remove_wc_account_navigation() {
 }
 add_action( 'init', 'titan_remove_wc_account_navigation' );
 
+// Custom order statuses: Paid & Accepted
+function titan_register_custom_order_statuses() {
+	register_post_status( 'wc-paid', array(
+		'label'                     => 'Оплачен',
+		'public'                    => true,
+		'exclude_from_search'       => false,
+		'show_in_admin_all_list'    => true,
+		'show_in_admin_status_list' => true,
+		/* translators: %s: number of orders */
+		'label_count'               => _n_noop( 'Оплачен <span class="count">(%s)</span>', 'Оплачен <span class="count">(%s)</span>' ),
+	) );
+	register_post_status( 'wc-accepted', array(
+		'label'                     => 'Принят',
+		'public'                    => true,
+		'exclude_from_search'       => false,
+		'show_in_admin_all_list'    => true,
+		'show_in_admin_status_list' => true,
+		/* translators: %s: number of orders */
+		'label_count'               => _n_noop( 'Принят <span class="count">(%s)</span>', 'Принят <span class="count">(%s)</span>' ),
+	) );
+}
+add_action( 'init', 'titan_register_custom_order_statuses' );
+
+function titan_add_custom_order_statuses( $order_statuses ) {
+	$new = array();
+	foreach ( $order_statuses as $key => $label ) {
+		$new[ $key ] = $label;
+		if ( 'wc-pending' === $key ) {
+			$new['wc-paid']     = 'Оплачен';
+			$new['wc-accepted'] = 'Принят';
+		}
+	}
+	return $new;
+}
+add_filter( 'wc_order_statuses', 'titan_add_custom_order_statuses' );
+
 // Helper: Get WC order status label in Russian
 function titan_order_status_label( $status ) {
 	$statuses = array(
 		'pending'    => 'Ожидает оплаты',
+		'paid'       => 'Оплачен',
+		'accepted'   => 'Принят',
 		'processing' => 'В процессе',
 		'on-hold'    => 'На удержании',
 		'completed'  => 'Получен',

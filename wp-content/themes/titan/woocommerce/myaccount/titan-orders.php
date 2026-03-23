@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
 
 $orders = wc_get_orders( array(
 	'customer_id' => get_current_user_id(),
-	'status'      => array( 'wc-pending', 'wc-processing', 'wc-on-hold' ),
+	'status'      => array( 'wc-pending', 'wc-paid', 'wc-accepted', 'wc-processing', 'wc-on-hold' ),
 	'limit'       => -1,
 	'orderby'     => 'date',
 	'order'       => 'DESC',
