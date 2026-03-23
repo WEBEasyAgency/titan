@@ -3398,7 +3398,7 @@ label.password {
 
 .checkout-subtotal {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   gap: 16px;
   margin-top: 16px;
@@ -4067,9 +4067,8 @@ label.password {
       flex-direction: column;
       align-items: flex-end;
       gap: 16px;
-      border-left: 1px solid var(--black);
-      border-right: 1px solid var(--black);
-      border-bottom: 1px solid var(--black);
+      border: 1px solid var(--black);
+      border-top: 1px solid var(--black);
     }
   }
 }
