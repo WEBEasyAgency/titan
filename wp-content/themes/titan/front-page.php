@@ -28,8 +28,8 @@ $slogan_text  = get_field( 'medium_description' ) ?: 'Ваша идея - наш
 						</div>
 					<?php endif; ?>
 					<div class="btn-block">
-						<a href="#" class="btn">Разработка электроники</a>
-						<a href="#" class="btn">Производство электроники</a>
+						<a href="/razrabotka/" class="btn">Разработка электроники</a>
+						<a href="/proizvodstvo/" class="btn">Производство электроники</a>
 					</div>
 				</div>
 				<div class="img">
